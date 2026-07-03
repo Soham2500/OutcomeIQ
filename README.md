@@ -73,6 +73,7 @@ These documents define the architecture and product rules that implementation mu
 - [GitHub setup guide](docs/github-setup.md)
 - [Day 3 database setup plan](docs/day-3-database-setup-plan.md)
 - [Day 3 local environment setup](docs/day-3-local-env-setup.md)
+- [Safe Day 3 `.env` template](docs/day-3-env-template.md)
 - [Local PostgreSQL setup](docs/postgresql-local-setup.md)
 - [Day 3 checkpoint](docs/day-3-checkpoint.md)
 
@@ -214,11 +215,21 @@ Create the local environment file manually if needed:
 Copy-Item backend\.env.example backend\.env
 ```
 
-Leave `DATABASE_URL=` empty until PostgreSQL is manually available. Check database readiness without starting FastAPI:
+Edit only the private `backend\.env` file and use this format:
+
+```text
+DATABASE_URL=postgresql+psycopg2://postgres:YOUR_PASSWORD@localhost:5432/outcomeiq_dev
+```
+
+Replace `YOUR_PASSWORD` locally and never commit the file. Before PostgreSQL or `.env` setup, the expected diagnostic output is `DATABASE NOT CONFIGURED`.
+
+Check database readiness without starting FastAPI:
 
 ```powershell
 .\scripts\check_db_ready.ps1
 ```
+
+After PostgreSQL, `outcomeiq_dev` and the private URL are configured, the expected output is `DATABASE CONNECTED`. `DATABASE ERROR` means the configured connection could not be verified; the script does not expose the URL.
 
 When PostgreSQL is configured, Alembic can inspect the empty migration state from the backend directory:
 
@@ -229,6 +240,8 @@ alembic history
 ```
 
 No migration revision exists yet. Do not run `alembic upgrade` until a reviewed model and migration are added in a later milestone.
+
+No business table, metadata/version table or migration has been created.
 
 ## Next development steps
 

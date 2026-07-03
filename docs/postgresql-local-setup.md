@@ -12,6 +12,37 @@ Choose one PostgreSQL environment:
 
 The instructions below assume local PostgreSQL on Windows.
 
+## SQL Helper File
+
+The repository contains a password-free helper at:
+
+```text
+database/local/create_outcomeiq_dev.sql
+```
+
+Its only statement creates the empty `outcomeiq_dev` database. It does not create schemas, tables, users or application data and is safe to commit.
+
+To use it manually, open the file in pgAdmin’s Query Tool while connected to an existing administrative database such as `postgres`, then execute it once. Do not run it again after `outcomeiq_dev` exists.
+
+The PostgreSQL password must remain only in the ignored local `backend/.env` file. Never place the password in this SQL helper, documentation or Git-tracked configuration, and never commit `backend/.env`.
+
+## Manual Steps for Soham Using pgAdmin
+
+1. Open **pgAdmin**.
+2. Log in using the PostgreSQL master password selected during installation.
+3. Expand **Servers** and then the local PostgreSQL server.
+4. Right-click **Databases**.
+5. Select **Create → Database**, name it `outcomeiq_dev` and save it.
+6. Do not create tables manually.
+7. Open the folder `C:\Users\soham\OneDrive\Documents\pro\backend`.
+8. Create a private file named `.env` by copying `.env.example` if necessary.
+9. Set `DATABASE_URL` with the correct local PostgreSQL password.
+10. Return to the project root and run `.\scripts\check_db_ready.ps1`.
+11. Start the backend with `.\scripts\run_backend.ps1`.
+12. Open `http://127.0.0.1:8000/api/v1/ready` and confirm `database` is `connected`.
+
+These steps create only the empty development database. OutcomeIQ tables will be created later through reviewed Alembic migrations.
+
 ## 1. Start PostgreSQL
 
 Confirm the PostgreSQL Windows service is running. Then open either:
@@ -35,6 +66,14 @@ Do not create tables manually in pgAdmin.
 ## 3. Create the Development Database with `psql`
 
 If using `psql`, connect to the local server as an administrator and create a database named `outcomeiq_dev` through PostgreSQL’s normal database-creation command.
+
+If the PostgreSQL `createdb` utility is available on `PATH`, the beginner-safe alternative is:
+
+```powershell
+createdb -U postgres outcomeiq_dev
+```
+
+The command prompts for credentials according to the local PostgreSQL configuration. Do not put the password directly in the command.
 
 For the first connectivity check, the existing local `postgres` user may be used. A dedicated non-superuser application role should be created before broader development or shared deployment.
 

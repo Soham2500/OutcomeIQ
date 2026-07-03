@@ -48,7 +48,10 @@ $RequiredPaths = @(
     @{ Label = "Docker check script"; RelativePath = "scripts\check_docker.ps1" },
     @{ Label = "Database readiness script"; RelativePath = "scripts\check_db_ready.ps1" },
     @{ Label = "Day 3 local environment guide"; RelativePath = "docs\day-3-local-env-setup.md" },
-    @{ Label = "Local PostgreSQL guide"; RelativePath = "docs\postgresql-local-setup.md" }
+    @{ Label = "Day 3 environment template"; RelativePath = "docs\day-3-env-template.md" },
+    @{ Label = "Local PostgreSQL guide"; RelativePath = "docs\postgresql-local-setup.md" },
+    @{ Label = "Database readiness Python helper"; RelativePath = "backend\scripts\check_db_connection.py" },
+    @{ Label = "Local database creation SQL helper"; RelativePath = "database\local\create_outcomeiq_dev.sql" }
 )
 
 foreach ($Required in $RequiredPaths) {

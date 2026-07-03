@@ -233,7 +233,15 @@ Create `backend\.env` manually from the safe example if needed:
 Copy-Item .env.example .env
 ```
 
-Leave `DATABASE_URL=` empty until PostgreSQL is available. From the project root, check status with:
+Set the private local value using this format:
+
+```text
+DATABASE_URL=postgresql+psycopg2://postgres:YOUR_PASSWORD@localhost:5432/outcomeiq_dev
+```
+
+Replace `YOUR_PASSWORD` locally. Never commit or print the completed URL.
+
+From the project root, check status with:
 
 ```powershell
 .\scripts\check_db_ready.ps1
@@ -241,9 +249,9 @@ Leave `DATABASE_URL=` empty until PostgreSQL is available. From the project root
 
 The result is one of:
 
-- `DATABASE NOT CONFIGURED`
-- `DATABASE CONNECTED`
-- `DATABASE ERROR`
+- `DATABASE NOT CONFIGURED` before `.env`/URL setup; acceptable in early Day 3
+- `DATABASE CONNECTED` after PostgreSQL and credentials are correct
+- `DATABASE ERROR` when configured connectivity fails or the script cannot complete
 
 The check performs only `SELECT 1`. It never creates a database, table or migration.
 
@@ -259,6 +267,8 @@ alembic history
 ```
 
 No revision file exists yet. Do not run upgrade, downgrade or autogeneration commands until the first model slice and migration plan have been reviewed.
+
+No database table or Alembic migration has been created.
 
 ## Troubleshooting
 

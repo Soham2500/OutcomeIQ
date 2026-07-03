@@ -2,6 +2,14 @@
 
 This guide configures the local backend environment for PostgreSQL without committing credentials or creating tables.
 
+The exact private file path is:
+
+```text
+C:\Users\soham\OneDrive\Documents\pro\backend\.env
+```
+
+`backend/.env` is the private local configuration file for this development machine. It is excluded by `.gitignore` and must never be committed.
+
 ## 1. Create `backend/.env` Manually
 
 From the project root in Windows PowerShell:
@@ -34,7 +42,15 @@ Example format:
 postgresql+psycopg2://postgres:your_password@localhost:5432/outcomeiq_dev
 ```
 
+Exact variable format inside `backend/.env`:
+
+```text
+DATABASE_URL=postgresql+psycopg2://postgres:YOUR_PASSWORD@localhost:5432/outcomeiq_dev
+```
+
 Replace `your_password` only inside the uncommitted `backend/.env` file.
+
+Do not place the real password in README files, documentation, SQL helpers, source code, screenshots or Git-tracked files.
 
 If the password contains reserved URL characters such as `@`, `:`, `/`, `#` or `%`, URL-encode it or use a password without those characters for local development. Never print the final URL in logs or screenshots.
 
@@ -90,6 +106,44 @@ Possible results:
 
 The script never installs packages, creates databases, creates tables or runs migrations.
 
+### Test before creating `.env`
+
+If `backend/.env` does not exist, run:
+
+```powershell
+.\scripts\check_db_ready.ps1
+```
+
+Expected result:
+
+```text
+DATABASE NOT CONFIGURED
+```
+
+### Test after creating `.env`
+
+After PostgreSQL is running, `outcomeiq_dev` exists and `DATABASE_URL` is set, run the same command:
+
+```powershell
+.\scripts\check_db_ready.ps1
+```
+
+Expected result:
+
+```text
+DATABASE CONNECTED
+```
+
+Once the local database and private URL are correct, `DATABASE CONNECTED` is the expected Day 3 setup result.
+
+### Output meanings
+
+| Output | Meaning |
+|---|---|
+| `DATABASE NOT CONFIGURED` | `.env` is missing or `DATABASE_URL` is empty. This is acceptable in early Day 3. |
+| `DATABASE CONNECTED` | SQLAlchemy successfully executed `SELECT 1`. No table was created. |
+| `DATABASE ERROR` | A URL is configured but connectivity failed, or the verification script itself could not complete. Review the safe accompanying message. |
+
 ## 6. Check Readiness Through the API
 
 Before PostgreSQL configuration, start the API:
@@ -125,3 +179,32 @@ If the state is `error`, verify the database service, host, port, database name,
 Alembic reads the same `DATABASE_URL` through application settings. With no URL configured, Alembic stops with a clear error.
 
 No migration exists yet. Do not run upgrade commands until a reviewed migration has been created in a later step.
+
+## 8. Common Connection Errors
+
+### Wrong password
+
+PostgreSQL rejects the login and the check reports `DATABASE ERROR`. Re-enter the local password in `backend/.env`. Do not print or share the URL.
+
+### Database does not exist
+
+Confirm pgAdmin contains a database named exactly `outcomeiq_dev` and that the URL uses the same spelling.
+
+### PostgreSQL service is not running
+
+Start the PostgreSQL Windows service or local server, then rerun the check.
+
+### Port 5432 is blocked or changed
+
+Confirm PostgreSQL is listening on port `5432`. If installation uses another port, update only the local `.env` URL and local firewall configuration.
+
+### `psycopg2` is missing
+
+Activate the project virtual environment and install the existing requirements manually:
+
+```powershell
+.\.venv\Scripts\Activate.ps1
+pip install -r backend\requirements.txt
+```
+
+The verification script never installs missing packages automatically.
