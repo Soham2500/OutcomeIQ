@@ -18,6 +18,8 @@ $RequiredPaths = @(
     @{ Label = "System architecture document"; RelativePath = "docs\system-architecture.md" },
     @{ Label = "Database design document"; RelativePath = "docs\database-design.md" },
     @{ Label = "API design document"; RelativePath = "docs\api-design.md" },
+    @{ Label = "Day 2 final summary"; RelativePath = "docs\day-2-final-summary.md" },
+    @{ Label = "Day 3 database setup plan"; RelativePath = "docs\day-3-database-setup-plan.md" },
     @{ Label = "FastAPI main module"; RelativePath = "backend\app\main.py" },
     @{ Label = "API v1 router"; RelativePath = "backend\app\api\v1\router.py" },
     @{ Label = "Health endpoints"; RelativePath = "backend\app\api\v1\endpoints\health.py" },

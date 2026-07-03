@@ -2,7 +2,7 @@
 
 **Project:** OutcomeIQ — Outcome-aware AI FinOps Platform  
 **Architecture:** FastAPI modular monolith  
-**Checkpoint status:** Approximately 85% complete; backend foundation and repository workflow are operational
+**Checkpoint status:** 100% complete; ready for Day 3 database setup
 
 **GitHub:** [https://github.com/Soham2500/OutcomeIQ](https://github.com/Soham2500/OutcomeIQ)
 
@@ -54,6 +54,16 @@ Expected and verified result:
 ```
 
 Tests cover the root, health and readiness endpoints. The Starlette/HTTPX warning remains visible and is not suppressed.
+
+## Smoke API Result
+
+The live smoke API check passes for:
+
+- `/`
+- `/api/v1/health`
+- `/api/v1/ready`
+
+Swagger UI also opens successfully at `/docs`.
 
 ## Project Folder Status
 
@@ -113,13 +123,17 @@ The current milestone validates the application boundary, configuration, routing
 
 Authentication depends on stable shared responses, errors, request correlation and persistence decisions. Implementing JWT behavior now would mix security, database and API concerns into the foundation milestone. Authentication remains planned but intentionally sequenced after the common API infrastructure and initial database foundation.
 
-## Remaining Day 2 Steps
+## Day 2 Closure
 
-- Add shared success and error response schemas
-- Add request-correlation middleware
-- Add central exception handling
-- Add configuration and error-response tests
-- Preserve current health endpoint behavior
+- Backend foundation: complete
+- GitHub connection: complete
+- Repository formatting and developer scripts: complete
+- Automated tests: passing
+- Live smoke API check: passing
+- Closure documentation: complete
+- Day 3 preparation plan: complete
+
+Day 2 is now closed at **100% complete**.
 
 ## Day 3 Preview
 
@@ -130,3 +144,5 @@ Authentication depends on stable shared responses, errors, request correlation a
 - Review the first approved model/migration slice before creating tables
 
 No Day 3 work should bypass `database-design.md` or create the entire schema at once.
+
+OutcomeIQ is ready to begin the controlled PostgreSQL, SQLAlchemy and Alembic setup described in `day-3-database-setup-plan.md`.

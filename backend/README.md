@@ -4,6 +4,8 @@ Initial FastAPI modular-monolith foundation for the OutcomeIQ outcome-aware AI F
 
 ## Current status
 
+**Day 2 final status: 100% complete.** The foundation, tests, smoke checks, repository automation and closure documentation are verified.
+
 Available now:
 
 - FastAPI application setup
@@ -162,6 +164,26 @@ python -m pytest tests\test_health.py -v
 ```
 
 The pytest configuration intentionally leaves warnings visible.
+
+The current `StarletteDeprecationWarning` related to FastAPI TestClient and HTTPX is non-blocking. It does not change the `3 passed` result and should remain visible until the upstream compatibility path is addressed deliberately.
+
+## Verified commands
+
+From the project root:
+
+```powershell
+.\scripts\day2_verify.ps1
+.\scripts\test_backend.ps1
+.\scripts\run_backend.ps1
+```
+
+With the API running in the first window, use a second PowerShell window:
+
+```powershell
+.\scripts\smoke_api.ps1
+```
+
+Verified results are three passing pytest tests and successful root, health and readiness smoke checks.
 
 ## Run with Docker
 

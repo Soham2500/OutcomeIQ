@@ -7,10 +7,11 @@ OutcomeIQ is an outcome-aware AI FinOps platform that connects the complete cost
 ## Current Development Status
 
 - **Day 1 planning:** Complete
-- **Day 2 backend foundation:** Complete
+- **Day 2 backend foundation and closure:** 100% complete
 - **FastAPI application:** Running successfully
 - **Swagger UI:** Working
 - **Automated tests:** 3 health/foundation tests passing
+- **Smoke API check:** Root, health and readiness passing
 - **PostgreSQL:** Not configured yet
 - **Authentication:** Not implemented yet
 - **Frontend:** Not implemented yet
@@ -60,6 +61,14 @@ The Day 1 planning package contains:
 - [Day 2 checkpoint](docs/day-2-checkpoint.md)
 
 These documents define the architecture and product rules that implementation must follow.
+
+## Day 2 documentation
+
+- [Backend foundation progress](docs/day-2-backend-foundation.md)
+- [Day 2 checkpoint](docs/day-2-checkpoint.md)
+- [Day 2 final summary](docs/day-2-final-summary.md)
+- [GitHub setup guide](docs/github-setup.md)
+- [Day 3 database setup plan](docs/day-3-database-setup-plan.md)
 
 ## Backend foundation status
 
@@ -190,19 +199,14 @@ The readiness endpoint intentionally reports PostgreSQL and Redis as `not_config
 
 ## Next development steps
 
-### Remaining Day 2 hardening
-
-- Add shared response and error schemas
-- Add request-correlation middleware
-- Add central exception handling
-- Add focused tests for configuration and error behavior
-
-### Day 3 database foundation
+### Next milestone: Day 3 PostgreSQL, SQLAlchemy and Alembic
 
 - Configure PostgreSQL connection settings
 - Add SQLAlchemy declarative base and session factory
 - Initialize Alembic configuration
 - Test connection lifecycle separately
 - Introduce domain models only after reviewing the database design sequence
+
+Follow [the Day 3 setup plan](docs/day-3-database-setup-plan.md). Day 3 should establish safe connectivity and migration infrastructure before creating the complete domain schema.
 
 Authentication and frontend implementation remain later milestones.
