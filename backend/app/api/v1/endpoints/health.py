@@ -3,6 +3,7 @@
 from fastapi import APIRouter
 
 from app.core.config import get_settings
+from app.db.health import check_database_connection
 
 
 router = APIRouter(tags=["system"])
@@ -21,11 +22,13 @@ async def health_check() -> dict[str, str]:
 
 
 @router.get("/ready")
-async def readiness_check() -> dict[str, str]:
+def readiness_check() -> dict[str, str]:
     """Report dependency readiness without opening external connections."""
+
+    database_health = check_database_connection()
 
     return {
         "status": "ready",
-        "database": "not_configured",
+        "database": database_health["status"],
         "redis": "not_configured",
     }

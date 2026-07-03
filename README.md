@@ -12,7 +12,9 @@ OutcomeIQ is an outcome-aware AI FinOps platform that connects the complete cost
 - **Swagger UI:** Working
 - **Automated tests:** 3 health/foundation tests passing
 - **Smoke API check:** Root, health and readiness passing
-- **PostgreSQL:** Not configured yet
+- **Day 3 database foundation:** Started; conditional SQLAlchemy session and Alembic scaffolding added
+- **PostgreSQL:** Optional and not locally configured yet
+- **Database migrations/tables:** None created
 - **Authentication:** Not implemented yet
 - **Frontend:** Not implemented yet
 
@@ -37,6 +39,7 @@ The project currently provides a clean FastAPI modular-monolith foundation with 
 pro/
 ├── backend/                    FastAPI modular-monolith backend
 │   ├── app/                    Application source
+│   ├── alembic/                Migration environment; no revisions yet
 │   ├── tests/                  Backend tests
 │   ├── scripts/                Future administrative scripts
 │   ├── Dockerfile
@@ -69,6 +72,9 @@ These documents define the architecture and product rules that implementation mu
 - [Day 2 final summary](docs/day-2-final-summary.md)
 - [GitHub setup guide](docs/github-setup.md)
 - [Day 3 database setup plan](docs/day-3-database-setup-plan.md)
+- [Day 3 local environment setup](docs/day-3-local-env-setup.md)
+- [Local PostgreSQL setup](docs/postgresql-local-setup.md)
+- [Day 3 checkpoint](docs/day-3-checkpoint.md)
 
 ## Backend foundation status
 
@@ -79,7 +85,9 @@ The Day 2 foundation includes:
 - Configurable CORS origins
 - Environment-based application settings
 - Structured JSON console logging
-- Placeholder database-session module with no connection
+- Conditional SQLAlchemy engine/session foundation with no import-time connection
+- Safe database `SELECT 1` readiness helper
+- Alembic environment with empty model metadata and no migration revisions
 - Root, health and readiness routes
 - Three endpoint tests
 - Backend-only Docker configuration
@@ -97,6 +105,7 @@ From the project root, PowerShell helpers are available for common tasks:
 .\scripts\run_backend.ps1
 .\scripts\smoke_api.ps1
 .\scripts\check_docker.ps1
+.\scripts\check_db_ready.ps1
 ```
 
 The check and verification scripts do not install packages, create databases or start Uvicorn. `run_backend.ps1` starts the server only when explicitly invoked. The smoke script expects an already-running API.
@@ -195,18 +204,42 @@ After introducing `.gitattributes`, future Git operations may report normalized 
 | GET | `/api/v1/ready` | Current dependency readiness |
 | GET | `/docs` | Swagger UI |
 
-The readiness endpoint intentionally reports PostgreSQL and Redis as `not_configured`.
+The readiness endpoint reports PostgreSQL as `not_configured`, `connected` or `error`. Redis remains `not_configured`. A missing database never prevents FastAPI startup.
+
+## Day 3 database foundation
+
+Create the local environment file manually if needed:
+
+```powershell
+Copy-Item backend\.env.example backend\.env
+```
+
+Leave `DATABASE_URL=` empty until PostgreSQL is manually available. Check database readiness without starting FastAPI:
+
+```powershell
+.\scripts\check_db_ready.ps1
+```
+
+When PostgreSQL is configured, Alembic can inspect the empty migration state from the backend directory:
+
+```powershell
+cd backend
+alembic current
+alembic history
+```
+
+No migration revision exists yet. Do not run `alembic upgrade` until a reviewed model and migration are added in a later milestone.
 
 ## Next development steps
 
-### Next milestone: Day 3 PostgreSQL, SQLAlchemy and Alembic
+### Next milestone: complete Day 3 PostgreSQL connectivity
 
-- Configure PostgreSQL connection settings
-- Add SQLAlchemy declarative base and session factory
-- Initialize Alembic configuration
-- Test connection lifecycle separately
-- Introduce domain models only after reviewing the database design sequence
+- Manually create the local `outcomeiq_dev` database
+- Add the private local `DATABASE_URL` to `backend/.env`
+- Verify `DATABASE CONNECTED` and API readiness
+- Add focused session and connection tests
+- Review the first tenant model slice before creating any migration
 
-Follow [the Day 3 setup plan](docs/day-3-database-setup-plan.md). Day 3 should establish safe connectivity and migration infrastructure before creating the complete domain schema.
+Follow [the Day 3 setup plan](docs/day-3-database-setup-plan.md) and [local PostgreSQL guide](docs/postgresql-local-setup.md). Domain models and migrations remain separate reviewed work.
 
 Authentication and frontend implementation remain later milestones.

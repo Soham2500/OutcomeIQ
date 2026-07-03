@@ -25,7 +25,13 @@ $RequiredPaths = @(
     @{ Label = "Health endpoints"; RelativePath = "backend\app\api\v1\endpoints\health.py" },
     @{ Label = "Core configuration"; RelativePath = "backend\app\core\config.py" },
     @{ Label = "Structured logging"; RelativePath = "backend\app\core\logging.py" },
-    @{ Label = "Database session placeholder"; RelativePath = "backend\app\db\session.py" },
+    @{ Label = "Database session foundation"; RelativePath = "backend\app\db\session.py" },
+    @{ Label = "SQLAlchemy declarative base"; RelativePath = "backend\app\db\base.py" },
+    @{ Label = "Database health helper"; RelativePath = "backend\app\db\health.py" },
+    @{ Label = "Alembic configuration"; RelativePath = "backend\alembic.ini" },
+    @{ Label = "Alembic environment"; RelativePath = "backend\alembic\env.py" },
+    @{ Label = "Alembic revision template"; RelativePath = "backend\alembic\script.py.mako" },
+    @{ Label = "Alembic versions placeholder"; RelativePath = "backend\alembic\versions\.gitkeep" },
     @{ Label = "Backend requirements"; RelativePath = "backend\requirements.txt" },
     @{ Label = "Backend .env.example"; RelativePath = "backend\.env.example" },
     @{ Label = "Health tests"; RelativePath = "backend\tests\test_health.py" },
@@ -39,7 +45,10 @@ $RequiredPaths = @(
     @{ Label = "Backend test script"; RelativePath = "scripts\test_backend.ps1" },
     @{ Label = "Backend check script"; RelativePath = "scripts\check_backend.ps1" },
     @{ Label = "API smoke script"; RelativePath = "scripts\smoke_api.ps1" },
-    @{ Label = "Docker check script"; RelativePath = "scripts\check_docker.ps1" }
+    @{ Label = "Docker check script"; RelativePath = "scripts\check_docker.ps1" },
+    @{ Label = "Database readiness script"; RelativePath = "scripts\check_db_ready.ps1" },
+    @{ Label = "Day 3 local environment guide"; RelativePath = "docs\day-3-local-env-setup.md" },
+    @{ Label = "Local PostgreSQL guide"; RelativePath = "docs\postgresql-local-setup.md" }
 )
 
 foreach ($Required in $RequiredPaths) {

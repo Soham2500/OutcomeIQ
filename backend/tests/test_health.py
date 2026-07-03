@@ -3,6 +3,7 @@
 import pytest
 from fastapi.testclient import TestClient
 
+from app.db import health as database_health
 from app.main import app
 
 
@@ -34,12 +35,14 @@ def test_health(client: TestClient) -> None:
     }
 
 
-def test_ready(client: TestClient) -> None:
+def test_ready(client: TestClient, monkeypatch: pytest.MonkeyPatch) -> None:
+    # Readiness tests must never require a real PostgreSQL instance.
+    monkeypatch.setattr(database_health.settings, "DATABASE_URL", None)
     response = client.get("/api/v1/ready")
 
     assert response.status_code == 200
-    assert response.json() == {
-        "status": "ready",
-        "database": "not_configured",
-        "redis": "not_configured",
-    }
+    payload = response.json()
+    assert payload["status"] == "ready"
+    assert payload["database"] in {"not_configured", "connected", "error"}
+    assert payload["database"] == "not_configured"
+    assert payload["redis"] == "not_configured"

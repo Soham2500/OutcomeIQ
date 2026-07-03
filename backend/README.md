@@ -14,7 +14,10 @@ Available now:
 - Environment-backed settings
 - Configurable CORS origins
 - Structured JSON logging
-- A non-connecting database-session placeholder
+- SQLAlchemy declarative base with no business models
+- Conditional engine and session factory when `DATABASE_URL` is present
+- Safe database readiness check using `SELECT 1`
+- Alembic environment with no migration revisions
 - Basic endpoint tests
 - Docker packaging
 
@@ -22,10 +25,9 @@ Not implemented yet:
 
 - Authentication
 - Business APIs
-- PostgreSQL connection
-- SQLAlchemy models
+- Business SQLAlchemy models
 - Database tables
-- Alembic migrations
+- Alembic migration revisions
 - Redis integration
 - Frontend code
 
@@ -48,6 +50,7 @@ Set-ExecutionPolicy -Scope Process -ExecutionPolicy Bypass
 .\scripts\run_backend.ps1
 .\scripts\smoke_api.ps1
 .\scripts\check_docker.ps1
+.\scripts\check_db_ready.ps1
 ```
 
 - `check_backend.ps1` verifies the expected structure without changing anything.
@@ -56,6 +59,7 @@ Set-ExecutionPolicy -Scope Process -ExecutionPolicy Bypass
 - `run_backend.ps1` activates `.venv` and starts Uvicorn with auto-reload.
 - `smoke_api.ps1` checks the three running API endpoints from another terminal.
 - `check_docker.ps1` reports Docker and Compose availability without starting anything.
+- `check_db_ready.ps1` reports database configuration/connectivity without creating databases, tables or migrations.
 
 ## Setup on Windows PowerShell
 
@@ -101,7 +105,7 @@ Create a local environment file if one does not already exist:
 Copy-Item .env.example .env
 ```
 
-No PostgreSQL or Redis URL is required at this stage.
+No PostgreSQL or Redis URL is required for FastAPI startup. An empty `DATABASE_URL` reports `not_configured`.
 
 ## Run the FastAPI server
 
@@ -124,7 +128,7 @@ Open:
 |---|---|---|
 | GET | `/` | Basic service discovery |
 | GET | `/api/v1/health` | Process liveness |
-| GET | `/api/v1/ready` | Dependency readiness; database and Redis are not configured |
+| GET | `/api/v1/ready` | Dependency readiness; database is `not_configured`, `connected` or `error` |
 | GET | `/docs` | Swagger UI |
 
 ## Stop the server
@@ -221,6 +225,41 @@ Current optional placeholders:
 
 Do not use the example JWT secret in a deployed environment.
 
+## Database foundation
+
+Create `backend\.env` manually from the safe example if needed:
+
+```powershell
+Copy-Item .env.example .env
+```
+
+Leave `DATABASE_URL=` empty until PostgreSQL is available. From the project root, check status with:
+
+```powershell
+.\scripts\check_db_ready.ps1
+```
+
+The result is one of:
+
+- `DATABASE NOT CONFIGURED`
+- `DATABASE CONNECTED`
+- `DATABASE ERROR`
+
+The check performs only `SELECT 1`. It never creates a database, table or migration.
+
+## Alembic foundation
+
+Alembic uses `DATABASE_URL` from application settings and `Base.metadata` from `app/db/base.py`.
+
+After PostgreSQL is manually configured, these inspection commands are safe:
+
+```powershell
+alembic current
+alembic history
+```
+
+No revision file exists yet. Do not run upgrade, downgrade or autogeneration commands until the first model slice and migration plan have been reviewed.
+
 ## Troubleshooting
 
 ### PowerShell blocks virtual-environment activation
@@ -281,4 +320,4 @@ Confirm Docker Desktop is running and configured for Linux containers.
 
 ## Next steps
 
-Remaining backend-foundation work should add shared response/error schemas, request-correlation middleware and exception handling. PostgreSQL session setup, SQLAlchemy models and Alembic migrations remain Day 3 work and must follow the approved database design.
+The next database step is manual PostgreSQL creation and connectivity verification. Business SQLAlchemy models, migration revisions and tables remain deliberately unimplemented and must follow the approved database design.

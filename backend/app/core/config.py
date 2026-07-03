@@ -46,6 +46,12 @@ class Settings(BaseSettings):
             if origin.strip()
         ]
 
+    @property
+    def database_configured(self) -> bool:
+        """Return True only when a non-empty database URL is configured."""
+
+        return bool(self.DATABASE_URL and self.DATABASE_URL.strip())
+
 
 @lru_cache
 def get_settings() -> Settings:
