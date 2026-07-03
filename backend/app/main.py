@@ -9,6 +9,7 @@ from fastapi.middleware.cors import CORSMiddleware
 
 from app.api.v1.router import api_router
 from app.core.config import get_settings
+from app.core.constants import API_VERSION, SERVICE_NAME
 from app.core.logging import configure_logging
 
 
@@ -38,9 +39,9 @@ async def lifespan(_: FastAPI) -> AsyncIterator[None]:
 
 
 app = FastAPI(
-    title="OutcomeIQ API",
+    title=SERVICE_NAME,
     description="Outcome-aware AI FinOps Platform API",
-    version="0.1.0",
+    version=API_VERSION,
     lifespan=lifespan,
 )
 

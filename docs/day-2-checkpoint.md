@@ -2,7 +2,9 @@
 
 **Project:** OutcomeIQ — Outcome-aware AI FinOps Platform  
 **Architecture:** FastAPI modular monolith  
-**Checkpoint status:** Backend foundation and developer workflow complete
+**Checkpoint status:** Approximately 85% complete; backend foundation and repository workflow are operational
+
+**GitHub:** [https://github.com/Soham2500/OutcomeIQ](https://github.com/Soham2500/OutcomeIQ)
 
 ## Completed So Far
 
@@ -28,6 +30,11 @@
 - Root `.gitignore`
 - Developer PowerShell scripts
 - GitHub setup guide
+- GitHub remote connected on `main`
+- Repository formatting policies through `.gitattributes` and `.editorconfig`
+- Central service identity constants
+- API smoke-test script
+- Docker availability-check script
 
 ## Current Working Endpoints
 
@@ -67,8 +74,23 @@ Existing documentation remains in place; no files were moved.
 - `scripts/test_backend.ps1`
 - `scripts/check_backend.ps1`
 - `scripts/day2_verify.ps1`
+- `scripts/smoke_api.ps1`
+- `scripts/check_docker.ps1`
 - `docs/github-setup.md`
 - `docs/day-2-checkpoint.md`
+- `.gitattributes`
+- `.editorconfig`
+- `backend/app/core/constants.py`
+
+## Repository and Automation Status
+
+- GitHub remote is connected to `Soham2500/OutcomeIQ`.
+- The `main` branch was confirmed before this quality pass.
+- `.gitattributes` provides predictable line endings across Windows and GitHub.
+- `.editorconfig` provides consistent encoding and indentation across editors.
+- `day2_verify.ps1` validates documentation, backend files, formatting files, scripts and tests.
+- `smoke_api.ps1` checks the three live endpoints only when the developer has already started Uvicorn.
+- `check_docker.ps1` checks CLI availability without building images or starting containers.
 
 ## Intentionally Not Implemented
 

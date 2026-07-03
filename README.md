@@ -2,6 +2,8 @@
 
 OutcomeIQ is an outcome-aware AI FinOps platform that connects the complete cost of AI workflows to verified business outcomes. Its initial customer-support MVP is designed to prove that the cheapest workflow per attempt may not be the cheapest workflow per successful outcome.
 
+**GitHub:** [Soham2500/OutcomeIQ](https://github.com/Soham2500/OutcomeIQ)
+
 ## Current Development Status
 
 - **Day 1 planning:** Complete
@@ -75,7 +77,7 @@ The Day 2 foundation includes:
 
 See [Day 2 backend progress](docs/day-2-backend-foundation.md) and the [backend README](backend/README.md) for details.
 
-## Developer scripts
+## Development scripts
 
 From the project root, PowerShell helpers are available for common tasks:
 
@@ -84,9 +86,11 @@ From the project root, PowerShell helpers are available for common tasks:
 .\scripts\test_backend.ps1
 .\scripts\day2_verify.ps1
 .\scripts\run_backend.ps1
+.\scripts\smoke_api.ps1
+.\scripts\check_docker.ps1
 ```
 
-The check and verification scripts do not install packages, create databases or start Uvicorn. `run_backend.ps1` starts the server only when explicitly invoked.
+The check and verification scripts do not install packages, create databases or start Uvicorn. `run_backend.ps1` starts the server only when explicitly invoked. The smoke script expects an already-running API.
 
 ## Run the backend locally
 
@@ -141,6 +145,37 @@ The script checks required documentation, backend files, root files and the virt
 ```text
 DAY 2 CHECK PASSED
 ```
+
+## Smoke API check
+
+Start the API in one PowerShell window:
+
+```powershell
+.\scripts\run_backend.ps1
+```
+
+From a second PowerShell window at the project root, run:
+
+```powershell
+.\scripts\smoke_api.ps1
+```
+
+The script calls `/`, `/api/v1/health` and `/api/v1/ready`. It never starts the server automatically.
+
+## Docker availability check
+
+Check for the Docker CLI and Docker Compose plugin without building or starting anything:
+
+```powershell
+.\scripts\check_docker.ps1
+```
+
+## Repository formatting files
+
+- `.gitattributes` normalizes source, documentation and PowerShell scripts to LF for consistent cross-platform Git behavior.
+- `.editorconfig` standardizes UTF-8, final newlines, trailing whitespace and indentation.
+
+After introducing `.gitattributes`, future Git operations may report normalized line-ending changes once. Review the diff before committing.
 
 ## Available endpoints
 

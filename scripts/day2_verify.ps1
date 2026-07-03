@@ -29,10 +29,15 @@ $RequiredPaths = @(
     @{ Label = "Health tests"; RelativePath = "backend\tests\test_health.py" },
     @{ Label = "Backend README"; RelativePath = "backend\README.md" },
     @{ Label = "Root .gitignore"; RelativePath = ".gitignore" },
+    @{ Label = "Root .gitattributes"; RelativePath = ".gitattributes" },
+    @{ Label = "Root .editorconfig"; RelativePath = ".editorconfig" },
     @{ Label = "Root README"; RelativePath = "README.md" },
+    @{ Label = "Application constants"; RelativePath = "backend\app\core\constants.py" },
     @{ Label = "Backend run script"; RelativePath = "scripts\run_backend.ps1" },
     @{ Label = "Backend test script"; RelativePath = "scripts\test_backend.ps1" },
-    @{ Label = "Backend check script"; RelativePath = "scripts\check_backend.ps1" }
+    @{ Label = "Backend check script"; RelativePath = "scripts\check_backend.ps1" },
+    @{ Label = "API smoke script"; RelativePath = "scripts\smoke_api.ps1" },
+    @{ Label = "Docker check script"; RelativePath = "scripts\check_docker.ps1" }
 )
 
 foreach ($Required in $RequiredPaths) {

@@ -5,12 +5,14 @@ from functools import lru_cache
 from pydantic import field_validator
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
+from app.core.constants import API_VERSION, SERVICE_NAME
+
 
 class Settings(BaseSettings):
     """Runtime settings loaded from environment variables or a local .env file."""
 
-    APP_NAME: str = "OutcomeIQ API"
-    APP_VERSION: str = "0.1.0"
+    APP_NAME: str = SERVICE_NAME
+    APP_VERSION: str = API_VERSION
     ENVIRONMENT: str = "development"
     API_V1_PREFIX: str = "/api/v1"
     BACKEND_CORS_ORIGINS: str = "http://localhost:3000,http://localhost:5173"

@@ -44,12 +44,16 @@ Set-ExecutionPolicy -Scope Process -ExecutionPolicy Bypass
 .\scripts\test_backend.ps1
 .\scripts\day2_verify.ps1
 .\scripts\run_backend.ps1
+.\scripts\smoke_api.ps1
+.\scripts\check_docker.ps1
 ```
 
 - `check_backend.ps1` verifies the expected structure without changing anything.
 - `test_backend.ps1` activates `.venv` and runs pytest.
 - `day2_verify.ps1` checks all Day 1/2 deliverables and runs tests.
 - `run_backend.ps1` activates `.venv` and starts Uvicorn with auto-reload.
+- `smoke_api.ps1` checks the three running API endpoints from another terminal.
+- `check_docker.ps1` reports Docker and Compose availability without starting anything.
 
 ## Setup on Windows PowerShell
 
@@ -112,9 +116,30 @@ Open:
 - Readiness: `http://127.0.0.1:8000/api/v1/ready`
 - Swagger UI: `http://127.0.0.1:8000/docs`
 
+## Available endpoints
+
+| Method | Path | Purpose |
+|---|---|---|
+| GET | `/` | Basic service discovery |
+| GET | `/api/v1/health` | Process liveness |
+| GET | `/api/v1/ready` | Dependency readiness; database and Redis are not configured |
+| GET | `/docs` | Swagger UI |
+
 ## Stop the server
 
 Press `Ctrl+C` in the PowerShell window running Uvicorn.
+
+## Run the smoke API check
+
+Keep Uvicorn running in the first PowerShell window. Open a second PowerShell window and run from the project root:
+
+```powershell
+cd C:\Users\soham\OneDrive\Documents\pro
+Set-ExecutionPolicy -Scope Process -ExecutionPolicy Bypass
+.\scripts\smoke_api.ps1
+```
+
+The smoke script reports a helpful failure if the API is not running; it never launches Uvicorn itself.
 
 ## Run tests
 
