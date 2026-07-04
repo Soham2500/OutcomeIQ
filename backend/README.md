@@ -4,7 +4,7 @@ Initial FastAPI modular-monolith foundation for the OutcomeIQ outcome-aware AI F
 
 ## Current status
 
-**Day 2 is complete and Day 3 is 100% complete.** PostgreSQL, migrations, core data access, safe seed data and read-only database validation are verified.
+**Day 2 and Day 3 are complete. Day 4 authentication has started.** Basic registration, login, bearer JWT and current-user access are implemented.
 
 Available now:
 
@@ -23,12 +23,14 @@ Available now:
 - Pydantic schemas and SQLAlchemy repositories for core records
 - Explicit, idempotent local development seed tooling
 - Read-only schema inspection and Alembic-state validation
+- Bcrypt password hashing and JWT access-token utilities
+- Register, login and protected current-user endpoints
 - Endpoint, model and access-layer tests
 - Docker packaging
 
 Not implemented yet:
 
-- Authentication
+- Advanced authentication such as refresh tokens, reset, MFA or SSO
 - Business APIs
 - Workflow, cost, outcome and recommendation models/tables
 - Redis integration
@@ -147,6 +149,9 @@ Open:
 | GET | `/` | Basic service discovery |
 | GET | `/api/v1/health` | Process liveness |
 | GET | `/api/v1/ready` | Dependency readiness; database is `not_configured`, `connected` or `error` |
+| POST | `/api/v1/auth/register` | Register a user without exposing the password hash |
+| POST | `/api/v1/auth/login` | Return a bearer access token |
+| GET | `/api/v1/auth/me` | Return the authenticated active user |
 | GET | `/docs` | Swagger UI |
 
 ## Stop the server
@@ -176,7 +181,7 @@ python -m pytest -v
 Expected result:
 
 ```text
-9 passed
+16 passed
 ```
 
 Run only the health tests when needed:
@@ -187,7 +192,7 @@ python -m pytest tests\test_health.py -v
 
 The pytest configuration intentionally leaves warnings visible.
 
-The current `StarletteDeprecationWarning` related to FastAPI TestClient and HTTPX is non-blocking. It does not change the `9 passed` result and should remain visible until the upstream compatibility path is addressed deliberately.
+The current `StarletteDeprecationWarning` related to FastAPI TestClient and HTTPX is non-blocking. It does not change the `16 passed` result and should remain visible until the upstream compatibility path is addressed deliberately.
 
 ## Verified commands
 
@@ -205,7 +210,7 @@ With the API running in the first window, use a second PowerShell window:
 .\scripts\smoke_api.ps1
 ```
 
-Verified results are nine passing pytest tests and successful root, health and readiness smoke checks.
+Verified results are sixteen passing tests, including an isolated register/login/current-user flow.
 
 ## Run with Docker
 
@@ -318,6 +323,18 @@ Run the final read-only database checks from the project root:
 
 Expected key results are `DATABASE CONNECTED`, `ALL CORE TABLES EXIST`, `CORE DEVELOPMENT DATA FOUND` and `ALEMBIC STATE VALID`.
 
+## Day 4 authentication foundation
+
+Install the declared authentication dependencies from the project root:
+
+```powershell
+pip install -r backend\requirements.txt
+```
+
+Run the backend, open `http://127.0.0.1:8000/docs`, register a synthetic user, log in, copy the returned access token, select Swagger's **Authorize** button, and call `/api/v1/auth/me`.
+
+`backend/.env` must remain ignored. Never hardcode or print `JWT_SECRET_KEY`, and never expose `hashed_password` through an API schema or response.
+
 ## Troubleshooting
 
 ### PowerShell blocks virtual-environment activation
@@ -378,4 +395,4 @@ Confirm Docker Desktop is running and configured for Linux containers.
 
 ## Next steps
 
-The next step is the Day 4 authentication foundation: password hashing, auth schemas/service, register/login endpoints, JWT access tokens, current-user scaffolding and tests. Project APIs, workflow economics and frontend work remain deferred.
+The next step is authentication hardening: invalid/expired token tests, authentication audit events and production secret validation. Project APIs, workflow economics and frontend work remain deferred.

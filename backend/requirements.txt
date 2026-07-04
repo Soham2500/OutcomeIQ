@@ -8,3 +8,7 @@ alembic
 psycopg2-binary
 pytest
 httpx
+passlib[bcrypt]
+bcrypt<5
+python-jose[cryptography]
+email-validator

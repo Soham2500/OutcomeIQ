@@ -10,14 +10,14 @@ OutcomeIQ is an outcome-aware AI FinOps platform that connects the complete cost
 - **Day 2 backend foundation and closure:** 100% complete
 - **FastAPI application:** Running successfully
 - **Swagger UI:** Working
-- **Automated tests:** 9 foundation, schema and import tests passing
+- **Automated tests:** 16 foundation, database and authentication tests passing
 - **Smoke API check:** Root, health and readiness passing
 - **Day 3 database foundation:** 100% complete; ready for Day 4
 - **PostgreSQL:** Local `outcomeiq_dev` connection verified
 - **Database migrations/tables:** `0002_core_identity_projects` applied; all core tables exist
 - **Data access layer:** Core Pydantic schemas and SQLAlchemy repositories added
 - **Development seed:** Verified one safe demo row per core table
-- **Authentication:** Not implemented yet
+- **Authentication:** Basic register, login, bearer JWT and current-user foundation implemented
 - **Frontend:** Not implemented yet
 
 The project currently provides a clean FastAPI modular-monolith foundation with environment-backed settings, structured logging, versioned routing, health/readiness endpoints, tests and Docker packaging.
@@ -84,6 +84,8 @@ These documents define the architecture and product rules that implementation mu
 - [Day 3 final summary](docs/day-3-final-summary.md)
 - [Day 4 authentication readiness](docs/day-4-auth-readiness.md)
 - [Day 4 starter prompt](docs/day-4-start-prompt.md)
+- [Day 4 authentication testing](docs/day-4-auth-testing.md)
+- [Day 4 checkpoint](docs/day-4-checkpoint.md)
 
 ## Backend foundation status
 
@@ -163,7 +165,7 @@ python -m pytest -v
 Expected result:
 
 ```text
-9 passed
+16 passed
 ```
 
 The existing Starlette/HTTPX compatibility warning may remain visible; pytest is not configured to hide real warnings.
@@ -221,6 +223,9 @@ After introducing `.gitattributes`, future Git operations may report normalized 
 | GET | `/` | Basic service discovery |
 | GET | `/api/v1/health` | Process liveness |
 | GET | `/api/v1/ready` | Current dependency readiness |
+| POST | `/api/v1/auth/register` | Register a user with a securely hashed password |
+| POST | `/api/v1/auth/login` | Return a bearer JWT for valid credentials |
+| GET | `/api/v1/auth/me` | Return the current authenticated user |
 | GET | `/docs` | Swagger UI |
 
 The readiness endpoint reports PostgreSQL as `not_configured`, `connected` or `error`. Redis remains `not_configured`. A missing database never prevents FastAPI startup.
@@ -265,15 +270,21 @@ Alembic and table checks are available through project-root helper scripts:
 
 Both reviewed migrations are applied. The table checker reports `ALL CORE TABLES EXIST`, Alembic validation reports `ALEMBIC STATE VALID`, and the safe seed exists once in each core table. No workflow, cost or outcome table exists.
 
+## Test authentication in Swagger
+
+Start the backend, open `http://127.0.0.1:8000/docs`, register a synthetic user, log in, copy the returned access token, select **Authorize**, paste the token into the HTTP Bearer field, and call `GET /api/v1/auth/me`.
+
+Never use real credentials in development or commit `backend/.env`. See [Day 4 authentication testing](docs/day-4-auth-testing.md) for the complete walkthrough.
+
 ## Next development steps
 
-### Next milestone: Day 4 authentication foundation
+### Day 4 authentication foundation started
 
-- Add password hashing and verification
-- Add auth schemas and service behavior
-- Add register/login and JWT access-token foundations
-- Add current-user dependency scaffolding and focused tests
+- Password hashing, auth schemas/service and bearer JWT utilities are implemented
+- Register, login and current-user endpoints are available
+- Test manually through Swagger using `docs/day-4-auth-testing.md`
+- Next, harden invalid/expired token and authentication audit behavior
 
-Start with the [Day 4 authentication readiness checklist](docs/day-4-auth-readiness.md) and [ready-to-use prompt](docs/day-4-start-prompt.md). Project authorization, workflow APIs and frontend work remain separate milestones.
+Never commit `backend/.env`, hardcode JWT secrets or expose `hashed_password`. Project authorization, workflow APIs and frontend work remain separate milestones.
 
 Authentication and frontend implementation remain later milestones.

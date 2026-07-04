@@ -2,6 +2,8 @@
 
 ## Readiness Status
 
+This checklist was satisfied at Day 3 closure. The basic authentication foundation is now implemented; current details are recorded in `day-4-checkpoint.md`.
+
 The backend is ready to begin a narrowly scoped authentication foundation:
 
 - PostgreSQL is connected and Alembic is at `0002_core_identity_projects (head)`.
@@ -10,7 +12,7 @@ The backend is ready to begin a narrowly scoped authentication foundation:
 - The demo user contains no real password and currently has no password hash.
 - `UserCreate` and `UserRead` expose neither raw nor hashed passwords.
 - Core repository and session foundations are available.
-- Authentication, login and registration APIs have not been created.
+- At Day 3 closure, authentication, login and registration APIs had not yet been created.
 - `JWT_SECRET_KEY` exists as an optional configuration placeholder in `.env.example`.
 
 ## Day 4 Tasks
