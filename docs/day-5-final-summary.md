@@ -99,3 +99,6 @@ The full verifier checks secret-file protection, dependencies, database readines
 
 **Day 5 status: complete.** OutcomeIQ’s defining backend proof—complete workflow cost connected to verified business outcomes and cost per success—is represented and ready for Day 6 dashboard analytics APIs.
 
+## Day 6 Follow-up
+
+The dashboard analytics API foundation has now been added on top of the completed Day 5 evidence chain. Day 5’s models, calculations and outcome semantics remain the source data for the new read-only project summaries.

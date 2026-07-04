@@ -5,6 +5,7 @@ from fastapi import APIRouter
 from app.api.v1.endpoints import (
     auth,
     costs,
+    dashboard,
     health,
     outcomes,
     organizations,
@@ -50,4 +51,9 @@ api_router.include_router(
     outcomes.router,
     prefix="/outcomes",
     tags=["outcomes"],
+)
+api_router.include_router(
+    dashboard.router,
+    prefix="/dashboard",
+    tags=["dashboard"],
 )

@@ -10,7 +10,7 @@ OutcomeIQ is an outcome-aware AI FinOps platform that connects the complete cost
 - **Day 2 backend foundation and closure:** 100% complete
 - **FastAPI application:** Running successfully
 - **Swagger UI:** Working
-- **Automated tests:** 44 foundation, authentication, workflow, cost and outcome tests passing
+- **Automated tests:** 50 foundation, workflow, cost, outcome and dashboard tests passing
 - **Smoke API check:** Root, health and readiness passing
 - **Day 3 database foundation:** 100% complete
 - **PostgreSQL:** Local `outcomeiq_dev` connection verified
@@ -24,6 +24,7 @@ OutcomeIQ is an outcome-aware AI FinOps platform that connects the complete cost
 - **Day 5 cost foundation:** Pricing, deterministic run-cost calculation, APIs and automation implemented
 - **Day 5 outcome layer:** Storage, services, protected APIs and synthetic smoke workflow implemented
 - **Day 5 milestone:** 100% complete; full verification automation available
+- **Day 6 dashboard APIs:** Project overview, runs, cost and outcome summaries implemented
 - **Frontend:** Not implemented yet
 
 The project currently provides a clean FastAPI modular-monolith foundation with environment-backed settings, structured logging, versioned routing, health/readiness endpoints, tests and Docker packaging.
@@ -107,6 +108,8 @@ These documents define the architecture and product rules that implementation mu
 - [Day 5 final summary](docs/day-5-final-summary.md)
 - [Day 6 dashboard preparation](docs/day-6-dashboard-preparation.md)
 - [Day 6 starter prompt](docs/day-6-start-prompt.md)
+- [Day 6 dashboard analytics API](docs/day-6-dashboard-analytics-api.md)
+- [Accelerated MVP timeline](docs/accelerated-mvp-timeline.md)
 
 ## Backend foundation status
 
@@ -144,6 +147,8 @@ From the project root, PowerShell helpers are available for common tasks:
 .\scripts\smoke_cost_calculation_api.ps1
 .\scripts\smoke_outcome_tracking_api.ps1
 .\scripts\day5_full_verify.ps1
+.\scripts\smoke_dashboard_api.ps1
+.\scripts\day6_dashboard_full_verify.ps1
 .\scripts\day5_cost_full_verify.ps1
 .\scripts\check_docker.ps1
 .\scripts\check_db_ready.ps1
@@ -193,7 +198,7 @@ python -m pytest -v
 Expected result:
 
 ```text
-44 passed
+50 passed
 ```
 
 The existing Starlette/HTTPX compatibility warning may remain visible; pytest is not configured to hide real warnings.
@@ -276,6 +281,10 @@ After introducing `.gitattributes`, future Git operations may report normalized 
 | GET/PATCH | `/api/v1/outcomes/contracts/{contract_id}` | Read or update an Outcome Contract |
 | POST/GET | `/api/v1/outcomes/workflow-runs/{workflow_run_id}` | Record or read a run outcome |
 | GET | `/api/v1/outcomes/metrics/cost-per-success` | Calculate outcome-aware unit economics |
+| GET | `/api/v1/dashboard/projects/{project_id}/overview` | Project dashboard overview |
+| GET | `/api/v1/dashboard/projects/{project_id}/workflow-runs` | Recent dashboard run table |
+| GET | `/api/v1/dashboard/projects/{project_id}/cost-summary` | Project cost summary |
+| GET | `/api/v1/dashboard/projects/{project_id}/outcome-summary` | Project outcome summary |
 | GET | `/docs` | Swagger UI |
 
 The readiness endpoint reports PostgreSQL as `not_configured`, `connected` or `error`. Redis remains `not_configured`. A missing database never prevents FastAPI startup.
@@ -328,7 +337,7 @@ Never use real credentials in development or commit `backend/.env`. See [Day 4 a
 
 ## Next development steps
 
-### Day 5 complete
+### Day 6 dashboard analytics API foundation
 
 - Day 4 authentication, organization and project API foundation is complete
 - `AUTH PROJECT API SMOKE CHECK PASSED` is the verified live result
@@ -342,7 +351,9 @@ Never use real credentials in development or commit `backend/.env`. See [Day 4 a
 - Run the full cost verification with `.\scripts\day5_cost_full_verify.ps1`
 - OutcomeIQ’s core cost-per-success proof is represented end to end in the backend
 - Run the complete acceptance path with `.\scripts\day5_full_verify.ps1`
-- Next milestone: Day 6 dashboard analytics API foundation
+- Day 6 dashboard analytics API foundation is implemented
+- Run its complete acceptance path with `.\scripts\day6_dashboard_full_verify.ps1`
+- Next milestone: frontend dashboard or recommendation API foundation
 - Real provider calls, billing sync, recommendations and frontend remain deferred
 
 Continue with [Day 6 dashboard preparation](docs/day-6-dashboard-preparation.md) and the [ready-to-use Day 6 prompt](docs/day-6-start-prompt.md). Never commit `backend/.env`, store provider secrets, or persist raw prompts/responses.

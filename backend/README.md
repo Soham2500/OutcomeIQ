@@ -4,7 +4,7 @@ Initial FastAPI modular-monolith foundation for the OutcomeIQ outcome-aware AI F
 
 ## Current status
 
-**Day 2 through Day 5 are complete.** Workflow logging, deterministic cost calculation and protected outcome-aware unit economics are implemented end to end, with an opt-in full verifier.
+**Day 2 through Day 5 are complete, and the Day 6 dashboard API foundation is implemented.** The backend now exposes protected project-level workflow, cost and outcome summaries.
 
 Available now:
 
@@ -43,6 +43,8 @@ Available now:
 - Membership-scoped Outcome Contract, run-outcome and unit-economics APIs
 - Two-run synthetic outcome tracking smoke test
 - Full Day 5 readiness, migration, seed and smoke-test automation
+- Read-only dashboard schemas, analytics service and four protected project endpoints
+- Synthetic dashboard smoke test and full Day 6 verification automation
 - Endpoint, model and access-layer tests
 - Docker packaging
 
@@ -79,6 +81,8 @@ Set-ExecutionPolicy -Scope Process -ExecutionPolicy Bypass
 .\scripts\smoke_cost_calculation_api.ps1
 .\scripts\smoke_outcome_tracking_api.ps1
 .\scripts\day5_full_verify.ps1
+.\scripts\smoke_dashboard_api.ps1
+.\scripts\day6_dashboard_full_verify.ps1
 .\scripts\day5_cost_full_verify.ps1
 .\scripts\check_docker.ps1
 .\scripts\check_db_ready.ps1
@@ -102,6 +106,8 @@ Set-ExecutionPolicy -Scope Process -ExecutionPolicy Bypass
 - `smoke_cost_calculation_api.ps1` calculates and reads one synthetic run cost.
 - `smoke_outcome_tracking_api.ps1` verifies one success, one escalation and cost per success.
 - `day5_full_verify.ps1` runs the complete opt-in Day 5 acceptance sequence and cleans up only its own backend process.
+- `smoke_dashboard_api.ps1` verifies overview, run, cost and outcome summaries with synthetic data.
+- `day6_dashboard_full_verify.ps1` performs the complete opt-in dashboard acceptance sequence.
 - `day5_cost_full_verify.ps1` performs the opt-in migration, seed, startup and cost smoke workflow safely.
 - `check_docker.ps1` reports Docker and Compose availability without starting anything.
 - `check_db_ready.ps1` reports database configuration/connectivity without creating databases, tables or migrations.
@@ -206,6 +212,10 @@ Open:
 | GET/PATCH | `/api/v1/outcomes/contracts/{contract_id}` | Read or update a contract |
 | POST/GET | `/api/v1/outcomes/workflow-runs/{workflow_run_id}` | Record or read a run outcome |
 | GET | `/api/v1/outcomes/metrics/cost-per-success` | Calculate cost per successful outcome |
+| GET | `/api/v1/dashboard/projects/{project_id}/overview` | Project dashboard overview |
+| GET | `/api/v1/dashboard/projects/{project_id}/workflow-runs` | Recent workflow-run summary table |
+| GET | `/api/v1/dashboard/projects/{project_id}/cost-summary` | Project cost summary |
+| GET | `/api/v1/dashboard/projects/{project_id}/outcome-summary` | Project outcome summary |
 | GET | `/docs` | Swagger UI |
 
 ## Stop the server
@@ -235,7 +245,7 @@ python -m pytest -v
 Expected result:
 
 ```text
-44 passed
+50 passed
 ```
 
 Run only the health tests when needed:
@@ -246,7 +256,7 @@ python -m pytest tests\test_health.py -v
 
 The pytest configuration intentionally leaves warnings visible.
 
-The current `StarletteDeprecationWarning` related to FastAPI TestClient and HTTPX is non-blocking. It does not change the `44 passed` result and should remain visible until the upstream compatibility path is addressed deliberately.
+The current `StarletteDeprecationWarning` related to FastAPI TestClient and HTTPX is non-blocking. It does not change the `50 passed` result and should remain visible until the upstream compatibility path is addressed deliberately.
 
 ## Verified commands
 
@@ -264,7 +274,7 @@ With the API running in the first window, use a second PowerShell window:
 .\scripts\smoke_api.ps1
 ```
 
-Verified results are forty-four passing tests, including auth, workflow logging, cost arithmetic, outcome unit economics and protected route registration.
+Verified results are fifty passing tests, including auth, workflow logging, cost arithmetic, outcome unit economics and dashboard ownership joins.
 
 ## Run with Docker
 
@@ -488,4 +498,4 @@ OutcomeIQ’s core cost-per-success proof is represented in the backend. Run the
 .\scripts\day5_full_verify.ps1
 ```
 
-The next milestone is the Day 6 dashboard analytics API foundation. Real provider integrations, billing sync, recommendations and frontend work remain deferred.
+The Day 6 dashboard analytics API foundation is implemented. Run `.\scripts\day6_dashboard_full_verify.ps1` for complete acceptance. The next milestone is either the frontend dashboard or recommendation API foundation; real provider integrations remain deferred.

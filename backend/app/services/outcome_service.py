@@ -9,6 +9,7 @@ from sqlalchemy.orm import Session
 
 from app.models.enums import WorkflowOutcomeStatus
 from app.models.outcome_contract import OutcomeContract
+from app.models.workflow import Workflow
 from app.models.workflow_run import WorkflowRun
 from app.models.workflow_run_outcome import WorkflowRunOutcome
 from app.repositories.outcome_contract_repository import (
@@ -125,19 +126,12 @@ def calculate_cost_per_successful_outcome(
     configuration_id: uuid.UUID | None = None,
     allowed_project_ids: set[uuid.UUID] | None = None,
 ) -> CostPerSuccessfulOutcomeRead:
-    statement = select(WorkflowRun)
-    if allowed_project_ids is not None:
-        statement = statement.where(
-            WorkflowRun.project_id.in_(allowed_project_ids)
-        )
-    if project_id is not None:
-        statement = statement.where(WorkflowRun.project_id == project_id)
-    if workflow_id is not None:
-        statement = statement.where(WorkflowRun.workflow_id == workflow_id)
-    if configuration_id is not None:
-        statement = statement.where(
-            WorkflowRun.configuration_id == configuration_id
-        )
+    statement = _workflow_run_metrics_statement(
+        project_id=project_id,
+        workflow_id=workflow_id,
+        configuration_id=configuration_id,
+        allowed_project_ids=allowed_project_ids,
+    )
     workflow_runs = list(db.scalars(statement.order_by(WorkflowRun.id)))
 
     successful_runs = 0
@@ -196,3 +190,30 @@ def calculate_cost_per_successful_outcome(
         success_rate=success_rate,
         notes=" ".join(notes) if notes else None,
     )
+
+
+def _workflow_run_metrics_statement(
+    project_id: uuid.UUID | None = None,
+    workflow_id: uuid.UUID | None = None,
+    configuration_id: uuid.UUID | None = None,
+    allowed_project_ids: set[uuid.UUID] | None = None,
+):
+    """Build a run query through workflow project ownership."""
+
+    statement = select(WorkflowRun).join(
+        Workflow,
+        Workflow.id == WorkflowRun.workflow_id,
+    )
+    if allowed_project_ids is not None:
+        statement = statement.where(
+            Workflow.project_id.in_(allowed_project_ids)
+        )
+    if project_id is not None:
+        statement = statement.where(Workflow.project_id == project_id)
+    if workflow_id is not None:
+        statement = statement.where(WorkflowRun.workflow_id == workflow_id)
+    if configuration_id is not None:
+        statement = statement.where(
+            WorkflowRun.configuration_id == configuration_id
+        )
+    return statement
