@@ -7,13 +7,16 @@ from fastapi import APIRouter, Depends, HTTPException, Query, status
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy.orm import Session
 
-from app.api.dependencies import get_current_user
+from app.api.dependencies import (
+    get_current_active_user,
+    require_project_member,
+    require_project_owner_or_admin,
+)
 from app.db.session import get_db
 from app.models.enums import AuditAction, ProjectMemberRole
 from app.models.project import Project
 from app.models.project_member import ProjectMember
 from app.models.user import User
-from app.repositories.audit_repository import create_audit_event
 from app.repositories.organization_repository import get_organization_by_id
 from app.repositories.project_member_repository import (
     add_project_member,
@@ -23,11 +26,12 @@ from app.repositories.project_repository import (
     create_project,
     get_project_by_id,
     get_project_by_slug,
-    list_projects as list_project_records,
+    list_projects_for_user,
     update_project,
 )
 from app.schemas.project import ProjectCreate, ProjectRead, ProjectUpdate
 from app.schemas.project_member import ProjectMemberRead
+from app.services.audit_service import record_audit_event
 
 
 router = APIRouter()
@@ -37,7 +41,7 @@ router = APIRouter()
 def create_project_endpoint(
     request: ProjectCreate,
     db: Annotated[Session, Depends(get_db)],
-    current_user: Annotated[User, Depends(get_current_user)],
+    current_user: Annotated[User, Depends(get_current_active_user)],
 ) -> Project:
     organization = get_organization_by_id(db, request.organization_id)
     if organization is None:
@@ -72,7 +76,7 @@ def create_project_endpoint(
             detail="Project could not be created because a unique value is in use.",
         ) from exc
 
-    create_audit_event(
+    record_audit_event(
         db,
         action=AuditAction.CREATE.value,
         message="Project created",
@@ -88,13 +92,14 @@ def create_project_endpoint(
 @router.get("", response_model=list[ProjectRead])
 def list_projects_endpoint(
     db: Annotated[Session, Depends(get_db)],
-    _current_user: Annotated[User, Depends(get_current_user)],
+    current_user: Annotated[User, Depends(get_current_active_user)],
     organization_id: uuid.UUID | None = None,
     limit: Annotated[int, Query(ge=1, le=100)] = 50,
     offset: Annotated[int, Query(ge=0)] = 0,
 ) -> list[Project]:
-    return list_project_records(
+    return list_projects_for_user(
         db,
+        user_id=current_user.id,
         organization_id=organization_id,
         limit=limit,
         offset=offset,
@@ -105,7 +110,7 @@ def list_projects_endpoint(
 def get_project_endpoint(
     project_id: uuid.UUID,
     db: Annotated[Session, Depends(get_db)],
-    _current_user: Annotated[User, Depends(get_current_user)],
+    _membership: Annotated[ProjectMember, Depends(require_project_member)],
 ) -> Project:
     project = get_project_by_id(db, project_id)
     if project is None:
@@ -121,7 +126,11 @@ def update_project_endpoint(
     project_id: uuid.UUID,
     request: ProjectUpdate,
     db: Annotated[Session, Depends(get_db)],
-    current_user: Annotated[User, Depends(get_current_user)],
+    current_user: Annotated[User, Depends(get_current_active_user)],
+    _membership: Annotated[
+        ProjectMember,
+        Depends(require_project_owner_or_admin),
+    ],
 ) -> Project:
     project = get_project_by_id(db, project_id)
     if project is None:
@@ -140,7 +149,7 @@ def update_project_endpoint(
         return project
 
     project = update_project(db, project, **fields)
-    create_audit_event(
+    record_audit_event(
         db,
         action=AuditAction.UPDATE.value,
         message="Project updated",
@@ -158,7 +167,7 @@ def update_project_endpoint(
 def list_project_members_endpoint(
     project_id: uuid.UUID,
     db: Annotated[Session, Depends(get_db)],
-    _current_user: Annotated[User, Depends(get_current_user)],
+    _membership: Annotated[ProjectMember, Depends(require_project_member)],
 ) -> list[ProjectMember]:
     if get_project_by_id(db, project_id) is None:
         raise HTTPException(

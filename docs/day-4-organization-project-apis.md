@@ -4,7 +4,7 @@
 
 This API slice exposes the existing organization, project and project-membership persistence layer to authenticated users. It creates no new table or migration.
 
-Authentication is enforced on every endpoint in this document. Authorization is intentionally coarse for this milestone: any active authenticated user can list, read, create and update organizations and projects. Tenant membership and role-based permission checks must be added before production use.
+Authentication and active-user checks are enforced on every endpoint in this document. Project lists are membership-scoped, project reads/member lists require membership, and project updates require owner/admin. Organization endpoints still use coarse active-user-only access until organization membership policy is designed.
 
 ## Organization Endpoints
 
@@ -68,7 +68,7 @@ Update request:
 }
 ```
 
-Creating a project automatically adds the current user as `owner`. Project slugs are unique within an organization. An unknown organization/project returns `404`; a duplicate project slug within the organization returns `400`.
+Creating a project automatically adds the current user as `owner`. Project lists return only the current user's memberships. Project slugs are unique within an organization. An unknown organization/project returns `404`; missing membership or role returns `403`; a duplicate project slug within the organization returns `400`.
 
 ## Audit Behavior
 
@@ -86,12 +86,12 @@ See `docs/day-4-manual-api-testing.md` for the complete sequence.
 
 ## Authorization Boundary
 
-Current access is authentication-only. Organization ownership, organization membership, project membership enforcement, owner/admin/member/viewer permissions and cross-tenant isolation are not yet implemented at the API layer. This limitation is explicit and must be resolved before production deployment.
+Project membership is enforced for reads/member lists, and owner/admin is enforced for updates. Organization ownership/membership remains active-user-only, and member/viewer permissions are not yet differentiated beyond read access. Cross-tenant organization isolation must be resolved before production deployment.
 
 ## Intentionally Not Implemented
 
 - Organization invitations or organization-member APIs
-- Advanced project RBAC or permission checks
+- Advanced project RBAC beyond owner/admin update and member/viewer read access
 - Project-member add/update/remove endpoints
 - Delete endpoints
 - Workflow, cost, outcome, comparison or recommendation APIs

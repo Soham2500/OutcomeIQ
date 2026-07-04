@@ -10,7 +10,7 @@ OutcomeIQ is an outcome-aware AI FinOps platform that connects the complete cost
 - **Day 2 backend foundation and closure:** 100% complete
 - **FastAPI application:** Running successfully
 - **Swagger UI:** Working
-- **Automated tests:** 19 foundation, authentication and API-contract tests passing
+- **Automated tests:** 25 foundation, authentication, authorization and route tests passing
 - **Smoke API check:** Root, health and readiness passing
 - **Day 3 database foundation:** 100% complete; ready for Day 4
 - **PostgreSQL:** Local `outcomeiq_dev` connection verified
@@ -18,7 +18,7 @@ OutcomeIQ is an outcome-aware AI FinOps platform that connects the complete cost
 - **Data access layer:** Core Pydantic schemas and SQLAlchemy repositories added
 - **Development seed:** Verified one safe demo row per core table
 - **Authentication:** Basic register, login, bearer JWT and current-user foundation implemented
-- **Organization/project APIs:** Authenticated CRUD foundation implemented with audit events
+- **Organization/project APIs:** Membership-scoped reads and owner/admin updates implemented
 - **Frontend:** Not implemented yet
 
 The project currently provides a clean FastAPI modular-monolith foundation with environment-backed settings, structured logging, versioned routing, health/readiness endpoints, tests and Docker packaging.
@@ -120,6 +120,7 @@ From the project root, PowerShell helpers are available for common tasks:
 .\scripts\day2_verify.ps1
 .\scripts\run_backend.ps1
 .\scripts\smoke_api.ps1
+.\scripts\smoke_auth_project_api.ps1
 .\scripts\check_docker.ps1
 .\scripts\check_db_ready.ps1
 .\scripts\db_history.ps1
@@ -168,7 +169,7 @@ python -m pytest -v
 Expected result:
 
 ```text
-19 passed
+25 passed
 ```
 
 The existing Starlette/HTTPX compatibility warning may remain visible; pytest is not configured to hide real warnings.
@@ -286,7 +287,7 @@ Never use real credentials in development or commit `backend/.env`. See [Day 4 a
 
 ## Next development steps
 
-### Day 4 authenticated organization/project APIs
+### Day 4 API hardening and authorization
 
 - Password hashing, auth schemas/service and bearer JWT utilities are implemented
 - Register, login and current-user endpoints are available
@@ -294,6 +295,8 @@ Never use real credentials in development or commit `backend/.env`. See [Day 4 a
 - Organization/project create, list, read and update endpoints are available
 - Project creators are automatically added as owners
 - Creates and updates append safe audit events
-- Next, enforce membership and role-based authorization
+- Project lists/reads are membership-scoped; updates require owner/admin
+- Run `scripts/smoke_auth_project_api.ps1` while the backend is already running
+- Next, add project-member management and deeper authorization tests
 
-Never commit `backend/.env`, hardcode JWT secrets or expose `hashed_password`. Current organization/project access requires authentication but does not yet enforce tenant membership or RBAC. Workflow APIs and frontend work remain separate milestones.
+The smoke script requires a running backend, connected database and applied migrations; it creates synthetic local rows and never prints its password/token. Never commit `backend/.env` or expose `hashed_password`. Organization-level permissions, workflow APIs and frontend work remain separate milestones.

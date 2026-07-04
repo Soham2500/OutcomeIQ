@@ -11,7 +11,11 @@ from sqlalchemy.orm import Session
 from app.core.security import decode_access_token
 from app.db.session import get_db
 from app.models.enums import UserStatus
+from app.models.enums import ProjectMemberRole
+from app.models.project_member import ProjectMember
 from app.models.user import User
+from app.repositories.project_member_repository import get_project_member
+from app.repositories.project_repository import get_project_by_id
 from app.repositories.user_repository import get_user_by_id
 
 
@@ -44,6 +48,58 @@ def get_current_user(
         raise credentials_error from exc
 
     user = get_user_by_id(db, user_id)
-    if user is None or user.status != UserStatus.ACTIVE.value:
+    if user is None:
         raise credentials_error
     return user
+
+
+def get_current_active_user(
+    current_user: Annotated[User, Depends(get_current_user)],
+) -> User:
+    """Reject authenticated users whose account is not active."""
+
+    if current_user.status != UserStatus.ACTIVE.value:
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="Active user access is required.",
+        )
+    return current_user
+
+
+def require_project_member(
+    project_id: uuid.UUID,
+    db: Annotated[Session, Depends(get_db)],
+    current_user: Annotated[User, Depends(get_current_active_user)],
+) -> ProjectMember:
+    """Require any project role for the requested project."""
+
+    if get_project_by_id(db, project_id) is None:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Project not found.",
+        )
+
+    membership = get_project_member(db, project_id, current_user.id)
+    if membership is None:
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="Project membership is required.",
+        )
+    return membership
+
+
+def require_project_owner_or_admin(
+    membership: Annotated[ProjectMember, Depends(require_project_member)],
+) -> ProjectMember:
+    """Require the owner or admin role for a project-changing operation."""
+
+    allowed_roles = {
+        ProjectMemberRole.OWNER.value,
+        ProjectMemberRole.ADMIN.value,
+    }
+    if membership.role not in allowed_roles:
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="Project owner or admin access is required.",
+        )
+    return membership

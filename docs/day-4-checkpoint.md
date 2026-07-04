@@ -2,7 +2,7 @@
 
 ## Status
 
-The authentication foundation plus authenticated organization and project APIs are implemented. Authorization remains intentionally simple: any active authenticated user can access this API slice.
+The authentication plus organization/project API foundation is hardened with active-user checks, project membership enforcement, owner/admin updates, safe audit recording and automated live smoke testing.
 
 ## What Was Built
 
@@ -27,6 +27,18 @@ The authentication foundation plus authenticated organization and project APIs a
 - Repository get/update and membership lookup functions
 - No database migration or new table
 
+## API Hardening Batch
+
+- `get_current_user` now handles identity/token validation only.
+- `get_current_active_user` rejects inactive/suspended users with `403`.
+- Project reads and member lists require project membership.
+- Project updates require owner or admin role.
+- Project lists are scoped to the current user's memberships.
+- A safe audit service filters sensitive top-level metadata keys.
+- Registration and organization/project mutations use the shared audit service.
+- A live PowerShell smoke test covers auth through owner membership without printing credentials/tokens.
+- Dependency, audit and route-registration tests run without PostgreSQL or a live server.
+
 ## Files Created
 
 - `backend/app/core/security.py`
@@ -45,6 +57,12 @@ The authentication foundation plus authenticated organization and project APIs a
 - `backend/tests/test_organization_project_schemas.py`
 - `docs/day-4-organization-project-apis.md`
 - `docs/day-4-manual-api-testing.md`
+- `backend/app/services/audit_service.py`
+- `backend/tests/test_api_dependencies_imports.py`
+- `backend/tests/test_audit_service_imports.py`
+- `backend/tests/test_route_registration.py`
+- `scripts/smoke_auth_project_api.ps1`
+- `docs/day-4-api-smoke-testing.md`
 
 ## Files Updated
 
@@ -54,6 +72,7 @@ The authentication foundation plus authenticated organization and project APIs a
 - `backend/app/repositories/user_repository.py`
 - `backend/app/api/v1/router.py`
 - Organization, project and project-member schemas/repositories
+- Authentication/project dependencies and API endpoint authorization
 - `scripts/day2_verify.ps1`
 - Root and backend README files
 
@@ -84,6 +103,8 @@ The authentication foundation plus authenticated organization and project APIs a
 - Inactive or suspended users cannot authenticate or access `/me`.
 - Endpoint-flow tests use isolated in-memory SQLite rather than development PostgreSQL.
 - `bcrypt<5` is constrained because Passlib 1.7.4 is incompatible with bcrypt 5.x.
+- Audit metadata removes password, token, secret, credential and authorization keys.
+- The live smoke script never prints its password or access token.
 
 ## Intentionally Not Implemented
 
@@ -91,10 +112,11 @@ The authentication foundation plus authenticated organization and project APIs a
 - Password reset or email verification
 - OAuth, social login, MFA or enterprise SSO
 - Rate limiting or account lockout
-- Organization/project membership enforcement and advanced RBAC
+- Organization-level ownership/membership enforcement
+- Advanced RBAC and project-member management endpoints
 - Workflow, cost or outcome APIs
 - Frontend code
 
 ## Next Day 4 Prompt
 
-Add the first authorization layer without creating new tables: restrict organization/project reads and updates using existing project memberships, define owner/admin/member/viewer rules, add isolated authorization tests, and preserve the current audit behavior. Do not add frontend or workflow APIs yet.
+Add project-member management and authorization behavior tests using the existing `project_members` table: owner/admin can add or change members, owner-only removal safety, and member/viewer read-only guarantees. Keep organization permission design explicit and do not add frontend or workflow APIs yet.

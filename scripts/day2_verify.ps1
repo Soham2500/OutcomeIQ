@@ -50,6 +50,7 @@ $RequiredPaths = @(
     @{ Label = "Audit repository"; RelativePath = "backend\app\repositories\audit_repository.py" },
     @{ Label = "Development seed service"; RelativePath = "backend\app\services\dev_seed_service.py" },
     @{ Label = "Authentication service"; RelativePath = "backend\app\services\auth_service.py" },
+    @{ Label = "Audit service"; RelativePath = "backend\app\services\audit_service.py" },
     @{ Label = "Authentication API endpoints"; RelativePath = "backend\app\api\v1\endpoints\auth.py" },
     @{ Label = "Organization API endpoints"; RelativePath = "backend\app\api\v1\endpoints\organizations.py" },
     @{ Label = "Project API endpoints"; RelativePath = "backend\app\api\v1\endpoints\projects.py" },
@@ -72,6 +73,9 @@ $RequiredPaths = @(
     @{ Label = "Authentication import tests"; RelativePath = "backend\tests\test_auth_imports.py" },
     @{ Label = "Organization/project import tests"; RelativePath = "backend\tests\test_organization_project_imports.py" },
     @{ Label = "Organization/project schema tests"; RelativePath = "backend\tests\test_organization_project_schemas.py" },
+    @{ Label = "API dependency import tests"; RelativePath = "backend\tests\test_api_dependencies_imports.py" },
+    @{ Label = "Audit service import tests"; RelativePath = "backend\tests\test_audit_service_imports.py" },
+    @{ Label = "Route registration tests"; RelativePath = "backend\tests\test_route_registration.py" },
     @{ Label = "Backend README"; RelativePath = "backend\README.md" },
     @{ Label = "Root .gitignore"; RelativePath = ".gitignore" },
     @{ Label = "Root .gitattributes"; RelativePath = ".gitattributes" },
@@ -82,6 +86,7 @@ $RequiredPaths = @(
     @{ Label = "Backend test script"; RelativePath = "scripts\test_backend.ps1" },
     @{ Label = "Backend check script"; RelativePath = "scripts\check_backend.ps1" },
     @{ Label = "API smoke script"; RelativePath = "scripts\smoke_api.ps1" },
+    @{ Label = "Auth/project API smoke script"; RelativePath = "scripts\smoke_auth_project_api.ps1" },
     @{ Label = "Docker check script"; RelativePath = "scripts\check_docker.ps1" },
     @{ Label = "Database readiness script"; RelativePath = "scripts\check_db_ready.ps1" },
     @{ Label = "Database migration script"; RelativePath = "scripts\db_migrate.ps1" },
@@ -111,6 +116,7 @@ $RequiredPaths = @(
     @{ Label = "Day 4 checkpoint"; RelativePath = "docs\day-4-checkpoint.md" },
     @{ Label = "Day 4 organization/project API guide"; RelativePath = "docs\day-4-organization-project-apis.md" },
     @{ Label = "Day 4 manual API testing guide"; RelativePath = "docs\day-4-manual-api-testing.md" },
+    @{ Label = "Day 4 API smoke testing guide"; RelativePath = "docs\day-4-api-smoke-testing.md" },
     @{ Label = "Core identity/project migration"; RelativePath = "backend\alembic\versions\20260704_0002_create_core_identity_project_tables.py" },
     @{ Label = "Local database creation SQL helper"; RelativePath = "database\local\create_outcomeiq_dev.sql" }
 )

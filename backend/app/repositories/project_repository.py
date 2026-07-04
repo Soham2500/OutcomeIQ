@@ -6,6 +6,7 @@ from sqlalchemy import select
 from sqlalchemy.orm import Session
 
 from app.models.project import Project
+from app.models.project_member import ProjectMember
 
 
 UPDATABLE_FIELDS = {"name", "description", "status"}
@@ -54,6 +55,28 @@ def list_projects(
     offset: int = 0,
 ) -> list[Project]:
     statement = select(Project)
+    if organization_id is not None:
+        statement = statement.where(Project.organization_id == organization_id)
+    statement = (
+        statement.order_by(Project.created_at, Project.id)
+        .offset(offset)
+        .limit(limit)
+    )
+    return list(db.scalars(statement))
+
+
+def list_projects_for_user(
+    db: Session,
+    user_id: uuid.UUID,
+    organization_id: uuid.UUID | None = None,
+    limit: int = 50,
+    offset: int = 0,
+) -> list[Project]:
+    statement = (
+        select(Project)
+        .join(ProjectMember, ProjectMember.project_id == Project.id)
+        .where(ProjectMember.user_id == user_id)
+    )
     if organization_id is not None:
         statement = statement.where(Project.organization_id == organization_id)
     statement = (

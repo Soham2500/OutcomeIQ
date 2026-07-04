@@ -4,7 +4,7 @@ Initial FastAPI modular-monolith foundation for the OutcomeIQ outcome-aware AI F
 
 ## Current status
 
-**Day 2 and Day 3 are complete. Day 4 is in progress.** Authentication plus organization/project API foundations are implemented.
+**Day 2 and Day 3 are complete. Day 4 is in progress.** Authenticated APIs now enforce active users, project memberships and owner/admin updates.
 
 Available now:
 
@@ -27,6 +27,8 @@ Available now:
 - Register, login and protected current-user endpoints
 - Authenticated organization/project CRUD endpoints with audit events
 - Automatic owner membership for newly created projects
+- Membership-scoped project listing/read access and owner/admin updates
+- Safe shared audit service and live auth/project API smoke test
 - Endpoint, model and access-layer tests
 - Docker packaging
 
@@ -188,7 +190,7 @@ python -m pytest -v
 Expected result:
 
 ```text
-19 passed
+25 passed
 ```
 
 Run only the health tests when needed:
@@ -199,7 +201,7 @@ python -m pytest tests\test_health.py -v
 
 The pytest configuration intentionally leaves warnings visible.
 
-The current `StarletteDeprecationWarning` related to FastAPI TestClient and HTTPX is non-blocking. It does not change the `19 passed` result and should remain visible until the upstream compatibility path is addressed deliberately.
+The current `StarletteDeprecationWarning` related to FastAPI TestClient and HTTPX is non-blocking. It does not change the `25 passed` result and should remain visible until the upstream compatibility path is addressed deliberately.
 
 ## Verified commands
 
@@ -217,7 +219,7 @@ With the API running in the first window, use a second PowerShell window:
 .\scripts\smoke_api.ps1
 ```
 
-Verified results are nineteen passing tests, including isolated auth flow and organization/project API contract checks.
+Verified results are twenty-five passing tests, including isolated auth flow, authorization behavior, audit-redaction and route checks.
 
 ## Run with Docker
 
@@ -342,6 +344,14 @@ Run the backend, open `http://127.0.0.1:8000/docs`, register a synthetic user, l
 
 After authorization, create an organization, create a project with the returned organization ID, list projects and inspect `/api/v1/projects/{project_id}/members`. The project creator should have role `owner`. See `docs/day-4-manual-api-testing.md` for the complete sequence.
 
+With the backend already running and PostgreSQL connected, run the live local smoke path from another PowerShell window:
+
+```powershell
+.\scripts\smoke_auth_project_api.ps1
+```
+
+This creates timestamped synthetic local data. It does not start the server, run migrations, delete rows or print the password/access token.
+
 `backend/.env` must remain ignored. Never hardcode or print `JWT_SECRET_KEY`, and never expose `hashed_password` through an API schema or response.
 
 ## Troubleshooting
@@ -404,4 +414,4 @@ Confirm Docker Desktop is running and configured for Linux containers.
 
 ## Next steps
 
-The next step is membership and role-based authorization using existing project memberships. Workflow economics APIs and frontend work remain deferred.
+The next step is project-member management and deeper role-behavior tests using the existing membership table. Organization-level full permissions, workflow economics APIs and frontend work remain deferred.

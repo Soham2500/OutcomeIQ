@@ -51,6 +51,7 @@ def test_register_login_and_current_user_flow(monkeypatch) -> None:
         "JWT_SECRET_KEY",
         "isolated-auth-flow-test-secret",
     )
+    monkeypatch.setattr(auth, "record_audit_event", lambda *args, **kwargs: None)
     app.dependency_overrides[get_db] = override_get_db
 
     try:

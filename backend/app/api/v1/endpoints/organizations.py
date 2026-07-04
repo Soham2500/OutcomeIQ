@@ -7,12 +7,11 @@ from fastapi import APIRouter, Depends, HTTPException, Query, status
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy.orm import Session
 
-from app.api.dependencies import get_current_user
+from app.api.dependencies import get_current_active_user
 from app.db.session import get_db
 from app.models.enums import AuditAction
 from app.models.organization import Organization
 from app.models.user import User
-from app.repositories.audit_repository import create_audit_event
 from app.repositories.organization_repository import (
     create_organization,
     get_organization_by_id,
@@ -25,6 +24,7 @@ from app.schemas.organization import (
     OrganizationRead,
     OrganizationUpdate,
 )
+from app.services.audit_service import record_audit_event
 
 
 router = APIRouter()
@@ -34,7 +34,7 @@ router = APIRouter()
 def create_organization_endpoint(
     request: OrganizationCreate,
     db: Annotated[Session, Depends(get_db)],
-    current_user: Annotated[User, Depends(get_current_user)],
+    current_user: Annotated[User, Depends(get_current_active_user)],
 ) -> Organization:
     if get_organization_by_slug(db, request.slug) is not None:
         raise HTTPException(
@@ -51,7 +51,7 @@ def create_organization_endpoint(
             detail="Organization slug is already in use.",
         ) from exc
 
-    create_audit_event(
+    record_audit_event(
         db,
         action=AuditAction.CREATE.value,
         message="Organization created",
@@ -66,7 +66,7 @@ def create_organization_endpoint(
 @router.get("", response_model=list[OrganizationRead])
 def list_organizations_endpoint(
     db: Annotated[Session, Depends(get_db)],
-    _current_user: Annotated[User, Depends(get_current_user)],
+    _current_user: Annotated[User, Depends(get_current_active_user)],
     limit: Annotated[int, Query(ge=1, le=100)] = 50,
     offset: Annotated[int, Query(ge=0)] = 0,
 ) -> list[Organization]:
@@ -77,7 +77,7 @@ def list_organizations_endpoint(
 def get_organization_endpoint(
     organization_id: uuid.UUID,
     db: Annotated[Session, Depends(get_db)],
-    _current_user: Annotated[User, Depends(get_current_user)],
+    _current_user: Annotated[User, Depends(get_current_active_user)],
 ) -> Organization:
     organization = get_organization_by_id(db, organization_id)
     if organization is None:
@@ -93,7 +93,7 @@ def update_organization_endpoint(
     organization_id: uuid.UUID,
     request: OrganizationUpdate,
     db: Annotated[Session, Depends(get_db)],
-    current_user: Annotated[User, Depends(get_current_user)],
+    current_user: Annotated[User, Depends(get_current_active_user)],
 ) -> Organization:
     organization = get_organization_by_id(db, organization_id)
     if organization is None:
@@ -111,7 +111,7 @@ def update_organization_endpoint(
         return organization
 
     organization = update_organization(db, organization, **fields)
-    create_audit_event(
+    record_audit_event(
         db,
         action=AuditAction.UPDATE.value,
         message="Organization updated",
