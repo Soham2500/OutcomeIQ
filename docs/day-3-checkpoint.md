@@ -2,7 +2,7 @@
 
 **Project:** OutcomeIQ — Outcome-aware AI FinOps Platform  
 **Milestone:** Day 3 Alembic validation and first infrastructure migration
-**Status:** Infrastructure migration applied; core identity/project migration prepared
+**Status:** Core migrations applied; data access and safe seed tooling added
 
 ## What Day 3 Prompt 1 Built
 
@@ -60,6 +60,21 @@ FastAPI still starts when `DATABASE_URL` is missing or empty.
 
 The second revision is prepared but was not applied by this implementation task.
 
+The local database has since reached `0002_core_identity_projects (head)`, and all approved core tables exist.
+
+## What the Core Data Access Batch Added
+
+- Pydantic v2 schemas for users, organizations, projects, memberships and audit events
+- SQLAlchemy repositories with explicit get/create/list operations
+- User read/create schemas that exclude password and password-hash fields
+- Idempotent local development seed orchestration
+- A seed CLI that refuses to create tables or run migrations
+- A read-only core data checker with table row counts
+- PowerShell wrappers that work from the project root
+- Import and exposure tests that require no live database
+
+The seed tooling was not executed during implementation. Current core row counts remain zero.
+
 ## Files Created
 
 - `backend/app/db/base.py`
@@ -94,6 +109,25 @@ The second revision is prepared but was not applied by this implementation task.
 - `backend/alembic/versions/20260704_0002_create_core_identity_project_tables.py`
 - `backend/tests/test_models.py`
 - `docs/day-3-core-database-models.md`
+- `backend/app/schemas/user.py`
+- `backend/app/schemas/organization.py`
+- `backend/app/schemas/project.py`
+- `backend/app/schemas/project_member.py`
+- `backend/app/schemas/audit_event.py`
+- `backend/app/repositories/user_repository.py`
+- `backend/app/repositories/organization_repository.py`
+- `backend/app/repositories/project_repository.py`
+- `backend/app/repositories/project_member_repository.py`
+- `backend/app/repositories/audit_repository.py`
+- `backend/app/services/dev_seed_service.py`
+- `backend/scripts/seed_dev_data.py`
+- `backend/scripts/check_core_data.py`
+- `scripts/db_seed_dev.ps1`
+- `scripts/check_core_data.ps1`
+- `backend/tests/test_schemas.py`
+- `backend/tests/test_repositories_imports.py`
+- `backend/tests/test_dev_seed_imports.py`
+- `docs/day-3-core-data-access-layer.md`
 
 ## Files Updated
 
@@ -123,7 +157,7 @@ database = connected
 redis    = not_configured
 ```
 
-Connection remains lazy during import, credentials stay in ignored `backend/.env`, and no secret is stored in tracked documentation. The database is currently at `0001_system_metadata`; `0002_core_identity_projects` is the pending head. Before applying it, the expanded table checker reports the five missing core tables.
+Connection remains lazy during import, credentials stay in ignored `backend/.env`, and no secret is stored in tracked documentation. The database is at `0002_core_identity_projects (head)`, and the table checker reports `ALL CORE TABLES EXIST`. The read-only data checker currently reports zero rows and `CORE DEVELOPMENT DATA MISSING` because seeding remains explicit.
 
 ## Intentionally Not Implemented
 
@@ -131,21 +165,22 @@ Connection remains lazy during import, credentials stay in ignored `backend/.env
 - Login, registration, organization or project APIs
 - Workflow, run, model-call, tool-call, outcome or cost tables
 - Comparison, recommendation or analytics tables
+- Automatic seed execution or production seed data
 - Automatic table creation
 - Authentication
 - Project or workflow APIs
 - Redis
 - Frontend
 
-## Migration Status and Next Verification
+## Current Verification and Next Action
 
 1. `scripts/check_db_ready.ps1` reports `DATABASE CONNECTED`.
-2. `scripts/db_history.ps1` shows both ordered revisions.
-3. Before upgrade, `scripts/db_current.ps1` reports `0001_system_metadata`.
-4. Run `scripts/db_migrate.ps1` deliberately to apply the pending core revision.
-5. Confirm `scripts/db_current.ps1` reaches `0002_core_identity_projects (head)`.
-6. Confirm `scripts/check_db_tables.ps1` reports `ALL CORE TABLES EXIST`.
-7. Backend tests must continue to pass without requiring PostgreSQL or Alembic.
+2. `scripts/db_current.ps1` reports `0002_core_identity_projects (head)`.
+3. `scripts/check_db_tables.ps1` reports `ALL CORE TABLES EXIST`.
+4. Backend tests pass without requiring PostgreSQL, migrations or seed data.
+5. Run `scripts/db_seed_dev.ps1` deliberately when demo records are wanted.
+6. Run `scripts/check_core_data.ps1` and confirm `CORE DEVELOPMENT DATA FOUND`.
+7. Run the seed again and verify counts do not increase.
 
 Before future rollback integration tests, create a separate disposable `outcomeiq_test` database. Do not test destructive downgrade behavior against local development data.
 
@@ -153,6 +188,6 @@ Detailed migration instructions are in `day-3-alembic-migration.md`.
 
 ## Next Recommended Day 3 Prompt
 
-The next prompt should apply and verify the prepared core revision without adding new models:
+The next prompt should execute and verify the safe seed without adding new models:
 
-> Apply the prepared `0002_core_identity_projects` migration, verify Alembic current/history and all core tables, inspect constraints safely, rerun tests, and update the Day 3 checkpoint. Do not add authentication, APIs or workflow economics tables.
+> Run the existing development seed twice, verify idempotence and core row counts, rerun tests, and update the Day 3 checkpoint. Do not add authentication, APIs, migrations or workflow economics tables.

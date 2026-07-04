@@ -4,7 +4,7 @@ Initial FastAPI modular-monolith foundation for the OutcomeIQ outcome-aware AI F
 
 ## Current status
 
-**Day 2 is complete.** Day 3 has verified PostgreSQL connectivity, the applied `0001_system_metadata` baseline, and a prepared core identity/project migration.
+**Day 2 is complete.** Day 3 has verified PostgreSQL connectivity, both approved migrations applied, and the first core data access layer ready.
 
 Available now:
 
@@ -19,8 +19,10 @@ Available now:
 - Safe database readiness check using `SELECT 1`
 - Alembic environment with the `SystemMetadata` model registered
 - First infrastructure migration for `system_metadata`
-- Pending core migration for users, organizations, projects, memberships and audit events
-- Endpoint and model-metadata tests
+- Applied core migration for users, organizations, projects, memberships and audit events
+- Pydantic schemas and SQLAlchemy repositories for core records
+- Explicit, idempotent local development seed tooling
+- Endpoint, model and access-layer tests
 - Docker packaging
 
 Not implemented yet:
@@ -51,6 +53,8 @@ Set-ExecutionPolicy -Scope Process -ExecutionPolicy Bypass
 .\scripts\smoke_api.ps1
 .\scripts\check_docker.ps1
 .\scripts\check_db_ready.ps1
+.\scripts\db_seed_dev.ps1
+.\scripts\check_core_data.ps1
 .\scripts\db_history.ps1
 .\scripts\db_current.ps1
 .\scripts\db_migrate.ps1
@@ -64,6 +68,8 @@ Set-ExecutionPolicy -Scope Process -ExecutionPolicy Bypass
 - `smoke_api.ps1` checks the three running API endpoints from another terminal.
 - `check_docker.ps1` reports Docker and Compose availability without starting anything.
 - `check_db_ready.ps1` reports database configuration/connectivity without creating databases, tables or migrations.
+- `db_seed_dev.ps1` explicitly inserts only the safe demo identity/project records.
+- `check_core_data.ps1` reports core row counts and demo-data presence without changing data.
 - `db_history.ps1` and `db_current.ps1` inspect Alembic state.
 - `db_migrate.ps1` explicitly applies reviewed migrations through `alembic upgrade head`.
 - `check_db_tables.ps1` safely checks whether `system_metadata` exists.
@@ -165,7 +171,7 @@ python -m pytest -v
 Expected result:
 
 ```text
-5 passed
+8 passed
 ```
 
 Run only the health tests when needed:
@@ -176,7 +182,7 @@ python -m pytest tests\test_health.py -v
 
 The pytest configuration intentionally leaves warnings visible.
 
-The current `StarletteDeprecationWarning` related to FastAPI TestClient and HTTPX is non-blocking. It does not change the `5 passed` result and should remain visible until the upstream compatibility path is addressed deliberately.
+The current `StarletteDeprecationWarning` related to FastAPI TestClient and HTTPX is non-blocking. It does not change the `8 passed` result and should remain visible until the upstream compatibility path is addressed deliberately.
 
 ## Verified commands
 
@@ -194,7 +200,7 @@ With the API running in the first window, use a second PowerShell window:
 .\scripts\smoke_api.ps1
 ```
 
-Verified results are five passing pytest tests and successful root, health and readiness smoke checks.
+Verified results are eight passing pytest tests and successful root, health and readiness smoke checks.
 
 ## Run with Docker
 
@@ -280,7 +286,18 @@ Apply any pending reviewed migration explicitly, then verify the table:
 .\scripts\check_db_tables.ps1
 ```
 
-Revision `0001_system_metadata` is applied. Revision `0002_core_identity_projects` is prepared but not applied by this task. After applying it, the table check should report `ALL CORE TABLES EXIST`. See `docs/day-3-core-database-models.md` for scope and safety boundaries.
+Revisions `0001_system_metadata` and `0002_core_identity_projects` are applied. The table check reports `ALL CORE TABLES EXIST`. See `docs/day-3-core-data-access-layer.md` for repository, schema and seed boundaries.
+
+## Development seed and core data check
+
+The seed is never run at application startup. Invoke it explicitly from the project root:
+
+```powershell
+.\scripts\db_seed_dev.ps1
+.\scripts\check_core_data.ps1
+```
+
+Before seeding, zero row counts and `CORE DEVELOPMENT DATA MISSING` are valid. After seeding, the checker should report `CORE DEVELOPMENT DATA FOUND`.
 
 ## Troubleshooting
 
@@ -342,4 +359,4 @@ Confirm Docker Desktop is running and configured for Linux containers.
 
 ## Next steps
 
-The next database step is to apply and verify the reviewed core migration. Authentication logic, APIs and workflow economics models remain deliberately unimplemented.
+The next step is to run the local seed deliberately and verify idempotence. Authentication logic, APIs and workflow economics models remain deliberately unimplemented.

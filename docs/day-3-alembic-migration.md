@@ -62,11 +62,10 @@ Before the initial upgrade, `SYSTEM_METADATA TABLE MISSING` was expected.
 The local development database has completed the infrastructure migration:
 
 - Database readiness: `DATABASE CONNECTED`
-- Current revision before applying the core batch: `0001_system_metadata`
-- Pending head: `0002_core_identity_projects`
-- Expected post-upgrade table result: `ALL CORE TABLES EXIST`
+- Current revision: `0002_core_identity_projects (head)`
+- Table verification: `ALL CORE TABLES EXIST`
 
-Running `db_migrate.ps1` applies the pending reviewed revision. Once the database reaches head, running it again should make no schema change.
+The database is at head. Running `db_migrate.ps1` again should make no schema change.
 
 ## Rollback Warning
 
@@ -80,4 +79,4 @@ The revision supports downgrade by dropping `system_metadata`, but no rollback h
 - Redis or frontend components
 - Automatic database creation or automatic migration at application startup
 
-The infrastructure baseline is complete and the core migration is prepared. The next step is to apply revision `0002`, verify all core tables, and stop before authentication or workflow schema work.
+The infrastructure and core migrations are complete. The next step is explicit local seed verification, while authentication and workflow schema work remain deferred.

@@ -86,4 +86,4 @@ ALL CORE TABLES EXIST
 
 ## Next Step
 
-Apply revision `0002_core_identity_projects`, confirm Alembic reaches head, verify all six approved tables, and rerun tests. After that checkpoint, review the Day 4 authentication foundation separately before writing login or registration behavior.
+Revision `0002_core_identity_projects` is applied, Alembic is at head, and all six approved tables exist. The next step is the explicit local development seed and idempotence check before reviewing Day 4 authentication boundaries.
