@@ -1,11 +1,12 @@
-"""Shared SQLAlchemy declarative base for OutcomeIQ."""
+"""Shared SQLAlchemy declarative base and registered model metadata."""
 
 from sqlalchemy.orm import DeclarativeBase
 
 
 class Base(DeclarativeBase):
-    """Base class for all future OutcomeIQ SQLAlchemy models."""
+    """Base class for OutcomeIQ SQLAlchemy models."""
 
 
-# Business model modules will be imported here later so Alembic can discover
-# their metadata. Day 3 Prompt 1 intentionally defines no domain models.
+# Import only the approved infrastructure model so Alembic can discover it.
+# Future business models must be reviewed before they are registered here.
+import app.models.system  # noqa: E402, F401

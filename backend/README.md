@@ -4,7 +4,7 @@ Initial FastAPI modular-monolith foundation for the OutcomeIQ outcome-aware AI F
 
 ## Current status
 
-**Day 2 final status: 100% complete.** The foundation, tests, smoke checks, repository automation and closure documentation are verified.
+**Day 2 is complete.** Day 3 now has verified PostgreSQL connectivity and a prepared first infrastructure migration. It has not been applied automatically.
 
 Available now:
 
@@ -17,17 +17,17 @@ Available now:
 - SQLAlchemy declarative base with no business models
 - Conditional engine and session factory when `DATABASE_URL` is present
 - Safe database readiness check using `SELECT 1`
-- Alembic environment with no migration revisions
-- Basic endpoint tests
+- Alembic environment with the `SystemMetadata` model registered
+- First infrastructure migration for `system_metadata`
+- Endpoint and model-metadata tests
 - Docker packaging
 
 Not implemented yet:
 
 - Authentication
 - Business APIs
-- Business SQLAlchemy models
-- Database tables
-- Alembic migration revisions
+- Business SQLAlchemy models and tables
+- Applied migration state (until `db_migrate.ps1` is run deliberately)
 - Redis integration
 - Frontend code
 
@@ -51,6 +51,10 @@ Set-ExecutionPolicy -Scope Process -ExecutionPolicy Bypass
 .\scripts\smoke_api.ps1
 .\scripts\check_docker.ps1
 .\scripts\check_db_ready.ps1
+.\scripts\db_history.ps1
+.\scripts\db_current.ps1
+.\scripts\db_migrate.ps1
+.\scripts\check_db_tables.ps1
 ```
 
 - `check_backend.ps1` verifies the expected structure without changing anything.
@@ -60,6 +64,9 @@ Set-ExecutionPolicy -Scope Process -ExecutionPolicy Bypass
 - `smoke_api.ps1` checks the three running API endpoints from another terminal.
 - `check_docker.ps1` reports Docker and Compose availability without starting anything.
 - `check_db_ready.ps1` reports database configuration/connectivity without creating databases, tables or migrations.
+- `db_history.ps1` and `db_current.ps1` inspect Alembic state.
+- `db_migrate.ps1` explicitly applies reviewed migrations through `alembic upgrade head`.
+- `check_db_tables.ps1` safely checks whether `system_metadata` exists.
 
 ## Setup on Windows PowerShell
 
@@ -158,7 +165,7 @@ python -m pytest -v
 Expected result:
 
 ```text
-3 passed
+4 passed
 ```
 
 Run only the health tests when needed:
@@ -169,7 +176,7 @@ python -m pytest tests\test_health.py -v
 
 The pytest configuration intentionally leaves warnings visible.
 
-The current `StarletteDeprecationWarning` related to FastAPI TestClient and HTTPX is non-blocking. It does not change the `3 passed` result and should remain visible until the upstream compatibility path is addressed deliberately.
+The current `StarletteDeprecationWarning` related to FastAPI TestClient and HTTPX is non-blocking. It does not change the `4 passed` result and should remain visible until the upstream compatibility path is addressed deliberately.
 
 ## Verified commands
 
@@ -187,7 +194,7 @@ With the API running in the first window, use a second PowerShell window:
 .\scripts\smoke_api.ps1
 ```
 
-Verified results are three passing pytest tests and successful root, health and readiness smoke checks.
+Verified results are four passing pytest tests and successful root, health and readiness smoke checks.
 
 ## Run with Docker
 
@@ -255,20 +262,25 @@ The result is one of:
 
 The check performs only `SELECT 1`. It never creates a database, table or migration.
 
-## Alembic foundation
+## First Alembic infrastructure migration
 
-Alembic uses `DATABASE_URL` from application settings and `Base.metadata` from `app/db/base.py`.
+Alembic uses the private `DATABASE_URL` from application settings and `Base.metadata` from `app/db/base.py`. Only `SystemMetadata` is registered for this milestone.
 
-After PostgreSQL is manually configured, these inspection commands are safe:
+From the project root, inspect migration state with:
 
 ```powershell
-alembic current
-alembic history
+.\scripts\db_history.ps1
+.\scripts\db_current.ps1
 ```
 
-No revision file exists yet. Do not run upgrade, downgrade or autogeneration commands until the first model slice and migration plan have been reviewed.
+Apply the reviewed migration explicitly, then verify the table:
 
-No database table or Alembic migration has been created.
+```powershell
+.\scripts\db_migrate.ps1
+.\scripts\check_db_tables.ps1
+```
+
+The prepared revision creates only `system_metadata`. It does not create business tables. See `docs/day-3-alembic-migration.md` for the command sequence and rollback warning.
 
 ## Troubleshooting
 
@@ -330,4 +342,4 @@ Confirm Docker Desktop is running and configured for Linux containers.
 
 ## Next steps
 
-The next database step is manual PostgreSQL creation and connectivity verification. Business SQLAlchemy models, migration revisions and tables remain deliberately unimplemented and must follow the approved database design.
+The next database step is to apply and verify the first infrastructure migration deliberately. Business SQLAlchemy models, tables and APIs remain deliberately unimplemented and must follow the approved database design.

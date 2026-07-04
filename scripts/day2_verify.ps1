@@ -27,7 +27,9 @@ $RequiredPaths = @(
     @{ Label = "Structured logging"; RelativePath = "backend\app\core\logging.py" },
     @{ Label = "Database session foundation"; RelativePath = "backend\app\db\session.py" },
     @{ Label = "SQLAlchemy declarative base"; RelativePath = "backend\app\db\base.py" },
+    @{ Label = "SQLAlchemy database mixins"; RelativePath = "backend\app\db\mixins.py" },
     @{ Label = "Database health helper"; RelativePath = "backend\app\db\health.py" },
+    @{ Label = "System metadata model"; RelativePath = "backend\app\models\system.py" },
     @{ Label = "Alembic configuration"; RelativePath = "backend\alembic.ini" },
     @{ Label = "Alembic environment"; RelativePath = "backend\alembic\env.py" },
     @{ Label = "Alembic revision template"; RelativePath = "backend\alembic\script.py.mako" },
@@ -35,6 +37,7 @@ $RequiredPaths = @(
     @{ Label = "Backend requirements"; RelativePath = "backend\requirements.txt" },
     @{ Label = "Backend .env.example"; RelativePath = "backend\.env.example" },
     @{ Label = "Health tests"; RelativePath = "backend\tests\test_health.py" },
+    @{ Label = "System metadata model tests"; RelativePath = "backend\tests\test_system_model.py" },
     @{ Label = "Backend README"; RelativePath = "backend\README.md" },
     @{ Label = "Root .gitignore"; RelativePath = ".gitignore" },
     @{ Label = "Root .gitattributes"; RelativePath = ".gitattributes" },
@@ -47,10 +50,16 @@ $RequiredPaths = @(
     @{ Label = "API smoke script"; RelativePath = "scripts\smoke_api.ps1" },
     @{ Label = "Docker check script"; RelativePath = "scripts\check_docker.ps1" },
     @{ Label = "Database readiness script"; RelativePath = "scripts\check_db_ready.ps1" },
+    @{ Label = "Database migration script"; RelativePath = "scripts\db_migrate.ps1" },
+    @{ Label = "Database current revision script"; RelativePath = "scripts\db_current.ps1" },
+    @{ Label = "Database history script"; RelativePath = "scripts\db_history.ps1" },
+    @{ Label = "Database table check script"; RelativePath = "scripts\check_db_tables.ps1" },
     @{ Label = "Day 3 local environment guide"; RelativePath = "docs\day-3-local-env-setup.md" },
     @{ Label = "Day 3 environment template"; RelativePath = "docs\day-3-env-template.md" },
     @{ Label = "Local PostgreSQL guide"; RelativePath = "docs\postgresql-local-setup.md" },
     @{ Label = "Database readiness Python helper"; RelativePath = "backend\scripts\check_db_connection.py" },
+    @{ Label = "Database table check Python helper"; RelativePath = "backend\scripts\check_db_tables.py" },
+    @{ Label = "Day 3 Alembic migration guide"; RelativePath = "docs\day-3-alembic-migration.md" },
     @{ Label = "Local database creation SQL helper"; RelativePath = "database\local\create_outcomeiq_dev.sql" }
 )
 
@@ -63,6 +72,18 @@ foreach ($Required in $RequiredPaths) {
         Write-Host "$MissingMark $($Required.Label) - missing: $FullPath" -ForegroundColor Red
         $AllChecksPassed = $false
     }
+}
+
+$MigrationPath = Join-Path $ProjectRoot "backend\alembic\versions"
+$MigrationFiles = @(
+    Get-ChildItem -LiteralPath $MigrationPath -Filter "*.py" -File -ErrorAction SilentlyContinue
+)
+if ($MigrationFiles.Count -ge 1) {
+    Write-Host "$FoundMark Alembic migration revision" -ForegroundColor Green
+}
+else {
+    Write-Host "$MissingMark Alembic migration revision - no Python revision found in $MigrationPath" -ForegroundColor Red
+    $AllChecksPassed = $false
 }
 
 $VenvPath = Join-Path $ProjectRoot ".venv"

@@ -1,8 +1,8 @@
 # OutcomeIQ — Day 3 Checkpoint: Database Foundation
 
 **Project:** OutcomeIQ — Outcome-aware AI FinOps Platform  
-**Milestone:** Day 3 Prompt 1  
-**Status:** PostgreSQL/SQLAlchemy/Alembic foundation prepared; no tables created
+**Milestone:** Day 3 Alembic validation and first infrastructure migration
+**Status:** PostgreSQL connected; first safe migration prepared but not applied
 
 ## What Day 3 Prompt 1 Built
 
@@ -35,6 +35,17 @@ FastAPI still starts when `DATABASE_URL` is missing or empty.
 - No database, table, model or migration revision was created.
 - No Alembic migration was run.
 
+## What Day 3 Alembic Validation Added
+
+- PostgreSQL connectivity is confirmed by the existing readiness check.
+- Reusable UUID primary-key and timezone-aware timestamp mixins were added.
+- The infrastructure-only `SystemMetadata` model is registered with `Base.metadata`.
+- Revision `0001_system_metadata` creates only the `system_metadata` table.
+- The revision includes a unique metadata key and a downgrade that drops only this table.
+- PowerShell helpers inspect history/current state, apply the reviewed upgrade and verify table existence.
+- A model metadata test runs without requiring PostgreSQL or Alembic execution.
+- No migration was applied during repository preparation.
+
 ## Files Created
 
 - `backend/app/db/base.py`
@@ -50,6 +61,16 @@ FastAPI still starts when `DATABASE_URL` is missing or empty.
 - `docs/day-3-checkpoint.md`
 - `docs/day-3-env-template.md`
 - `database/local/create_outcomeiq_dev.sql`
+- `backend/app/db/mixins.py`
+- `backend/app/models/system.py`
+- `backend/alembic/versions/20260704_0001_create_system_metadata.py`
+- `backend/scripts/check_db_tables.py`
+- `backend/tests/test_system_model.py`
+- `scripts/db_migrate.ps1`
+- `scripts/db_current.ps1`
+- `scripts/db_history.ps1`
+- `scripts/check_db_tables.ps1`
+- `docs/day-3-alembic-migration.md`
 
 ## Files Updated
 
@@ -60,31 +81,32 @@ FastAPI still starts when `DATABASE_URL` is missing or empty.
 - `backend/tests/test_health.py`
 - `scripts/day2_verify.ps1`
 - Root and backend README files
+- `backend/app/db/base.py`
+- `scripts/day2_verify.ps1`
 
 ## Current Database Status
 
-When `backend/.env` is absent or `DATABASE_URL` is empty, the expected state is:
+The local `outcomeiq_dev` database is configured and the readiness script reports:
 
 ```text
-DATABASE NOT CONFIGURED
+DATABASE CONNECTED
 ```
 
-The API remains healthy and readiness returns:
+The API readiness endpoint can therefore report:
 
 ```text
 status   = ready
-database = not_configured
+database = connected
 redis    = not_configured
 ```
 
-No PostgreSQL connection is attempted during application import when the URL is empty.
+Connection remains lazy during import, credentials stay in ignored `backend/.env`, and no secret is stored in tracked documentation. Before the first upgrade, the table verification result should be `SYSTEM_METADATA TABLE MISSING`.
 
 ## Intentionally Not Implemented
 
-- Business SQLAlchemy models
-- OutcomeIQ database tables
-- Alembic migration revisions
-- Migration upgrade/downgrade execution
+- Business SQLAlchemy models or tables
+- User, project, workflow, run, outcome or cost tables
+- Migration upgrade/downgrade execution during this preparation task
 - Automatic table creation
 - Authentication
 - Project or workflow APIs
@@ -93,18 +115,18 @@ No PostgreSQL connection is attempted during application import when the URL is 
 
 ## Manual Steps Soham Must Do Next
 
-1. Install or start a local PostgreSQL environment.
-2. Create a development database named `outcomeiq_dev`.
-3. Use the existing local `postgres` user temporarily or create a dedicated non-superuser application role.
-4. Place the local URL in `backend/.env` without committing it.
-5. Run `scripts/check_db_ready.ps1`.
-6. Restart FastAPI and confirm `/api/v1/ready` reports `connected`.
-7. Create a separate disposable `outcomeiq_test` database before integration or migration rollback tests.
+1. Run `scripts/check_db_ready.ps1` and confirm `DATABASE CONNECTED`.
+2. Run `scripts/db_history.ps1` and review the single head revision.
+3. Run `scripts/db_current.ps1` to record the pre-upgrade state.
+4. Run `scripts/db_migrate.ps1` deliberately.
+5. Run `scripts/db_current.ps1` and `scripts/check_db_tables.ps1`.
+6. Confirm revision `0001_system_metadata` and `SYSTEM_METADATA TABLE EXISTS`.
+7. Create a separate disposable `outcomeiq_test` database before future rollback integration tests.
 
-Detailed instructions are in `day-3-local-env-setup.md` and `postgresql-local-setup.md`.
+Detailed migration instructions are in `day-3-alembic-migration.md`.
 
 ## Next Recommended Day 3 Prompt
 
-The next prompt should configure and test database lifecycle behavior against Soham’s manually created PostgreSQL instance:
+After the infrastructure migration is applied and verified, the next prompt should review the first business schema slice:
 
-> After I manually configure PostgreSQL, verify the development/test connections, add focused SQLAlchemy session and rollback tests, and validate Alembic current/history behavior. Then recommend whether the next reviewed step should be a minimal schema-version metadata table or the first tenant model slice. Do not create tables or migration revisions until I explicitly approve the selected plan.
+> Review the approved database design and propose the smallest tenant-aware business model slice for OutcomeIQ. Define boundaries, invariants and migration risks first. Do not create user, project, workflow or outcome tables until I approve the exact slice.

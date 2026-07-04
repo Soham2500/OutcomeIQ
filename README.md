@@ -10,11 +10,11 @@ OutcomeIQ is an outcome-aware AI FinOps platform that connects the complete cost
 - **Day 2 backend foundation and closure:** 100% complete
 - **FastAPI application:** Running successfully
 - **Swagger UI:** Working
-- **Automated tests:** 3 health/foundation tests passing
+- **Automated tests:** 4 health/model-foundation tests passing
 - **Smoke API check:** Root, health and readiness passing
-- **Day 3 database foundation:** Started; conditional SQLAlchemy session and Alembic scaffolding added
-- **PostgreSQL:** Optional and not locally configured yet
-- **Database migrations/tables:** None created
+- **Day 3 database foundation:** PostgreSQL connected; SQLAlchemy and Alembic validated
+- **PostgreSQL:** Local `outcomeiq_dev` connection verified
+- **Database migrations/tables:** First `system_metadata` revision prepared but not applied
 - **Authentication:** Not implemented yet
 - **Frontend:** Not implemented yet
 
@@ -39,7 +39,7 @@ The project currently provides a clean FastAPI modular-monolith foundation with 
 pro/
 ├── backend/                    FastAPI modular-monolith backend
 │   ├── app/                    Application source
-│   ├── alembic/                Migration environment; no revisions yet
+│   ├── alembic/                Migration environment and first infrastructure revision
 │   ├── tests/                  Backend tests
 │   ├── scripts/                Future administrative scripts
 │   ├── Dockerfile
@@ -76,6 +76,7 @@ These documents define the architecture and product rules that implementation mu
 - [Safe Day 3 `.env` template](docs/day-3-env-template.md)
 - [Local PostgreSQL setup](docs/postgresql-local-setup.md)
 - [Day 3 checkpoint](docs/day-3-checkpoint.md)
+- [First Alembic infrastructure migration](docs/day-3-alembic-migration.md)
 
 ## Backend foundation status
 
@@ -88,9 +89,10 @@ The Day 2 foundation includes:
 - Structured JSON console logging
 - Conditional SQLAlchemy engine/session foundation with no import-time connection
 - Safe database `SELECT 1` readiness helper
-- Alembic environment with empty model metadata and no migration revisions
+- Alembic environment registered with the infrastructure-only `SystemMetadata` model
+- Reviewed first migration revision; not automatically applied
 - Root, health and readiness routes
-- Three endpoint tests
+- Three endpoint tests and one model-metadata test
 - Backend-only Docker configuration
 
 See [Day 2 backend progress](docs/day-2-backend-foundation.md) and the [backend README](backend/README.md) for details.
@@ -107,6 +109,10 @@ From the project root, PowerShell helpers are available for common tasks:
 .\scripts\smoke_api.ps1
 .\scripts\check_docker.ps1
 .\scripts\check_db_ready.ps1
+.\scripts\db_history.ps1
+.\scripts\db_current.ps1
+.\scripts\db_migrate.ps1
+.\scripts\check_db_tables.ps1
 ```
 
 The check and verification scripts do not install packages, create databases or start Uvicorn. `run_backend.ps1` starts the server only when explicitly invoked. The smoke script expects an already-running API.
@@ -145,7 +151,7 @@ python -m pytest -v
 Expected result:
 
 ```text
-3 passed
+4 passed
 ```
 
 The existing Starlette/HTTPX compatibility warning may remain visible; pytest is not configured to hide real warnings.
@@ -231,28 +237,29 @@ Check database readiness without starting FastAPI:
 
 After PostgreSQL, `outcomeiq_dev` and the private URL are configured, the expected output is `DATABASE CONNECTED`. `DATABASE ERROR` means the configured connection could not be verified; the script does not expose the URL.
 
-When PostgreSQL is configured, Alembic can inspect the empty migration state from the backend directory:
+Alembic and table checks are available through project-root helper scripts:
 
 ```powershell
-cd backend
-alembic current
-alembic history
+.\scripts\db_history.ps1
+.\scripts\db_current.ps1
+.\scripts\db_migrate.ps1
+.\scripts\check_db_tables.ps1
 ```
 
-No migration revision exists yet. Do not run `alembic upgrade` until a reviewed model and migration are added in a later milestone.
+`db_migrate.ps1` is the only command above that changes database schema. It applies the reviewed `0001_system_metadata` revision. The other scripts inspect connectivity, revision state or table existence.
 
-No business table, metadata/version table or migration has been created.
+No business table has been designed or created. The first infrastructure migration is prepared, but this repository setup task did not apply it.
 
 ## Next development steps
 
-### Next milestone: complete Day 3 PostgreSQL connectivity
+### Next milestone: apply and verify the first infrastructure migration
 
-- Manually create the local `outcomeiq_dev` database
-- Add the private local `DATABASE_URL` to `backend/.env`
-- Verify `DATABASE CONNECTED` and API readiness
-- Add focused session and connection tests
-- Review the first tenant model slice before creating any migration
+- Reconfirm `DATABASE CONNECTED`
+- Review the single-table migration history
+- Run `db_migrate.ps1` deliberately
+- Confirm the Alembic current revision and `SYSTEM_METADATA TABLE EXISTS`
+- Review the first business model slice separately
 
-Follow [the Day 3 setup plan](docs/day-3-database-setup-plan.md) and [local PostgreSQL guide](docs/postgresql-local-setup.md). Domain models and migrations remain separate reviewed work.
+Follow the [first Alembic migration guide](docs/day-3-alembic-migration.md). Domain models and migrations remain separate reviewed work.
 
 Authentication and frontend implementation remain later milestones.
