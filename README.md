@@ -10,7 +10,7 @@ OutcomeIQ is an outcome-aware AI FinOps platform that connects the complete cost
 - **Day 2 backend foundation and closure:** 100% complete
 - **FastAPI application:** Running successfully
 - **Swagger UI:** Working
-- **Automated tests:** 50 foundation, workflow, cost, outcome and dashboard tests passing
+- **Automated tests:** 57 foundation, workflow, cost, outcome, dashboard and recommendation tests passing
 - **Smoke API check:** Root, health and readiness passing
 - **Day 3 database foundation:** 100% complete
 - **PostgreSQL:** Local `outcomeiq_dev` connection verified
@@ -25,6 +25,7 @@ OutcomeIQ is an outcome-aware AI FinOps platform that connects the complete cost
 - **Day 5 outcome layer:** Storage, services, protected APIs and synthetic smoke workflow implemented
 - **Day 5 milestone:** 100% complete; full verification automation available
 - **Day 6 dashboard APIs:** Project overview, runs, cost and outcome summaries implemented
+- **Day 6 recommendation APIs:** Deterministic, human-reviewed recommendation foundation implemented
 - **Frontend:** Not implemented yet
 
 The project currently provides a clean FastAPI modular-monolith foundation with environment-backed settings, structured logging, versioned routing, health/readiness endpoints, tests and Docker packaging.
@@ -109,6 +110,7 @@ These documents define the architecture and product rules that implementation mu
 - [Day 6 dashboard preparation](docs/day-6-dashboard-preparation.md)
 - [Day 6 starter prompt](docs/day-6-start-prompt.md)
 - [Day 6 dashboard analytics API](docs/day-6-dashboard-analytics-api.md)
+- [Day 6 recommendation API foundation](docs/day-6-recommendation-api-foundation.md)
 - [Accelerated MVP timeline](docs/accelerated-mvp-timeline.md)
 
 ## Backend foundation status
@@ -149,6 +151,8 @@ From the project root, PowerShell helpers are available for common tasks:
 .\scripts\day5_full_verify.ps1
 .\scripts\smoke_dashboard_api.ps1
 .\scripts\day6_dashboard_full_verify.ps1
+.\scripts\smoke_recommendation_api.ps1
+.\scripts\day6_recommendation_full_verify.ps1
 .\scripts\day5_cost_full_verify.ps1
 .\scripts\check_docker.ps1
 .\scripts\check_db_ready.ps1
@@ -198,7 +202,7 @@ python -m pytest -v
 Expected result:
 
 ```text
-50 passed
+57 passed
 ```
 
 The existing Starlette/HTTPX compatibility warning may remain visible; pytest is not configured to hide real warnings.
@@ -285,6 +289,10 @@ After introducing `.gitattributes`, future Git operations may report normalized 
 | GET | `/api/v1/dashboard/projects/{project_id}/workflow-runs` | Recent dashboard run table |
 | GET | `/api/v1/dashboard/projects/{project_id}/cost-summary` | Project cost summary |
 | GET | `/api/v1/dashboard/projects/{project_id}/outcome-summary` | Project outcome summary |
+| POST | `/api/v1/recommendations/generate` | Generate deterministic project/workflow recommendations |
+| GET | `/api/v1/recommendations` | List recommendations using project, workflow, status or type filters |
+| GET | `/api/v1/recommendations/{recommendation_id}` | Read one project-visible recommendation |
+| PATCH | `/api/v1/recommendations/{recommendation_id}` | Update its human-review status |
 | GET | `/docs` | Swagger UI |
 
 The readiness endpoint reports PostgreSQL as `not_configured`, `connected` or `error`. Redis remains `not_configured`. A missing database never prevents FastAPI startup.
@@ -327,7 +335,7 @@ Alembic and table checks are available through project-root helper scripts:
 
 `db_migrate.ps1` is the only command above that changes database schema. It applies reviewed pending revisions through Alembic. The other scripts inspect connectivity, revision state or table existence.
 
-Day 5 revisions `0003_workflow_logging`, `0004_cost_calculation` and `0005_outcome_tracking` are reviewed migration steps and are never applied by application startup. After explicit migration, the table checker reports `ALL REQUIRED TABLES EXIST`. No recommendation table exists.
+Revisions `0003_workflow_logging`, `0004_cost_calculation`, `0005_outcome_tracking` and `0006_recommendations` are reviewed migration steps and are never applied by application startup. After explicit migration, the table checker reports `ALL REQUIRED TABLES EXIST`.
 
 ## Test authentication in Swagger
 
@@ -337,7 +345,7 @@ Never use real credentials in development or commit `backend/.env`. See [Day 4 a
 
 ## Next development steps
 
-### Day 6 dashboard analytics API foundation
+### Day 6 recommendation API foundation
 
 - Day 4 authentication, organization and project API foundation is complete
 - `AUTH PROJECT API SMOKE CHECK PASSED` is the verified live result
@@ -353,7 +361,9 @@ Never use real credentials in development or commit `backend/.env`. See [Day 4 a
 - Run the complete acceptance path with `.\scripts\day5_full_verify.ps1`
 - Day 6 dashboard analytics API foundation is implemented
 - Run its complete acceptance path with `.\scripts\day6_dashboard_full_verify.ps1`
-- Next milestone: frontend dashboard or recommendation API foundation
-- Real provider calls, billing sync, recommendations and frontend remain deferred
+- Deterministic recommendation storage, rules and protected APIs are implemented
+- Run its complete acceptance path with `.\scripts\day6_recommendation_full_verify.ps1`
+- Next milestone: frontend dashboard foundation
+- Real provider calls, billing sync, autonomous decisions and frontend remain deferred
 
-Continue with [Day 6 dashboard preparation](docs/day-6-dashboard-preparation.md) and the [ready-to-use Day 6 prompt](docs/day-6-start-prompt.md). Never commit `backend/.env`, store provider secrets, or persist raw prompts/responses.
+Continue with the [Day 6 recommendation foundation](docs/day-6-recommendation-api-foundation.md). Never commit `backend/.env`, store provider secrets, or persist raw prompts/responses.

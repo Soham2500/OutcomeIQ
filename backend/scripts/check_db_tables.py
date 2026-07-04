@@ -33,11 +33,16 @@ OUTCOME_TABLES = (
     "workflow_run_outcomes",
 )
 
+RECOMMENDATION_TABLES = (
+    "recommendations",
+)
+
 REQUIRED_TABLES = (
     CORE_TABLES
     + WORKFLOW_TABLES
     + COST_TABLES
     + OUTCOME_TABLES
+    + RECOMMENDATION_TABLES
 )
 
 

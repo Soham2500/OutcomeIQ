@@ -20,9 +20,9 @@
 
 ### Week 2 — Product surface
 
-- Evidence-backed recommendation foundation
+- Evidence-backed recommendation API foundation — implemented
 - Failure-waste and configuration-comparison rules
-- Frontend dashboard consuming stable analytics APIs
+- Frontend dashboard consuming stable analytics and recommendation APIs — next
 - Core loading, empty and error states
 
 ### Week 3 — Delivery engineering
@@ -44,4 +44,3 @@
 ## Scope Constraint
 
 This compressed timeline is possible only if scope stays MVP-focused. Defer real provider billing integrations, autonomous routing, advanced ML forecasting, enterprise SSO/chargeback, multi-cloud allocation and production-scale optimization until the core proof is stable and demonstrated.
-

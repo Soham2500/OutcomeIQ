@@ -10,6 +10,7 @@ from app.api.v1.endpoints import (
     outcomes,
     organizations,
     projects,
+    recommendations,
     workflow_runs,
     workflows,
 )
@@ -56,4 +57,9 @@ api_router.include_router(
     dashboard.router,
     prefix="/dashboard",
     tags=["dashboard"],
+)
+api_router.include_router(
+    recommendations.router,
+    prefix="/recommendations",
+    tags=["recommendations"],
 )

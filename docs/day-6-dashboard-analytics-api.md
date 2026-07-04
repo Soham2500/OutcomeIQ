@@ -98,8 +98,14 @@ It checks secret-file protection, dependencies, database readiness, tests, migra
 ## Intentionally Not Implemented
 
 - Frontend dashboard
-- Recommendation engine or automated decisions
+- Automated decisions or autonomous workflow changes
 - Forecasting, anomaly detection or predictive analytics
 - New analytics aggregate tables
 - Real AI-provider billing/pricing synchronization
 - Production deployment
+
+## Recommendation Foundation Added
+
+The next backend slice is now available: deterministic, evidence-backed recommendation APIs can flag missing costs, missing outcomes, high failure patterns, spend without success and cost-per-success opportunities. Recommendations remain human-reviewed suggestions and never alter workflow configurations. See [Day 6 recommendation API foundation](day-6-recommendation-api-foundation.md).
+
+The next product milestone is the frontend dashboard foundation consuming these stable analytics and recommendation endpoints.

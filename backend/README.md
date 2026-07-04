@@ -4,7 +4,7 @@ Initial FastAPI modular-monolith foundation for the OutcomeIQ outcome-aware AI F
 
 ## Current status
 
-**Day 2 through Day 5 are complete, and the Day 6 dashboard API foundation is implemented.** The backend now exposes protected project-level workflow, cost and outcome summaries.
+**Day 2 through Day 5 are complete, and the Day 6 dashboard and recommendation API foundations are implemented.** The backend exposes protected analytics plus deterministic, human-reviewed recommendations.
 
 Available now:
 
@@ -45,6 +45,10 @@ Available now:
 - Full Day 5 readiness, migration, seed and smoke-test automation
 - Read-only dashboard schemas, analytics service and four protected project endpoints
 - Synthetic dashboard smoke test and full Day 6 verification automation
+- Recommendation model and `0006_recommendations` migration
+- Deterministic missing-evidence, failure and cost-per-success recommendation rules
+- Protected generate, list, read and status-update recommendation endpoints
+- Synthetic recommendation smoke test and full verification automation
 - Endpoint, model and access-layer tests
 - Docker packaging
 
@@ -52,7 +56,7 @@ Not implemented yet:
 
 - Advanced authentication such as refresh tokens, reset, MFA or SSO
 - Automated outcome evidence ingestion and scheduled verification
-- Recommendation APIs and models
+- ML-based recommendation optimization or autonomous actions
 - Advanced cost-per-outcome cohorts and failure-waste analytics
 - Real provider pricing or billing synchronization
 - Redis integration
@@ -83,6 +87,8 @@ Set-ExecutionPolicy -Scope Process -ExecutionPolicy Bypass
 .\scripts\day5_full_verify.ps1
 .\scripts\smoke_dashboard_api.ps1
 .\scripts\day6_dashboard_full_verify.ps1
+.\scripts\smoke_recommendation_api.ps1
+.\scripts\day6_recommendation_full_verify.ps1
 .\scripts\day5_cost_full_verify.ps1
 .\scripts\check_docker.ps1
 .\scripts\check_db_ready.ps1
@@ -108,6 +114,8 @@ Set-ExecutionPolicy -Scope Process -ExecutionPolicy Bypass
 - `day5_full_verify.ps1` runs the complete opt-in Day 5 acceptance sequence and cleans up only its own backend process.
 - `smoke_dashboard_api.ps1` verifies overview, run, cost and outcome summaries with synthetic data.
 - `day6_dashboard_full_verify.ps1` performs the complete opt-in dashboard acceptance sequence.
+- `smoke_recommendation_api.ps1` generates, lists and dismisses an evidence-backed recommendation using simulated data.
+- `day6_recommendation_full_verify.ps1` performs the complete opt-in recommendation acceptance sequence.
 - `day5_cost_full_verify.ps1` performs the opt-in migration, seed, startup and cost smoke workflow safely.
 - `check_docker.ps1` reports Docker and Compose availability without starting anything.
 - `check_db_ready.ps1` reports database configuration/connectivity without creating databases, tables or migrations.
@@ -216,6 +224,10 @@ Open:
 | GET | `/api/v1/dashboard/projects/{project_id}/workflow-runs` | Recent workflow-run summary table |
 | GET | `/api/v1/dashboard/projects/{project_id}/cost-summary` | Project cost summary |
 | GET | `/api/v1/dashboard/projects/{project_id}/outcome-summary` | Project outcome summary |
+| POST | `/api/v1/recommendations/generate` | Generate deterministic project/workflow recommendations |
+| GET | `/api/v1/recommendations` | List project recommendations with optional filters |
+| GET | `/api/v1/recommendations/{recommendation_id}` | Read one visible recommendation |
+| PATCH | `/api/v1/recommendations/{recommendation_id}` | Update its human-review status |
 | GET | `/docs` | Swagger UI |
 
 ## Stop the server
@@ -245,7 +257,7 @@ python -m pytest -v
 Expected result:
 
 ```text
-50 passed
+57 passed
 ```
 
 Run only the health tests when needed:
@@ -256,7 +268,7 @@ python -m pytest tests\test_health.py -v
 
 The pytest configuration intentionally leaves warnings visible.
 
-The current `StarletteDeprecationWarning` related to FastAPI TestClient and HTTPX is non-blocking. It does not change the `50 passed` result and should remain visible until the upstream compatibility path is addressed deliberately.
+The current `StarletteDeprecationWarning` related to FastAPI TestClient and HTTPX is non-blocking. It does not change the `57 passed` result and should remain visible until the upstream compatibility path is addressed deliberately.
 
 ## Verified commands
 
@@ -274,7 +286,7 @@ With the API running in the first window, use a second PowerShell window:
 .\scripts\smoke_api.ps1
 ```
 
-Verified results are fifty passing tests, including auth, workflow logging, cost arithmetic, outcome unit economics and dashboard ownership joins.
+Verified results are 57 passing tests, including auth, workflow logging, cost arithmetic, outcome unit economics, dashboard ownership joins and recommendation rules/routes.
 
 ## Run with Docker
 
@@ -498,4 +510,4 @@ OutcomeIQ’s core cost-per-success proof is represented in the backend. Run the
 .\scripts\day5_full_verify.ps1
 ```
 
-The Day 6 dashboard analytics API foundation is implemented. Run `.\scripts\day6_dashboard_full_verify.ps1` for complete acceptance. The next milestone is either the frontend dashboard or recommendation API foundation; real provider integrations remain deferred.
+The Day 6 dashboard and recommendation API foundations are implemented. Run `.\scripts\day6_recommendation_full_verify.ps1` for complete recommendation acceptance. The next milestone is the frontend dashboard foundation; real provider integrations, ML optimization and autonomous actions remain deferred.

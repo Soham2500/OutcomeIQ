@@ -97,3 +97,25 @@ class OutcomeVerificationSource(str, Enum):
     SIMULATED = "simulated"
     API = "api"
     SYSTEM = "system"
+
+
+class RecommendationType(str, Enum):
+    MISSING_COSTS = "missing_costs"
+    MISSING_OUTCOMES = "missing_outcomes"
+    HIGH_COST_LOW_SUCCESS = "high_cost_low_success"
+    HIGH_FAILURE_RATE = "high_failure_rate"
+    COST_PER_SUCCESS_OPPORTUNITY = "cost_per_success_opportunity"
+    DATA_QUALITY = "data_quality"
+
+
+class RecommendationSeverity(str, Enum):
+    LOW = "low"
+    MEDIUM = "medium"
+    HIGH = "high"
+
+
+class RecommendationStatus(str, Enum):
+    OPEN = "open"
+    ACCEPTED = "accepted"
+    DISMISSED = "dismissed"
+    RESOLVED = "resolved"
