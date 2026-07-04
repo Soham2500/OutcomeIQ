@@ -4,7 +4,7 @@ Initial FastAPI modular-monolith foundation for the OutcomeIQ outcome-aware AI F
 
 ## Current status
 
-**Day 2, Day 3 and Day 4 are complete. Day 5 is in progress.** Workflow logging, deterministic run cost calculation and outcome storage models are implemented with explicit migrations.
+**Day 2, Day 3 and Day 4 are complete. Day 5 is in progress.** Workflow logging, deterministic cost calculation and protected outcome-aware unit economics are implemented end to end.
 
 Available now:
 
@@ -39,15 +39,18 @@ Available now:
 - Protected cost and pricing-rate APIs
 - Idempotent demo pricing seed and full Day 5 verification automation
 - Outcome Contract and one-per-run outcome models with `0005_outcome_tracking`
+- Outcome schemas, repositories, verification timestamping and cost-per-success service
+- Membership-scoped Outcome Contract, run-outcome and unit-economics APIs
+- Two-run synthetic outcome tracking smoke test
 - Endpoint, model and access-layer tests
 - Docker packaging
 
 Not implemented yet:
 
 - Advanced authentication such as refresh tokens, reset, MFA or SSO
-- Outcome APIs and verification services
+- Automated outcome evidence ingestion and scheduled verification
 - Recommendation APIs and models
-- Cost-per-outcome and failure-waste analytics
+- Advanced cost-per-outcome cohorts and failure-waste analytics
 - Real provider pricing or billing synchronization
 - Redis integration
 - Frontend code
@@ -73,6 +76,7 @@ Set-ExecutionPolicy -Scope Process -ExecutionPolicy Bypass
 .\scripts\smoke_workflow_logging_api.ps1
 .\scripts\db_seed_pricing.ps1
 .\scripts\smoke_cost_calculation_api.ps1
+.\scripts\smoke_outcome_tracking_api.ps1
 .\scripts\day5_cost_full_verify.ps1
 .\scripts\check_docker.ps1
 .\scripts\check_db_ready.ps1
@@ -94,6 +98,7 @@ Set-ExecutionPolicy -Scope Process -ExecutionPolicy Bypass
 - `smoke_workflow_logging_api.ps1` records one complete synthetic workflow trace against an already-running API.
 - `db_seed_pricing.ps1` idempotently inserts explicitly non-production demo rates.
 - `smoke_cost_calculation_api.ps1` calculates and reads one synthetic run cost.
+- `smoke_outcome_tracking_api.ps1` verifies one success, one escalation and cost per success.
 - `day5_cost_full_verify.ps1` performs the opt-in migration, seed, startup and cost smoke workflow safely.
 - `check_docker.ps1` reports Docker and Compose availability without starting anything.
 - `check_db_ready.ps1` reports database configuration/connectivity without creating databases, tables or migrations.
@@ -194,6 +199,10 @@ Open:
 | POST | `/api/v1/costs/workflow-runs/{workflow_run_id}/calculate` | Calculate and upsert run cost |
 | GET | `/api/v1/costs/workflow-runs/{workflow_run_id}` | Read stored run cost |
 | GET/POST | `/api/v1/costs/pricing-rates` | List or create configured pricing rates |
+| POST/GET | `/api/v1/outcomes/contracts` | Create or list Outcome Contracts |
+| GET/PATCH | `/api/v1/outcomes/contracts/{contract_id}` | Read or update a contract |
+| POST/GET | `/api/v1/outcomes/workflow-runs/{workflow_run_id}` | Record or read a run outcome |
+| GET | `/api/v1/outcomes/metrics/cost-per-success` | Calculate cost per successful outcome |
 | GET | `/docs` | Swagger UI |
 
 ## Stop the server
@@ -223,7 +232,7 @@ python -m pytest -v
 Expected result:
 
 ```text
-38 passed
+44 passed
 ```
 
 Run only the health tests when needed:
@@ -234,7 +243,7 @@ python -m pytest tests\test_health.py -v
 
 The pytest configuration intentionally leaves warnings visible.
 
-The current `StarletteDeprecationWarning` related to FastAPI TestClient and HTTPX is non-blocking. It does not change the `38 passed` result and should remain visible until the upstream compatibility path is addressed deliberately.
+The current `StarletteDeprecationWarning` related to FastAPI TestClient and HTTPX is non-blocking. It does not change the `44 passed` result and should remain visible until the upstream compatibility path is addressed deliberately.
 
 ## Verified commands
 
@@ -252,7 +261,7 @@ With the API running in the first window, use a second PowerShell window:
 .\scripts\smoke_api.ps1
 ```
 
-Verified results are thirty-eight passing tests, including auth, workflow logging, cost arithmetic and outcome metadata registration.
+Verified results are forty-four passing tests, including auth, workflow logging, cost arithmetic, outcome unit economics and protected route registration.
 
 ## Run with Docker
 
@@ -470,4 +479,4 @@ Seed the demo rates and run the cost smoke test manually, or use the complete op
 .\scripts\day5_cost_full_verify.ps1
 ```
 
-The next milestone is outcome schemas, repositories and a verification service. Real provider integrations, billing sync, recommendations and frontend work remain deferred.
+OutcomeIQ’s core cost-per-success proof is now represented in the backend. The next milestone is evidence-backed recommendation and failure-waste logic. Real provider integrations, billing sync and frontend work remain deferred.

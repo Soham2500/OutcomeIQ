@@ -30,6 +30,16 @@ Day 5 is in progress. Workflow logging and the deterministic cost calculation fo
 - Added `outcome_contracts` and one-per-run `workflow_run_outcomes` models.
 - Prepared reversible Alembic revision `0005_outcome_tracking`.
 - Extended required-table and metadata-test coverage for outcome storage.
+- Added Outcome Contract, workflow-run outcome and unit-economics schemas.
+- Added simple Outcome Contract and workflow-run outcome repositories.
+- Added outcome validation, verification timestamping and retrieval service logic.
+- Added deterministic cost-per-successful-outcome calculation without aggregate tables.
+- Added database-independent schema, repository and service tests.
+- Added protected, membership-scoped Outcome Contract endpoints.
+- Added protected workflow-run outcome create/update and retrieval endpoints.
+- Added authenticated cost-per-successful-outcome metrics endpoint.
+- Added a two-run synthetic outcome tracking smoke script.
+- Added route security and endpoint import tests.
 
 No migration is applied automatically by these implementation changes. `scripts/check_db_tables.ps1` reports any pending workflow or cost tables until reviewed revisions are explicitly applied.
 
@@ -38,10 +48,10 @@ No migration is applied automatically by these implementation changes. `scripts/
 - Real AI-provider calls or credentials
 - Cost-per-outcome and failure-waste calculation
 - Outcome verification
-- Outcome repositories, services and APIs
+- Recommendation engine and decision APIs
 - Recommendation engine
 - Frontend
 
 ## Next Step
 
-Review and explicitly apply `0005_outcome_tracking`, then implement outcome schemas, repositories and a verification service in a separate prompt. Cost-per-success and failure-waste analysis remain later milestones.
+Review and explicitly apply `0005_outcome_tracking`, seed demo pricing and run the outcome smoke test. The next product milestone is evidence-backed recommendation logic; failure-waste depth and frontend work remain later milestones.

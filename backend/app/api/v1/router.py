@@ -6,6 +6,7 @@ from app.api.v1.endpoints import (
     auth,
     costs,
     health,
+    outcomes,
     organizations,
     projects,
     workflow_runs,
@@ -44,4 +45,9 @@ api_router.include_router(
     costs.router,
     prefix="/costs",
     tags=["costs"],
+)
+api_router.include_router(
+    outcomes.router,
+    prefix="/outcomes",
+    tags=["outcomes"],
 )
