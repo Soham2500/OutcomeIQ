@@ -2,7 +2,7 @@
 
 ## Status
 
-Day 5 is in progress. Workflow logging and the deterministic cost calculation foundation are implemented. Database migration and live smoke execution remain explicit operator actions.
+**Day 5 status: 100% complete.** Workflow logging, cost calculation, outcome tracking and cost-per-success foundations are implemented. Migrations and live smoke execution remain explicit operator actions through the full verifier.
 
 ## Completed in This Checkpoint
 
@@ -40,18 +40,20 @@ Day 5 is in progress. Workflow logging and the deterministic cost calculation fo
 - Added authenticated cost-per-successful-outcome metrics endpoint.
 - Added a two-run synthetic outcome tracking smoke script.
 - Added route security and endpoint import tests.
+- Added safe full verification automation covering readiness, tests, migrations, tables, pricing and all smoke scripts.
+- Completed Day 5 closure documentation and Day 6 dashboard preparation.
 
-No migration is applied automatically by these implementation changes. `scripts/check_db_tables.ps1` reports any pending workflow or cost tables until reviewed revisions are explicitly applied.
+No migration is applied automatically by application startup or documentation-only checks. `scripts/check_db_tables.ps1` reports pending workflow, cost or outcome tables until reviewed revisions are explicitly applied.
 
 ## Not Implemented Yet
 
 - Real AI-provider calls or credentials
-- Cost-per-outcome and failure-waste calculation
-- Outcome verification
+- Automated outcome evidence ingestion and scheduled reversals
 - Recommendation engine and decision APIs
-- Recommendation engine
+- Advanced forecasting, causal analytics and deeper failure-waste analysis
+- Autonomous routing
 - Frontend
 
 ## Next Step
 
-Review and explicitly apply `0005_outcome_tracking`, seed demo pricing and run the outcome smoke test. The next product milestone is evidence-backed recommendation logic; failure-waste depth and frontend work remain later milestones.
+Run `.\scripts\day5_full_verify.ps1` for the complete live acceptance path. The repository is ready for the Day 6 dashboard analytics API foundation; frontend implementation remains deferred.

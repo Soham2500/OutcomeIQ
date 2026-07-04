@@ -23,6 +23,7 @@ OutcomeIQ is an outcome-aware AI FinOps platform that connects the complete cost
 - **Day 5 workflow logging foundation:** Models, migration and protected simulated logging APIs implemented
 - **Day 5 cost foundation:** Pricing, deterministic run-cost calculation, APIs and automation implemented
 - **Day 5 outcome layer:** Storage, services, protected APIs and synthetic smoke workflow implemented
+- **Day 5 milestone:** 100% complete; full verification automation available
 - **Frontend:** Not implemented yet
 
 The project currently provides a clean FastAPI modular-monolith foundation with environment-backed settings, structured logging, versioned routing, health/readiness endpoints, tests and Docker packaging.
@@ -103,6 +104,9 @@ These documents define the architecture and product rules that implementation mu
 - [Day 5 outcome models and migration](docs/day-5-outcome-models-migration.md)
 - [Day 5 outcome service layer](docs/day-5-outcome-service-layer.md)
 - [Day 5 outcome APIs](docs/day-5-outcome-apis.md)
+- [Day 5 final summary](docs/day-5-final-summary.md)
+- [Day 6 dashboard preparation](docs/day-6-dashboard-preparation.md)
+- [Day 6 starter prompt](docs/day-6-start-prompt.md)
 
 ## Backend foundation status
 
@@ -139,6 +143,7 @@ From the project root, PowerShell helpers are available for common tasks:
 .\scripts\db_seed_pricing.ps1
 .\scripts\smoke_cost_calculation_api.ps1
 .\scripts\smoke_outcome_tracking_api.ps1
+.\scripts\day5_full_verify.ps1
 .\scripts\day5_cost_full_verify.ps1
 .\scripts\check_docker.ps1
 .\scripts\check_db_ready.ps1
@@ -313,7 +318,7 @@ Alembic and table checks are available through project-root helper scripts:
 
 `db_migrate.ps1` is the only command above that changes database schema. It applies reviewed pending revisions through Alembic. The other scripts inspect connectivity, revision state or table existence.
 
-Day 5 revisions `0003_workflow_logging` and `0004_cost_calculation` are reviewed migration steps and are never applied by application startup. After explicit migration, the table checker reports `ALL REQUIRED TABLES EXIST`. No outcome or recommendation table exists.
+Day 5 revisions `0003_workflow_logging`, `0004_cost_calculation` and `0005_outcome_tracking` are reviewed migration steps and are never applied by application startup. After explicit migration, the table checker reports `ALL REQUIRED TABLES EXIST`. No recommendation table exists.
 
 ## Test authentication in Swagger
 
@@ -323,7 +328,7 @@ Never use real credentials in development or commit `backend/.env`. See [Day 4 a
 
 ## Next development steps
 
-### Day 5 workflow logging and cost foundation
+### Day 5 complete
 
 - Day 4 authentication, organization and project API foundation is complete
 - `AUTH PROJECT API SMOKE CHECK PASSED` is the verified live result
@@ -336,7 +341,8 @@ Never use real credentials in development or commit `backend/.env`. See [Day 4 a
 - Demo pricing, deterministic Decimal cost calculation and protected cost APIs are implemented
 - Run the full cost verification with `.\scripts\day5_cost_full_verify.ps1`
 - OutcomeIQ’s core cost-per-success proof is represented end to end in the backend
-- Next milestone: evidence-backed recommendation and failure-waste logic
-- Real provider calls, billing sync, outcome metrics and recommendations remain deferred
+- Run the complete acceptance path with `.\scripts\day5_full_verify.ps1`
+- Next milestone: Day 6 dashboard analytics API foundation
+- Real provider calls, billing sync, recommendations and frontend remain deferred
 
-Start with [the Day 5 plan](docs/day-5-workflow-logging-plan.md) and [ready-to-use prompt](docs/day-5-start-prompt.md). Never commit `backend/.env`, store provider secrets, or persist raw prompts/responses.
+Continue with [Day 6 dashboard preparation](docs/day-6-dashboard-preparation.md) and the [ready-to-use Day 6 prompt](docs/day-6-start-prompt.md). Never commit `backend/.env`, store provider secrets, or persist raw prompts/responses.

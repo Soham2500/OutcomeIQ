@@ -4,7 +4,7 @@ Initial FastAPI modular-monolith foundation for the OutcomeIQ outcome-aware AI F
 
 ## Current status
 
-**Day 2, Day 3 and Day 4 are complete. Day 5 is in progress.** Workflow logging, deterministic cost calculation and protected outcome-aware unit economics are implemented end to end.
+**Day 2 through Day 5 are complete.** Workflow logging, deterministic cost calculation and protected outcome-aware unit economics are implemented end to end, with an opt-in full verifier.
 
 Available now:
 
@@ -42,6 +42,7 @@ Available now:
 - Outcome schemas, repositories, verification timestamping and cost-per-success service
 - Membership-scoped Outcome Contract, run-outcome and unit-economics APIs
 - Two-run synthetic outcome tracking smoke test
+- Full Day 5 readiness, migration, seed and smoke-test automation
 - Endpoint, model and access-layer tests
 - Docker packaging
 
@@ -77,6 +78,7 @@ Set-ExecutionPolicy -Scope Process -ExecutionPolicy Bypass
 .\scripts\db_seed_pricing.ps1
 .\scripts\smoke_cost_calculation_api.ps1
 .\scripts\smoke_outcome_tracking_api.ps1
+.\scripts\day5_full_verify.ps1
 .\scripts\day5_cost_full_verify.ps1
 .\scripts\check_docker.ps1
 .\scripts\check_db_ready.ps1
@@ -99,6 +101,7 @@ Set-ExecutionPolicy -Scope Process -ExecutionPolicy Bypass
 - `db_seed_pricing.ps1` idempotently inserts explicitly non-production demo rates.
 - `smoke_cost_calculation_api.ps1` calculates and reads one synthetic run cost.
 - `smoke_outcome_tracking_api.ps1` verifies one success, one escalation and cost per success.
+- `day5_full_verify.ps1` runs the complete opt-in Day 5 acceptance sequence and cleans up only its own backend process.
 - `day5_cost_full_verify.ps1` performs the opt-in migration, seed, startup and cost smoke workflow safely.
 - `check_docker.ps1` reports Docker and Compose availability without starting anything.
 - `check_db_ready.ps1` reports database configuration/connectivity without creating databases, tables or migrations.
@@ -454,7 +457,7 @@ Confirm Uvicorn shows a successful startup and open `http://127.0.0.1:8000/docs`
 
 Confirm Docker Desktop is running and configured for Linux containers.
 
-## Day 5 workflow logging and cost foundation
+## Day 5 complete
 
 The live Day 4 smoke result is `AUTH PROJECT API SMOKE CHECK PASSED`. Day 5 now defines `workflows`, `workflow_configurations`, `workflow_runs`, `model_calls` and `tool_calls` without applying the migration automatically.
 
@@ -479,4 +482,10 @@ Seed the demo rates and run the cost smoke test manually, or use the complete op
 .\scripts\day5_cost_full_verify.ps1
 ```
 
-OutcomeIQ’s core cost-per-success proof is now represented in the backend. The next milestone is evidence-backed recommendation and failure-waste logic. Real provider integrations, billing sync and frontend work remain deferred.
+OutcomeIQ’s core cost-per-success proof is represented in the backend. Run the complete acceptance sequence with:
+
+```powershell
+.\scripts\day5_full_verify.ps1
+```
+
+The next milestone is the Day 6 dashboard analytics API foundation. Real provider integrations, billing sync, recommendations and frontend work remain deferred.
