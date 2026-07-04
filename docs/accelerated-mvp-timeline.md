@@ -22,8 +22,10 @@
 
 - Evidence-backed recommendation API foundation — implemented
 - Failure-waste and configuration-comparison rules
-- Frontend dashboard consuming stable analytics and recommendation APIs — next
+- Frontend dashboard foundation consuming stable analytics and recommendation APIs — implemented
 - Core loading, empty and error states
+
+Next: dashboard polish, evidence-focused charts and reproducible demo data.
 
 ### Week 3 — Delivery engineering
 

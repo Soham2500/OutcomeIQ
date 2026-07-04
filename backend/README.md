@@ -4,7 +4,7 @@ Initial FastAPI modular-monolith foundation for the OutcomeIQ outcome-aware AI F
 
 ## Current status
 
-**Day 2 through Day 5 are complete, and the Day 6 dashboard and recommendation API foundations are implemented.** The backend exposes protected analytics plus deterministic, human-reviewed recommendations.
+**Day 2 through Day 5 are complete, the Day 6 dashboard/recommendation APIs are implemented, and a separate Day 7 React frontend now consumes them.** The backend remains the source of truth for analytics and recommendation rules.
 
 Available now:
 
@@ -49,6 +49,7 @@ Available now:
 - Deterministic missing-evidence, failure and cost-per-success recommendation rules
 - Protected generate, list, read and status-update recommendation endpoints
 - Synthetic recommendation smoke test and full verification automation
+- Separate React/TypeScript frontend with typed clients for auth, projects, dashboard analytics and recommendations
 - Endpoint, model and access-layer tests
 - Docker packaging
 
@@ -60,7 +61,7 @@ Not implemented yet:
 - Advanced cost-per-outcome cohorts and failure-waste analytics
 - Real provider pricing or billing synchronization
 - Redis integration
-- Frontend code
+- Production frontend deployment and complete UX polish
 
 ## Prerequisites
 
@@ -89,6 +90,10 @@ Set-ExecutionPolicy -Scope Process -ExecutionPolicy Bypass
 .\scripts\day6_dashboard_full_verify.ps1
 .\scripts\smoke_recommendation_api.ps1
 .\scripts\day6_recommendation_full_verify.ps1
+.\scripts\install_frontend.ps1
+.\scripts\run_frontend.ps1
+.\scripts\frontend_typecheck.ps1
+.\scripts\day7_frontend_foundation_verify.ps1
 .\scripts\day5_cost_full_verify.ps1
 .\scripts\check_docker.ps1
 .\scripts\check_db_ready.ps1
@@ -116,6 +121,10 @@ Set-ExecutionPolicy -Scope Process -ExecutionPolicy Bypass
 - `day6_dashboard_full_verify.ps1` performs the complete opt-in dashboard acceptance sequence.
 - `smoke_recommendation_api.ps1` generates, lists and dismisses an evidence-backed recommendation using simulated data.
 - `day6_recommendation_full_verify.ps1` performs the complete opt-in recommendation acceptance sequence.
+- `install_frontend.ps1` installs the declared React/Vite dependencies.
+- `run_frontend.ps1` explicitly starts the Vite development server.
+- `frontend_typecheck.ps1` validates the TypeScript project without starting it.
+- `day7_frontend_foundation_verify.ps1` checks secret protection, installs dependencies and runs the frontend typecheck.
 - `day5_cost_full_verify.ps1` performs the opt-in migration, seed, startup and cost smoke workflow safely.
 - `check_docker.ps1` reports Docker and Compose availability without starting anything.
 - `check_db_ready.ps1` reports database configuration/connectivity without creating databases, tables or migrations.
@@ -510,4 +519,4 @@ OutcomeIQ’s core cost-per-success proof is represented in the backend. Run the
 .\scripts\day5_full_verify.ps1
 ```
 
-The Day 6 dashboard and recommendation API foundations are implemented. Run `.\scripts\day6_recommendation_full_verify.ps1` for complete recommendation acceptance. The next milestone is the frontend dashboard foundation; real provider integrations, ML optimization and autonomous actions remain deferred.
+The Day 6 dashboard and recommendation APIs plus the Day 7 frontend foundation are implemented. Run `.\scripts\day7_frontend_foundation_verify.ps1` for frontend validation. The next milestone is dashboard polish, evidence-focused charts and reproducible demo data; real provider integrations, ML optimization and autonomous actions remain deferred.

@@ -57,6 +57,10 @@ $RECYCLE.BIN/
 
 # Future frontend dependencies and build output
 node_modules/
+frontend/node_modules/
+frontend/dist/
+frontend/.env
+*.tsbuildinfo
 .npm/
 .pnpm-store/
 npm-debug.log*
