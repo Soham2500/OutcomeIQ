@@ -1,8 +1,10 @@
-# OutcomeIQ — Day 4 Authentication Checkpoint
+# OutcomeIQ — Day 4 Final Checkpoint
 
 ## Status
 
-The authentication plus organization/project API foundation is hardened with active-user checks, project membership enforcement, owner/admin updates, safe audit recording and automated live smoke testing.
+**Day 4 status: 100% complete.** Authentication plus the organization/project MVP API foundation is hardened with active-user checks, project membership enforcement, owner/admin updates, safe audit recording and automated live smoke testing.
+
+The live auth/project smoke path reports `AUTH PROJECT API SMOKE CHECK PASSED`. The authenticated project context is ready for Day 5 workflow logging.
 
 ## What Was Built
 
@@ -117,6 +119,13 @@ The authentication plus organization/project API foundation is hardened with act
 - Workflow, cost or outcome APIs
 - Frontend code
 
-## Next Day 4 Prompt
+## Day 4 Closure
 
-Add project-member management and authorization behavior tests using the existing `project_members` table: owner/admin can add or change members, owner-only removal safety, and member/viewer read-only guarantees. Keep organization permission design explicit and do not add frontend or workflow APIs yet.
+- Authentication foundation: complete
+- Organization/project APIs for the MVP foundation: complete
+- Auth/project smoke test: passing
+- Database foundation: unchanged and healthy
+- Frontend/workflow/outcome/cost features: intentionally deferred
+- Next milestone: Day 5 workflow logging database models
+
+Use `docs/day-5-start-prompt.md` for the reviewed Day 5 starting scope. Do not implement workflow APIs, provider calls or outcome economics in the Day 5 database-model step.

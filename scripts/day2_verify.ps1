@@ -76,6 +76,7 @@ $RequiredPaths = @(
     @{ Label = "API dependency import tests"; RelativePath = "backend\tests\test_api_dependencies_imports.py" },
     @{ Label = "Audit service import tests"; RelativePath = "backend\tests\test_audit_service_imports.py" },
     @{ Label = "Route registration tests"; RelativePath = "backend\tests\test_route_registration.py" },
+    @{ Label = "Day 4 final import tests"; RelativePath = "backend\tests\test_day4_final_imports.py" },
     @{ Label = "Backend README"; RelativePath = "backend\README.md" },
     @{ Label = "Root .gitignore"; RelativePath = ".gitignore" },
     @{ Label = "Root .gitattributes"; RelativePath = ".gitattributes" },
@@ -117,6 +118,9 @@ $RequiredPaths = @(
     @{ Label = "Day 4 organization/project API guide"; RelativePath = "docs\day-4-organization-project-apis.md" },
     @{ Label = "Day 4 manual API testing guide"; RelativePath = "docs\day-4-manual-api-testing.md" },
     @{ Label = "Day 4 API smoke testing guide"; RelativePath = "docs\day-4-api-smoke-testing.md" },
+    @{ Label = "Day 4 final summary"; RelativePath = "docs\day-4-final-summary.md" },
+    @{ Label = "Day 5 workflow logging plan"; RelativePath = "docs\day-5-workflow-logging-plan.md" },
+    @{ Label = "Day 5 starter prompt"; RelativePath = "docs\day-5-start-prompt.md" },
     @{ Label = "Core identity/project migration"; RelativePath = "backend\alembic\versions\20260704_0002_create_core_identity_project_tables.py" },
     @{ Label = "Local database creation SQL helper"; RelativePath = "database\local\create_outcomeiq_dev.sql" }
 )

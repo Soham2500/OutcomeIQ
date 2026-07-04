@@ -4,7 +4,7 @@ Initial FastAPI modular-monolith foundation for the OutcomeIQ outcome-aware AI F
 
 ## Current status
 
-**Day 2 and Day 3 are complete. Day 4 is in progress.** Authenticated APIs now enforce active users, project memberships and owner/admin updates.
+**Day 2, Day 3 and Day 4 are complete.** Authentication and the organization/project MVP API foundation are verified, including the live auth/project smoke path.
 
 Available now:
 
@@ -190,7 +190,7 @@ python -m pytest -v
 Expected result:
 
 ```text
-25 passed
+27 passed
 ```
 
 Run only the health tests when needed:
@@ -201,7 +201,7 @@ python -m pytest tests\test_health.py -v
 
 The pytest configuration intentionally leaves warnings visible.
 
-The current `StarletteDeprecationWarning` related to FastAPI TestClient and HTTPX is non-blocking. It does not change the `25 passed` result and should remain visible until the upstream compatibility path is addressed deliberately.
+The current `StarletteDeprecationWarning` related to FastAPI TestClient and HTTPX is non-blocking. It does not change the `27 passed` result and should remain visible until the upstream compatibility path is addressed deliberately.
 
 ## Verified commands
 
@@ -219,7 +219,7 @@ With the API running in the first window, use a second PowerShell window:
 .\scripts\smoke_api.ps1
 ```
 
-Verified results are twenty-five passing tests, including isolated auth flow, authorization behavior, audit-redaction and route checks.
+Verified results are twenty-seven passing tests, including isolated auth flow, authorization behavior, audit-redaction, route and Day 4 closure checks.
 
 ## Run with Docker
 
@@ -412,6 +412,6 @@ Confirm Uvicorn shows a successful startup and open `http://127.0.0.1:8000/docs`
 
 Confirm Docker Desktop is running and configured for Linux containers.
 
-## Next steps
+## Day 4 complete and next steps
 
-The next step is project-member management and deeper role-behavior tests using the existing membership table. Organization-level full permissions, workflow economics APIs and frontend work remain deferred.
+The live smoke result is `AUTH PROJECT API SMOKE CHECK PASSED`. The next milestone is the Day 5 workflow logging database foundation: `workflows`, `workflow_runs`, `model_calls` and `tool_calls`, using simulated telemetry and no real provider integrations. Workflow APIs, outcomes, cost attribution, recommendations and frontend work remain deferred.

@@ -10,15 +10,16 @@ OutcomeIQ is an outcome-aware AI FinOps platform that connects the complete cost
 - **Day 2 backend foundation and closure:** 100% complete
 - **FastAPI application:** Running successfully
 - **Swagger UI:** Working
-- **Automated tests:** 25 foundation, authentication, authorization and route tests passing
+- **Automated tests:** 27 foundation, authentication, authorization and closure tests passing
 - **Smoke API check:** Root, health and readiness passing
-- **Day 3 database foundation:** 100% complete; ready for Day 4
+- **Day 3 database foundation:** 100% complete
 - **PostgreSQL:** Local `outcomeiq_dev` connection verified
 - **Database migrations/tables:** `0002_core_identity_projects` applied; all core tables exist
 - **Data access layer:** Core Pydantic schemas and SQLAlchemy repositories added
 - **Development seed:** Verified one safe demo row per core table
 - **Authentication:** Basic register, login, bearer JWT and current-user foundation implemented
 - **Organization/project APIs:** Membership-scoped reads and owner/admin updates implemented
+- **Day 4 milestone:** 100% complete; auth/project smoke test passing
 - **Frontend:** Not implemented yet
 
 The project currently provides a clean FastAPI modular-monolith foundation with environment-backed settings, structured logging, versioned routing, health/readiness endpoints, tests and Docker packaging.
@@ -89,6 +90,9 @@ These documents define the architecture and product rules that implementation mu
 - [Day 4 checkpoint](docs/day-4-checkpoint.md)
 - [Organization and project API guide](docs/day-4-organization-project-apis.md)
 - [Manual API testing sequence](docs/day-4-manual-api-testing.md)
+- [Day 4 final summary](docs/day-4-final-summary.md)
+- [Day 5 workflow logging plan](docs/day-5-workflow-logging-plan.md)
+- [Day 5 starter prompt](docs/day-5-start-prompt.md)
 
 ## Backend foundation status
 
@@ -169,7 +173,7 @@ python -m pytest -v
 Expected result:
 
 ```text
-25 passed
+27 passed
 ```
 
 The existing Starlette/HTTPX compatibility warning may remain visible; pytest is not configured to hide real warnings.
@@ -287,16 +291,12 @@ Never use real credentials in development or commit `backend/.env`. See [Day 4 a
 
 ## Next development steps
 
-### Day 4 API hardening and authorization
+### Day 5 workflow logging engine
 
-- Password hashing, auth schemas/service and bearer JWT utilities are implemented
-- Register, login and current-user endpoints are available
-- Test manually through Swagger using `docs/day-4-auth-testing.md`
-- Organization/project create, list, read and update endpoints are available
-- Project creators are automatically added as owners
-- Creates and updates append safe audit events
-- Project lists/reads are membership-scoped; updates require owner/admin
-- Run `scripts/smoke_auth_project_api.ps1` while the backend is already running
-- Next, add project-member management and deeper authorization tests
+- Day 4 authentication, organization and project API foundation is complete
+- `AUTH PROJECT API SMOKE CHECK PASSED` is the verified live result
+- Next models: `workflows`, `workflow_runs`, `model_calls`, `tool_calls`
+- Day 5 records simulated telemetry only; no real provider keys or production data
+- Workflow APIs, outcome verification, analytics and recommendations remain deferred
 
-The smoke script requires a running backend, connected database and applied migrations; it creates synthetic local rows and never prints its password/token. Never commit `backend/.env` or expose `hashed_password`. Organization-level permissions, workflow APIs and frontend work remain separate milestones.
+Start with [the Day 5 plan](docs/day-5-workflow-logging-plan.md) and [ready-to-use prompt](docs/day-5-start-prompt.md). Never commit `backend/.env`, store provider secrets, or persist raw prompts/responses.
