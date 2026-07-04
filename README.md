@@ -10,7 +10,7 @@ OutcomeIQ is an outcome-aware AI FinOps platform that connects the complete cost
 - **Day 2 backend foundation and closure:** 100% complete
 - **FastAPI application:** Running successfully
 - **Swagger UI:** Working
-- **Automated tests:** 16 foundation, database and authentication tests passing
+- **Automated tests:** 19 foundation, authentication and API-contract tests passing
 - **Smoke API check:** Root, health and readiness passing
 - **Day 3 database foundation:** 100% complete; ready for Day 4
 - **PostgreSQL:** Local `outcomeiq_dev` connection verified
@@ -18,6 +18,7 @@ OutcomeIQ is an outcome-aware AI FinOps platform that connects the complete cost
 - **Data access layer:** Core Pydantic schemas and SQLAlchemy repositories added
 - **Development seed:** Verified one safe demo row per core table
 - **Authentication:** Basic register, login, bearer JWT and current-user foundation implemented
+- **Organization/project APIs:** Authenticated CRUD foundation implemented with audit events
 - **Frontend:** Not implemented yet
 
 The project currently provides a clean FastAPI modular-monolith foundation with environment-backed settings, structured logging, versioned routing, health/readiness endpoints, tests and Docker packaging.
@@ -86,6 +87,8 @@ These documents define the architecture and product rules that implementation mu
 - [Day 4 starter prompt](docs/day-4-start-prompt.md)
 - [Day 4 authentication testing](docs/day-4-auth-testing.md)
 - [Day 4 checkpoint](docs/day-4-checkpoint.md)
+- [Organization and project API guide](docs/day-4-organization-project-apis.md)
+- [Manual API testing sequence](docs/day-4-manual-api-testing.md)
 
 ## Backend foundation status
 
@@ -165,7 +168,7 @@ python -m pytest -v
 Expected result:
 
 ```text
-16 passed
+19 passed
 ```
 
 The existing Starlette/HTTPX compatibility warning may remain visible; pytest is not configured to hide real warnings.
@@ -226,6 +229,11 @@ After introducing `.gitattributes`, future Git operations may report normalized 
 | POST | `/api/v1/auth/register` | Register a user with a securely hashed password |
 | POST | `/api/v1/auth/login` | Return a bearer JWT for valid credentials |
 | GET | `/api/v1/auth/me` | Return the current authenticated user |
+| POST/GET | `/api/v1/organizations` | Create or list organizations |
+| GET/PATCH | `/api/v1/organizations/{organization_id}` | Read or update an organization |
+| POST/GET | `/api/v1/projects` | Create or list projects |
+| GET/PATCH | `/api/v1/projects/{project_id}` | Read or update a project |
+| GET | `/api/v1/projects/{project_id}/members` | List project memberships |
 | GET | `/docs` | Swagger UI |
 
 The readiness endpoint reports PostgreSQL as `not_configured`, `connected` or `error`. Redis remains `not_configured`. A missing database never prevents FastAPI startup.
@@ -278,13 +286,14 @@ Never use real credentials in development or commit `backend/.env`. See [Day 4 a
 
 ## Next development steps
 
-### Day 4 authentication foundation started
+### Day 4 authenticated organization/project APIs
 
 - Password hashing, auth schemas/service and bearer JWT utilities are implemented
 - Register, login and current-user endpoints are available
 - Test manually through Swagger using `docs/day-4-auth-testing.md`
-- Next, harden invalid/expired token and authentication audit behavior
+- Organization/project create, list, read and update endpoints are available
+- Project creators are automatically added as owners
+- Creates and updates append safe audit events
+- Next, enforce membership and role-based authorization
 
-Never commit `backend/.env`, hardcode JWT secrets or expose `hashed_password`. Project authorization, workflow APIs and frontend work remain separate milestones.
-
-Authentication and frontend implementation remain later milestones.
+Never commit `backend/.env`, hardcode JWT secrets or expose `hashed_password`. Current organization/project access requires authentication but does not yet enforce tenant membership or RBAC. Workflow APIs and frontend work remain separate milestones.

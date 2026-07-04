@@ -51,6 +51,8 @@ $RequiredPaths = @(
     @{ Label = "Development seed service"; RelativePath = "backend\app\services\dev_seed_service.py" },
     @{ Label = "Authentication service"; RelativePath = "backend\app\services\auth_service.py" },
     @{ Label = "Authentication API endpoints"; RelativePath = "backend\app\api\v1\endpoints\auth.py" },
+    @{ Label = "Organization API endpoints"; RelativePath = "backend\app\api\v1\endpoints\organizations.py" },
+    @{ Label = "Project API endpoints"; RelativePath = "backend\app\api\v1\endpoints\projects.py" },
     @{ Label = "Authentication API dependency"; RelativePath = "backend\app\api\dependencies.py" },
     @{ Label = "Alembic configuration"; RelativePath = "backend\alembic.ini" },
     @{ Label = "Alembic environment"; RelativePath = "backend\alembic\env.py" },
@@ -68,6 +70,8 @@ $RequiredPaths = @(
     @{ Label = "Security tests"; RelativePath = "backend\tests\test_security.py" },
     @{ Label = "Authentication schema tests"; RelativePath = "backend\tests\test_auth_schemas.py" },
     @{ Label = "Authentication import tests"; RelativePath = "backend\tests\test_auth_imports.py" },
+    @{ Label = "Organization/project import tests"; RelativePath = "backend\tests\test_organization_project_imports.py" },
+    @{ Label = "Organization/project schema tests"; RelativePath = "backend\tests\test_organization_project_schemas.py" },
     @{ Label = "Backend README"; RelativePath = "backend\README.md" },
     @{ Label = "Root .gitignore"; RelativePath = ".gitignore" },
     @{ Label = "Root .gitattributes"; RelativePath = ".gitattributes" },
@@ -105,6 +109,8 @@ $RequiredPaths = @(
     @{ Label = "Day 4 starter prompt"; RelativePath = "docs\day-4-start-prompt.md" },
     @{ Label = "Day 4 authentication testing guide"; RelativePath = "docs\day-4-auth-testing.md" },
     @{ Label = "Day 4 checkpoint"; RelativePath = "docs\day-4-checkpoint.md" },
+    @{ Label = "Day 4 organization/project API guide"; RelativePath = "docs\day-4-organization-project-apis.md" },
+    @{ Label = "Day 4 manual API testing guide"; RelativePath = "docs\day-4-manual-api-testing.md" },
     @{ Label = "Core identity/project migration"; RelativePath = "backend\alembic\versions\20260704_0002_create_core_identity_project_tables.py" },
     @{ Label = "Local database creation SQL helper"; RelativePath = "database\local\create_outcomeiq_dev.sql" }
 )

@@ -4,7 +4,7 @@ Initial FastAPI modular-monolith foundation for the OutcomeIQ outcome-aware AI F
 
 ## Current status
 
-**Day 2 and Day 3 are complete. Day 4 authentication has started.** Basic registration, login, bearer JWT and current-user access are implemented.
+**Day 2 and Day 3 are complete. Day 4 is in progress.** Authentication plus organization/project API foundations are implemented.
 
 Available now:
 
@@ -25,13 +25,15 @@ Available now:
 - Read-only schema inspection and Alembic-state validation
 - Bcrypt password hashing and JWT access-token utilities
 - Register, login and protected current-user endpoints
+- Authenticated organization/project CRUD endpoints with audit events
+- Automatic owner membership for newly created projects
 - Endpoint, model and access-layer tests
 - Docker packaging
 
 Not implemented yet:
 
 - Advanced authentication such as refresh tokens, reset, MFA or SSO
-- Business APIs
+- Workflow, cost, outcome and recommendation APIs
 - Workflow, cost, outcome and recommendation models/tables
 - Redis integration
 - Frontend code
@@ -152,6 +154,11 @@ Open:
 | POST | `/api/v1/auth/register` | Register a user without exposing the password hash |
 | POST | `/api/v1/auth/login` | Return a bearer access token |
 | GET | `/api/v1/auth/me` | Return the authenticated active user |
+| POST/GET | `/api/v1/organizations` | Create or list organizations |
+| GET/PATCH | `/api/v1/organizations/{organization_id}` | Read or update an organization |
+| POST/GET | `/api/v1/projects` | Create or list projects |
+| GET/PATCH | `/api/v1/projects/{project_id}` | Read or update a project |
+| GET | `/api/v1/projects/{project_id}/members` | List project memberships |
 | GET | `/docs` | Swagger UI |
 
 ## Stop the server
@@ -181,7 +188,7 @@ python -m pytest -v
 Expected result:
 
 ```text
-16 passed
+19 passed
 ```
 
 Run only the health tests when needed:
@@ -192,7 +199,7 @@ python -m pytest tests\test_health.py -v
 
 The pytest configuration intentionally leaves warnings visible.
 
-The current `StarletteDeprecationWarning` related to FastAPI TestClient and HTTPX is non-blocking. It does not change the `16 passed` result and should remain visible until the upstream compatibility path is addressed deliberately.
+The current `StarletteDeprecationWarning` related to FastAPI TestClient and HTTPX is non-blocking. It does not change the `19 passed` result and should remain visible until the upstream compatibility path is addressed deliberately.
 
 ## Verified commands
 
@@ -210,7 +217,7 @@ With the API running in the first window, use a second PowerShell window:
 .\scripts\smoke_api.ps1
 ```
 
-Verified results are sixteen passing tests, including an isolated register/login/current-user flow.
+Verified results are nineteen passing tests, including isolated auth flow and organization/project API contract checks.
 
 ## Run with Docker
 
@@ -333,6 +340,8 @@ pip install -r backend\requirements.txt
 
 Run the backend, open `http://127.0.0.1:8000/docs`, register a synthetic user, log in, copy the returned access token, select Swagger's **Authorize** button, and call `/api/v1/auth/me`.
 
+After authorization, create an organization, create a project with the returned organization ID, list projects and inspect `/api/v1/projects/{project_id}/members`. The project creator should have role `owner`. See `docs/day-4-manual-api-testing.md` for the complete sequence.
+
 `backend/.env` must remain ignored. Never hardcode or print `JWT_SECRET_KEY`, and never expose `hashed_password` through an API schema or response.
 
 ## Troubleshooting
@@ -395,4 +404,4 @@ Confirm Docker Desktop is running and configured for Linux containers.
 
 ## Next steps
 
-The next step is authentication hardening: invalid/expired token tests, authentication audit events and production secret validation. Project APIs, workflow economics and frontend work remain deferred.
+The next step is membership and role-based authorization using existing project memberships. Workflow economics APIs and frontend work remain deferred.

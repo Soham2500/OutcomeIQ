@@ -8,6 +8,13 @@ from sqlalchemy.orm import Session
 from app.models.project import Project
 
 
+UPDATABLE_FIELDS = {"name", "description", "status"}
+
+
+def get_project_by_id(db: Session, project_id: uuid.UUID) -> Project | None:
+    return db.get(Project, project_id)
+
+
 def get_project_by_slug(
     db: Session,
     organization_id: uuid.UUID,
@@ -55,3 +62,20 @@ def list_projects(
         .limit(limit)
     )
     return list(db.scalars(statement))
+
+
+def update_project(
+    db: Session,
+    project: Project,
+    **fields: object,
+) -> Project:
+    unknown_fields = set(fields) - UPDATABLE_FIELDS
+    if unknown_fields:
+        raise ValueError("Unsupported project update field.")
+
+    for field_name, value in fields.items():
+        setattr(project, field_name, value)
+    db.add(project)
+    db.commit()
+    db.refresh(project)
+    return project
