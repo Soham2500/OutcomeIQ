@@ -2,7 +2,7 @@
 
 ## Status
 
-Day 5 is in progress. The workflow logging database foundation and first protected API layer are implemented. The migration remains an explicit operator action.
+Day 5 is in progress. Workflow logging and the deterministic cost calculation foundation are implemented. Database migration and live smoke execution remain explicit operator actions.
 
 ## Completed in This Checkpoint
 
@@ -19,17 +19,24 @@ Day 5 is in progress. The workflow logging database foundation and first protect
 - Added member-scoped reads and owner/admin workflow-management authorization.
 - Added a synthetic end-to-end workflow logging smoke script.
 - Added database-independent schema, import and route-registration tests.
+- Added `model_pricing_rates` and one-per-run `workflow_run_costs` models.
+- Prepared reversible Alembic revision `0004_cost_calculation`.
+- Added Decimal-based pricing lookup, fallback evidence and cost-summary upsert logic.
+- Added protected cost calculation/read and pricing-rate endpoints.
+- Added idempotent, explicitly non-production demo pricing seed tooling.
+- Added a synthetic cost API smoke test and opt-in full verification automation.
+- Extended required-table and repository verification coverage.
 
-The migration is intentionally not applied by this change. Until it is explicitly applied, the local database should remain on revision `0002_core_identity_projects` and the checker should report the five workflow tables as missing.
+No migration is applied automatically by these implementation changes. `scripts/check_db_tables.ps1` reports any pending workflow or cost tables until reviewed revisions are explicitly applied.
 
 ## Not Implemented Yet
 
 - Real AI-provider calls or credentials
-- Cost engine or failure-waste calculation
+- Cost-per-outcome and failure-waste calculation
 - Outcome verification
 - Recommendation engine
 - Frontend
 
 ## Next Step
 
-Review and explicitly apply the workflow migration, verify `ALL REQUIRED TABLES EXIST`, run the workflow smoke script, then begin the raw provider-rate and cost-calculation engine as a separate milestone.
+Run `.\scripts\day5_cost_full_verify.ps1` or execute the documented manual steps. The next product milestone is verified outcome tracking, followed later by cost-per-success and failure-waste analysis.

@@ -4,7 +4,7 @@ Initial FastAPI modular-monolith foundation for the OutcomeIQ outcome-aware AI F
 
 ## Current status
 
-**Day 2, Day 3 and Day 4 are complete. Day 5 is in progress.** Five workflow logging models, an explicit migration, protected APIs and a synthetic smoke flow are implemented.
+**Day 2, Day 3 and Day 4 are complete. Day 5 is in progress.** Workflow logging plus deterministic, evidence-aware run cost calculation are implemented with explicit migrations and synthetic verification.
 
 Available now:
 
@@ -17,7 +17,7 @@ Available now:
 - SQLAlchemy declarative base with approved infrastructure and core models
 - Conditional engine and session factory when `DATABASE_URL` is present
 - Safe database readiness check using `SELECT 1`
-- Alembic environment with approved core and workflow models registered
+- Alembic environment with approved core, workflow and cost models registered
 - First infrastructure migration for `system_metadata`
 - Applied core migration for users, organizations, projects, memberships and audit events
 - Pydantic schemas and SQLAlchemy repositories for core records
@@ -30,19 +30,23 @@ Available now:
 - Membership-scoped project listing/read access and owner/admin updates
 - Safe shared audit service and live auth/project API smoke test
 - Workflow, workflow-configuration, run, model-call and tool-call models
-- Unapplied `0003_workflow_logging` Alembic revision
+- Explicit workflow and cost Alembic revisions
 - Workflow schemas, repositories and run-state validation service
 - Protected workflow/configuration/run/call/trace endpoints
 - Synthetic workflow logging API smoke script
+- Model pricing-rate and workflow-run-cost models
+- Decimal-based cost calculation with partial-evidence notes
+- Protected cost and pricing-rate APIs
+- Idempotent demo pricing seed and full Day 5 verification automation
 - Endpoint, model and access-layer tests
 - Docker packaging
 
 Not implemented yet:
 
 - Advanced authentication such as refresh tokens, reset, MFA or SSO
-- Workflow, cost, outcome and recommendation APIs
-- Outcome, cost-summary and recommendation models/tables
-- Provider pricing and workflow cost calculation
+- Outcome and recommendation APIs/models
+- Cost-per-outcome and failure-waste analytics
+- Real provider pricing or billing synchronization
 - Redis integration
 - Frontend code
 
@@ -65,6 +69,9 @@ Set-ExecutionPolicy -Scope Process -ExecutionPolicy Bypass
 .\scripts\run_backend.ps1
 .\scripts\smoke_api.ps1
 .\scripts\smoke_workflow_logging_api.ps1
+.\scripts\db_seed_pricing.ps1
+.\scripts\smoke_cost_calculation_api.ps1
+.\scripts\day5_cost_full_verify.ps1
 .\scripts\check_docker.ps1
 .\scripts\check_db_ready.ps1
 .\scripts\db_seed_dev.ps1
@@ -83,6 +90,9 @@ Set-ExecutionPolicy -Scope Process -ExecutionPolicy Bypass
 - `run_backend.ps1` activates `.venv` and starts Uvicorn with auto-reload.
 - `smoke_api.ps1` checks the three running API endpoints from another terminal.
 - `smoke_workflow_logging_api.ps1` records one complete synthetic workflow trace against an already-running API.
+- `db_seed_pricing.ps1` idempotently inserts explicitly non-production demo rates.
+- `smoke_cost_calculation_api.ps1` calculates and reads one synthetic run cost.
+- `day5_cost_full_verify.ps1` performs the opt-in migration, seed, startup and cost smoke workflow safely.
 - `check_docker.ps1` reports Docker and Compose availability without starting anything.
 - `check_db_ready.ps1` reports database configuration/connectivity without creating databases, tables or migrations.
 - `db_seed_dev.ps1` explicitly inserts only the safe demo identity/project records.
@@ -91,7 +101,7 @@ Set-ExecutionPolicy -Scope Process -ExecutionPolicy Bypass
 - `validate_alembic_state.ps1` confirms migration files and the current database head without running migrations.
 - `db_history.ps1` and `db_current.ps1` inspect Alembic state.
 - `db_migrate.ps1` explicitly applies reviewed migrations through `alembic upgrade head`.
-- `check_db_tables.ps1` safely checks all required core and workflow tables.
+- `check_db_tables.ps1` safely checks all required core, workflow and cost tables.
 
 ## Setup on Windows PowerShell
 
@@ -179,6 +189,9 @@ Open:
 | POST | `/api/v1/workflow-runs/{workflow_run_id}/complete` | Complete a running workflow run |
 | POST | `/api/v1/workflow-runs/{workflow_run_id}/fail` | Fail a running workflow run |
 | GET | `/api/v1/workflow-runs/{workflow_run_id}/trace` | Read the ordered run trace |
+| POST | `/api/v1/costs/workflow-runs/{workflow_run_id}/calculate` | Calculate and upsert run cost |
+| GET | `/api/v1/costs/workflow-runs/{workflow_run_id}` | Read stored run cost |
+| GET/POST | `/api/v1/costs/pricing-rates` | List or create configured pricing rates |
 | GET | `/docs` | Swagger UI |
 
 ## Stop the server
@@ -208,7 +221,7 @@ python -m pytest -v
 Expected result:
 
 ```text
-32 passed
+37 passed
 ```
 
 Run only the health tests when needed:
@@ -219,7 +232,7 @@ python -m pytest tests\test_health.py -v
 
 The pytest configuration intentionally leaves warnings visible.
 
-The current `StarletteDeprecationWarning` related to FastAPI TestClient and HTTPX is non-blocking. It does not change the `32 passed` result and should remain visible until the upstream compatibility path is addressed deliberately.
+The current `StarletteDeprecationWarning` related to FastAPI TestClient and HTTPX is non-blocking. It does not change the `37 passed` result and should remain visible until the upstream compatibility path is addressed deliberately.
 
 ## Verified commands
 
@@ -237,7 +250,7 @@ With the API running in the first window, use a second PowerShell window:
 .\scripts\smoke_api.ps1
 ```
 
-Verified results are thirty-two passing tests, including isolated auth flow, authorization behavior, audit-redaction, workflow schemas, imports and route registration.
+Verified results are thirty-seven passing tests, including auth, authorization, workflow logging, cost schemas, Decimal arithmetic and protected route registration.
 
 ## Run with Docker
 
@@ -323,7 +336,7 @@ Apply any pending reviewed migration explicitly, then verify the table:
 .\scripts\check_db_tables.ps1
 ```
 
-Revisions `0001_system_metadata` and `0002_core_identity_projects` are applied. Revision `0003_workflow_logging` is prepared but intentionally unapplied. Before applying it, the table checker lists the five workflow tables as missing; afterward it reports `ALL REQUIRED TABLES EXIST`. See `docs/day-5-workflow-database-models.md` for boundaries and commands.
+Revisions `0003_workflow_logging` and `0004_cost_calculation` are explicit reviewed steps and are never run by application startup. The table checker lists any pending workflow or cost tables; after explicit migration it reports `ALL REQUIRED TABLES EXIST`. See `docs/day-5-workflow-database-models.md` and `docs/day-5-cost-calculation-foundation.md`.
 
 ## Development seed and core data check
 
@@ -430,7 +443,7 @@ Confirm Uvicorn shows a successful startup and open `http://127.0.0.1:8000/docs`
 
 Confirm Docker Desktop is running and configured for Linux containers.
 
-## Day 5 workflow logging foundation
+## Day 5 workflow logging and cost foundation
 
 The live Day 4 smoke result is `AUTH PROJECT API SMOKE CHECK PASSED`. Day 5 now defines `workflows`, `workflow_configurations`, `workflow_runs`, `model_calls` and `tool_calls` without applying the migration automatically.
 
@@ -447,4 +460,12 @@ After the migration is applied, start the backend and run the synthetic end-to-e
 .\scripts\smoke_workflow_logging_api.ps1
 ```
 
-The next milestone is a reviewed provider-rate and cost-calculation engine. Real provider integrations, outcomes, recommendations and frontend work remain deferred.
+Seed the demo rates and run the cost smoke test manually, or use the complete opt-in verifier:
+
+```powershell
+.\scripts\db_seed_pricing.ps1
+.\scripts\smoke_cost_calculation_api.ps1
+.\scripts\day5_cost_full_verify.ps1
+```
+
+The next milestone is verified outcome tracking. Real provider integrations, billing sync, recommendations and frontend work remain deferred.

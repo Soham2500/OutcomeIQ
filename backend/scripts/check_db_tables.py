@@ -23,7 +23,12 @@ WORKFLOW_TABLES = (
     "tool_calls",
 )
 
-REQUIRED_TABLES = CORE_TABLES + WORKFLOW_TABLES
+COST_TABLES = (
+    "model_pricing_rates",
+    "workflow_run_costs",
+)
+
+REQUIRED_TABLES = CORE_TABLES + WORKFLOW_TABLES + COST_TABLES
 
 
 def print_missing_tables(missing_tables: list[str]) -> None:

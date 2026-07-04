@@ -4,6 +4,7 @@ from fastapi import APIRouter
 
 from app.api.v1.endpoints import (
     auth,
+    costs,
     health,
     organizations,
     projects,
@@ -38,4 +39,9 @@ api_router.include_router(
     workflow_runs.router,
     prefix="/workflow-runs",
     tags=["workflow-runs"],
+)
+api_router.include_router(
+    costs.router,
+    prefix="/costs",
+    tags=["costs"],
 )

@@ -10,7 +10,7 @@ OutcomeIQ is an outcome-aware AI FinOps platform that connects the complete cost
 - **Day 2 backend foundation and closure:** 100% complete
 - **FastAPI application:** Running successfully
 - **Swagger UI:** Working
-- **Automated tests:** 32 foundation, authentication, authorization and workflow tests passing
+- **Automated tests:** 37 foundation, authentication, workflow and cost tests passing
 - **Smoke API check:** Root, health and readiness passing
 - **Day 3 database foundation:** 100% complete
 - **PostgreSQL:** Local `outcomeiq_dev` connection verified
@@ -21,6 +21,7 @@ OutcomeIQ is an outcome-aware AI FinOps platform that connects the complete cost
 - **Organization/project APIs:** Membership-scoped reads and owner/admin updates implemented
 - **Day 4 milestone:** 100% complete; auth/project smoke test passing
 - **Day 5 workflow logging foundation:** Models, migration and protected simulated logging APIs implemented
+- **Day 5 cost foundation:** Pricing, deterministic run-cost calculation, APIs and automation implemented
 - **Frontend:** Not implemented yet
 
 The project currently provides a clean FastAPI modular-monolith foundation with environment-backed settings, structured logging, versioned routing, health/readiness endpoints, tests and Docker packaging.
@@ -97,6 +98,7 @@ These documents define the architecture and product rules that implementation mu
 - [Day 5 workflow database models](docs/day-5-workflow-database-models.md)
 - [Day 5 checkpoint](docs/day-5-checkpoint.md)
 - [Day 5 workflow logging APIs](docs/day-5-workflow-logging-apis.md)
+- [Day 5 cost calculation foundation](docs/day-5-cost-calculation-foundation.md)
 
 ## Backend foundation status
 
@@ -130,6 +132,9 @@ From the project root, PowerShell helpers are available for common tasks:
 .\scripts\smoke_api.ps1
 .\scripts\smoke_auth_project_api.ps1
 .\scripts\smoke_workflow_logging_api.ps1
+.\scripts\db_seed_pricing.ps1
+.\scripts\smoke_cost_calculation_api.ps1
+.\scripts\day5_cost_full_verify.ps1
 .\scripts\check_docker.ps1
 .\scripts\check_db_ready.ps1
 .\scripts\db_history.ps1
@@ -178,7 +183,7 @@ python -m pytest -v
 Expected result:
 
 ```text
-32 passed
+37 passed
 ```
 
 The existing Starlette/HTTPX compatibility warning may remain visible; pytest is not configured to hide real warnings.
@@ -254,6 +259,9 @@ After introducing `.gitattributes`, future Git operations may report normalized 
 | POST | `/api/v1/workflow-runs/{workflow_run_id}/complete` | Complete a running workflow run |
 | POST | `/api/v1/workflow-runs/{workflow_run_id}/fail` | Fail a running workflow run |
 | GET | `/api/v1/workflow-runs/{workflow_run_id}/trace` | Read the ordered run trace |
+| POST | `/api/v1/costs/workflow-runs/{workflow_run_id}/calculate` | Calculate and store run cost |
+| GET | `/api/v1/costs/workflow-runs/{workflow_run_id}` | Read stored run cost |
+| GET/POST | `/api/v1/costs/pricing-rates` | List or create configured pricing rates |
 | GET | `/docs` | Swagger UI |
 
 The readiness endpoint reports PostgreSQL as `not_configured`, `connected` or `error`. Redis remains `not_configured`. A missing database never prevents FastAPI startup.
@@ -296,7 +304,7 @@ Alembic and table checks are available through project-root helper scripts:
 
 `db_migrate.ps1` is the only command above that changes database schema. It applies reviewed pending revisions through Alembic. The other scripts inspect connectivity, revision state or table existence.
 
-The core migrations are applied. Day 5 revision `0003_workflow_logging` is prepared but intentionally unapplied, so the table checker currently lists the five workflow tables as missing. After explicit migration it reports `ALL REQUIRED TABLES EXIST`. No outcome, cost-summary or recommendation table exists.
+Day 5 revisions `0003_workflow_logging` and `0004_cost_calculation` are reviewed migration steps and are never applied by application startup. After explicit migration, the table checker reports `ALL REQUIRED TABLES EXIST`. No outcome or recommendation table exists.
 
 ## Test authentication in Swagger
 
@@ -306,7 +314,7 @@ Never use real credentials in development or commit `backend/.env`. See [Day 4 a
 
 ## Next development steps
 
-### Day 5 workflow logging foundation
+### Day 5 workflow logging and cost foundation
 
 - Day 4 authentication, organization and project API foundation is complete
 - `AUTH PROJECT API SMOKE CHECK PASSED` is the verified live result
@@ -316,7 +324,9 @@ Never use real credentials in development or commit `backend/.env`. See [Day 4 a
 - Verify all tables with `.\scripts\check_db_tables.ps1`
 - Day 5 records simulated telemetry only; no real provider keys or production data
 - Run the live workflow check with `.\scripts\smoke_workflow_logging_api.ps1`
-- Next milestone: raw provider-rate inputs and a cost-calculation engine
-- Real provider calls, outcome verification, analytics and recommendations remain deferred
+- Demo pricing, deterministic Decimal cost calculation and protected cost APIs are implemented
+- Run the full cost verification with `.\scripts\day5_cost_full_verify.ps1`
+- Next milestone: verified outcome tracking
+- Real provider calls, billing sync, outcome metrics and recommendations remain deferred
 
 Start with [the Day 5 plan](docs/day-5-workflow-logging-plan.md) and [ready-to-use prompt](docs/day-5-start-prompt.md). Never commit `backend/.env`, store provider secrets, or persist raw prompts/responses.

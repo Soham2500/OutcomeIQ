@@ -68,3 +68,9 @@ class WorkflowRunTrigger(str, Enum):
     API = "api"
     SIMULATED = "simulated"
     SCHEDULED = "scheduled"
+
+
+class CostCalculationStatus(str, Enum):
+    CALCULATED = "calculated"
+    PARTIAL = "partial"
+    FAILED = "failed"

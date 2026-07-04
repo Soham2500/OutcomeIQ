@@ -20,3 +20,5 @@ import app.models.workflow_configuration  # noqa: E402, F401
 import app.models.workflow_run  # noqa: E402, F401
 import app.models.model_call  # noqa: E402, F401
 import app.models.tool_call  # noqa: E402, F401
+import app.models.model_pricing_rate  # noqa: E402, F401
+import app.models.workflow_run_cost  # noqa: E402, F401
