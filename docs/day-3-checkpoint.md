@@ -2,7 +2,7 @@
 
 **Project:** OutcomeIQ — Outcome-aware AI FinOps Platform  
 **Milestone:** Day 3 Alembic validation and first infrastructure migration
-**Status:** PostgreSQL connected; first safe migration applied and verified
+**Status:** Infrastructure migration applied; core identity/project migration prepared
 
 ## What Day 3 Prompt 1 Built
 
@@ -47,6 +47,19 @@ FastAPI still starts when `DATABASE_URL` is missing or empty.
 - Revision `0001_system_metadata` is now the current database head.
 - The table verification script reports `SYSTEM_METADATA TABLE EXISTS`.
 
+## What the Core Model Batch Added
+
+- Python string enums for identity, tenant, project, membership and audit status values
+- `User`, `Organization`, `Project`, `ProjectMember` and `AuditEvent` models
+- Foreign keys that establish organization/project ownership and project membership
+- Required unique constraints and lookup indexes
+- PostgreSQL JSONB for redaction-safe future audit metadata
+- Revision `0002_core_identity_projects`, chained after `0001_system_metadata`
+- Expanded table verification covering all six approved tables
+- Model registration tests that do not connect to PostgreSQL or run Alembic
+
+The second revision is prepared but was not applied by this implementation task.
+
 ## Files Created
 
 - `backend/app/db/base.py`
@@ -72,6 +85,15 @@ FastAPI still starts when `DATABASE_URL` is missing or empty.
 - `scripts/db_history.ps1`
 - `scripts/check_db_tables.ps1`
 - `docs/day-3-alembic-migration.md`
+- `backend/app/models/enums.py`
+- `backend/app/models/user.py`
+- `backend/app/models/organization.py`
+- `backend/app/models/project.py`
+- `backend/app/models/project_member.py`
+- `backend/app/models/audit_event.py`
+- `backend/alembic/versions/20260704_0002_create_core_identity_project_tables.py`
+- `backend/tests/test_models.py`
+- `docs/day-3-core-database-models.md`
 
 ## Files Updated
 
@@ -101,26 +123,29 @@ database = connected
 redis    = not_configured
 ```
 
-Connection remains lazy during import, credentials stay in ignored `backend/.env`, and no secret is stored in tracked documentation. Alembic reports `0001_system_metadata (head)`, and the table verification result is `SYSTEM_METADATA TABLE EXISTS`.
+Connection remains lazy during import, credentials stay in ignored `backend/.env`, and no secret is stored in tracked documentation. The database is currently at `0001_system_metadata`; `0002_core_identity_projects` is the pending head. Before applying it, the expanded table checker reports the five missing core tables.
 
 ## Intentionally Not Implemented
 
-- Business SQLAlchemy models or tables
-- User, project, workflow, run, outcome or cost tables
-- Business migration revisions beyond the infrastructure baseline
+- Authentication, authorization or password behavior
+- Login, registration, organization or project APIs
+- Workflow, run, model-call, tool-call, outcome or cost tables
+- Comparison, recommendation or analytics tables
 - Automatic table creation
 - Authentication
 - Project or workflow APIs
 - Redis
 - Frontend
 
-## Verified Migration Results
+## Migration Status and Next Verification
 
 1. `scripts/check_db_ready.ps1` reports `DATABASE CONNECTED`.
-2. `scripts/db_history.ps1` shows the single infrastructure revision.
-3. `scripts/db_current.ps1` reports `0001_system_metadata (head)`.
-4. `scripts/check_db_tables.ps1` reports `SYSTEM_METADATA TABLE EXISTS`.
-5. Backend tests pass without requiring PostgreSQL or running Alembic.
+2. `scripts/db_history.ps1` shows both ordered revisions.
+3. Before upgrade, `scripts/db_current.ps1` reports `0001_system_metadata`.
+4. Run `scripts/db_migrate.ps1` deliberately to apply the pending core revision.
+5. Confirm `scripts/db_current.ps1` reaches `0002_core_identity_projects (head)`.
+6. Confirm `scripts/check_db_tables.ps1` reports `ALL CORE TABLES EXIST`.
+7. Backend tests must continue to pass without requiring PostgreSQL or Alembic.
 
 Before future rollback integration tests, create a separate disposable `outcomeiq_test` database. Do not test destructive downgrade behavior against local development data.
 
@@ -128,6 +153,6 @@ Detailed migration instructions are in `day-3-alembic-migration.md`.
 
 ## Next Recommended Day 3 Prompt
 
-The next prompt should review the first business schema slice:
+The next prompt should apply and verify the prepared core revision without adding new models:
 
-> Review the approved database design and propose the smallest tenant-aware business model slice for OutcomeIQ. Define boundaries, invariants and migration risks first. Do not create user, project, workflow or outcome tables until I approve the exact slice.
+> Apply the prepared `0002_core_identity_projects` migration, verify Alembic current/history and all core tables, inspect constraints safely, rerun tests, and update the Day 3 checkpoint. Do not add authentication, APIs or workflow economics tables.

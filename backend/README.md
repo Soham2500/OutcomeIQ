@@ -4,7 +4,7 @@ Initial FastAPI modular-monolith foundation for the OutcomeIQ outcome-aware AI F
 
 ## Current status
 
-**Day 2 is complete.** Day 3 now has verified PostgreSQL connectivity and the applied `0001_system_metadata` infrastructure migration.
+**Day 2 is complete.** Day 3 has verified PostgreSQL connectivity, the applied `0001_system_metadata` baseline, and a prepared core identity/project migration.
 
 Available now:
 
@@ -14,11 +14,12 @@ Available now:
 - Environment-backed settings
 - Configurable CORS origins
 - Structured JSON logging
-- SQLAlchemy declarative base with no business models
+- SQLAlchemy declarative base with approved infrastructure and core models
 - Conditional engine and session factory when `DATABASE_URL` is present
 - Safe database readiness check using `SELECT 1`
 - Alembic environment with the `SystemMetadata` model registered
 - First infrastructure migration for `system_metadata`
+- Pending core migration for users, organizations, projects, memberships and audit events
 - Endpoint and model-metadata tests
 - Docker packaging
 
@@ -26,7 +27,7 @@ Not implemented yet:
 
 - Authentication
 - Business APIs
-- Business SQLAlchemy models and tables
+- Workflow, cost, outcome and recommendation models/tables
 - Redis integration
 - Frontend code
 
@@ -164,7 +165,7 @@ python -m pytest -v
 Expected result:
 
 ```text
-4 passed
+5 passed
 ```
 
 Run only the health tests when needed:
@@ -175,7 +176,7 @@ python -m pytest tests\test_health.py -v
 
 The pytest configuration intentionally leaves warnings visible.
 
-The current `StarletteDeprecationWarning` related to FastAPI TestClient and HTTPX is non-blocking. It does not change the `4 passed` result and should remain visible until the upstream compatibility path is addressed deliberately.
+The current `StarletteDeprecationWarning` related to FastAPI TestClient and HTTPX is non-blocking. It does not change the `5 passed` result and should remain visible until the upstream compatibility path is addressed deliberately.
 
 ## Verified commands
 
@@ -193,7 +194,7 @@ With the API running in the first window, use a second PowerShell window:
 .\scripts\smoke_api.ps1
 ```
 
-Verified results are four passing pytest tests and successful root, health and readiness smoke checks.
+Verified results are five passing pytest tests and successful root, health and readiness smoke checks.
 
 ## Run with Docker
 
@@ -263,7 +264,7 @@ The check performs only `SELECT 1`. It never creates a database, table or migrat
 
 ## First Alembic infrastructure migration
 
-Alembic uses the private `DATABASE_URL` from application settings and `Base.metadata` from `app/db/base.py`. Only `SystemMetadata` is registered for this milestone.
+Alembic uses the private `DATABASE_URL` from application settings and `Base.metadata` from `app/db/base.py`. Metadata now contains `SystemMetadata` plus the approved user, organization, project, project-membership and audit-event models.
 
 From the project root, inspect migration state with:
 
@@ -279,7 +280,7 @@ Apply any pending reviewed migration explicitly, then verify the table:
 .\scripts\check_db_tables.ps1
 ```
 
-Revision `0001_system_metadata` is applied and the table check reports `SYSTEM_METADATA TABLE EXISTS`. It creates no business tables. See `docs/day-3-alembic-migration.md` for the command sequence and rollback warning.
+Revision `0001_system_metadata` is applied. Revision `0002_core_identity_projects` is prepared but not applied by this task. After applying it, the table check should report `ALL CORE TABLES EXIST`. See `docs/day-3-core-database-models.md` for scope and safety boundaries.
 
 ## Troubleshooting
 
@@ -341,4 +342,4 @@ Confirm Docker Desktop is running and configured for Linux containers.
 
 ## Next steps
 
-The next database step is to review the smallest tenant-aware business model slice. Business SQLAlchemy models, tables and APIs remain deliberately unimplemented and must follow the approved database design.
+The next database step is to apply and verify the reviewed core migration. Authentication logic, APIs and workflow economics models remain deliberately unimplemented.

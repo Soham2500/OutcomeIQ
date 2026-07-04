@@ -1,10 +1,10 @@
-# OutcomeIQ — First Alembic Infrastructure Migration
+# OutcomeIQ — Alembic Migration Foundation
 
 ## Purpose
 
 Alembic is the database migration tool used with SQLAlchemy. It records reviewed schema changes as versioned Python revisions so development, test and production databases can be moved to the same known schema in a repeatable way.
 
-OutcomeIQ's first revision creates only `system_metadata`. This infrastructure table is intentionally independent of users, projects, workflows and outcomes. It verifies that model registration, migration discovery, PostgreSQL connectivity and upgrade tracking work before business schema work begins.
+OutcomeIQ's first revision creates only `system_metadata`. The second prepared revision adds the minimum identity, tenancy, project-membership and audit foundation. Workflow economics remains outside this migration batch.
 
 ## Model and Revision
 
@@ -14,6 +14,13 @@ OutcomeIQ's first revision creates only `system_metadata`. This infrastructure t
 - Migration file: `backend/alembic/versions/20260704_0001_create_system_metadata.py`
 
 The table contains a UUID primary key, a unique non-null metadata key, optional value and description fields, and timezone-aware creation/update timestamps. The revision creates no other table.
+
+The next ordered revision is:
+
+- Revision: `0002_core_identity_projects`
+- Parent: `0001_system_metadata`
+- Migration file: `backend/alembic/versions/20260704_0002_create_core_identity_project_tables.py`
+- Tables: `users`, `organizations`, `projects`, `project_members`, `audit_events`
 
 ## Safe Command Sequence
 
@@ -52,13 +59,14 @@ Before the initial upgrade, `SYSTEM_METADATA TABLE MISSING` was expected.
 
 ## Verified Local Status
 
-The local development database has completed this migration:
+The local development database has completed the infrastructure migration:
 
 - Database readiness: `DATABASE CONNECTED`
-- Current revision: `0001_system_metadata (head)`
-- Table verification: `SYSTEM_METADATA TABLE EXISTS`
+- Current revision before applying the core batch: `0001_system_metadata`
+- Pending head: `0002_core_identity_projects`
+- Expected post-upgrade table result: `ALL CORE TABLES EXIST`
 
-Running `db_migrate.ps1` again while the database is already at head should make no schema change.
+Running `db_migrate.ps1` applies the pending reviewed revision. Once the database reaches head, running it again should make no schema change.
 
 ## Rollback Warning
 
@@ -66,10 +74,10 @@ The revision supports downgrade by dropping `system_metadata`, but no rollback h
 
 ## Intentionally Not Created
 
-- User, organization, project or authentication tables
+- Authentication services, authorization rules or API endpoints
 - Workflow, run, call, outcome or cost tables
 - Business APIs or authentication logic
 - Redis or frontend components
 - Automatic database creation or automatic migration at application startup
 
-The infrastructure baseline is complete. The next step is to review the smallest tenant-aware business model slice before creating any business table or migration.
+The infrastructure baseline is complete and the core migration is prepared. The next step is to apply revision `0002`, verify all core tables, and stop before authentication or workflow schema work.

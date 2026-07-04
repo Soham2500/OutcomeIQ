@@ -30,6 +30,12 @@ $RequiredPaths = @(
     @{ Label = "SQLAlchemy database mixins"; RelativePath = "backend\app\db\mixins.py" },
     @{ Label = "Database health helper"; RelativePath = "backend\app\db\health.py" },
     @{ Label = "System metadata model"; RelativePath = "backend\app\models\system.py" },
+    @{ Label = "Core model enums"; RelativePath = "backend\app\models\enums.py" },
+    @{ Label = "User model"; RelativePath = "backend\app\models\user.py" },
+    @{ Label = "Organization model"; RelativePath = "backend\app\models\organization.py" },
+    @{ Label = "Project model"; RelativePath = "backend\app\models\project.py" },
+    @{ Label = "Project member model"; RelativePath = "backend\app\models\project_member.py" },
+    @{ Label = "Audit event model"; RelativePath = "backend\app\models\audit_event.py" },
     @{ Label = "Alembic configuration"; RelativePath = "backend\alembic.ini" },
     @{ Label = "Alembic environment"; RelativePath = "backend\alembic\env.py" },
     @{ Label = "Alembic revision template"; RelativePath = "backend\alembic\script.py.mako" },
@@ -38,6 +44,7 @@ $RequiredPaths = @(
     @{ Label = "Backend .env.example"; RelativePath = "backend\.env.example" },
     @{ Label = "Health tests"; RelativePath = "backend\tests\test_health.py" },
     @{ Label = "System metadata model tests"; RelativePath = "backend\tests\test_system_model.py" },
+    @{ Label = "Core model tests"; RelativePath = "backend\tests\test_models.py" },
     @{ Label = "Backend README"; RelativePath = "backend\README.md" },
     @{ Label = "Root .gitignore"; RelativePath = ".gitignore" },
     @{ Label = "Root .gitattributes"; RelativePath = ".gitattributes" },
@@ -60,6 +67,8 @@ $RequiredPaths = @(
     @{ Label = "Database readiness Python helper"; RelativePath = "backend\scripts\check_db_connection.py" },
     @{ Label = "Database table check Python helper"; RelativePath = "backend\scripts\check_db_tables.py" },
     @{ Label = "Day 3 Alembic migration guide"; RelativePath = "docs\day-3-alembic-migration.md" },
+    @{ Label = "Day 3 core database model guide"; RelativePath = "docs\day-3-core-database-models.md" },
+    @{ Label = "Core identity/project migration"; RelativePath = "backend\alembic\versions\20260704_0002_create_core_identity_project_tables.py" },
     @{ Label = "Local database creation SQL helper"; RelativePath = "database\local\create_outcomeiq_dev.sql" }
 )
 

@@ -10,11 +10,11 @@ OutcomeIQ is an outcome-aware AI FinOps platform that connects the complete cost
 - **Day 2 backend foundation and closure:** 100% complete
 - **FastAPI application:** Running successfully
 - **Swagger UI:** Working
-- **Automated tests:** 4 health/model-foundation tests passing
+- **Automated tests:** 5 health/model-foundation tests passing
 - **Smoke API check:** Root, health and readiness passing
 - **Day 3 database foundation:** PostgreSQL connected; SQLAlchemy and Alembic validated
 - **PostgreSQL:** Local `outcomeiq_dev` connection verified
-- **Database migrations/tables:** `0001_system_metadata` applied and verified
+- **Database migrations/tables:** `0001_system_metadata` applied; core revision `0002` prepared
 - **Authentication:** Not implemented yet
 - **Frontend:** Not implemented yet
 
@@ -77,6 +77,7 @@ These documents define the architecture and product rules that implementation mu
 - [Local PostgreSQL setup](docs/postgresql-local-setup.md)
 - [Day 3 checkpoint](docs/day-3-checkpoint.md)
 - [First Alembic infrastructure migration](docs/day-3-alembic-migration.md)
+- [Core identity and project models](docs/day-3-core-database-models.md)
 
 ## Backend foundation status
 
@@ -89,10 +90,10 @@ The Day 2 foundation includes:
 - Structured JSON console logging
 - Conditional SQLAlchemy engine/session foundation with no import-time connection
 - Safe database `SELECT 1` readiness helper
-- Alembic environment registered with the infrastructure-only `SystemMetadata` model
-- Reviewed first migration revision; not automatically applied
+- Alembic metadata registered with infrastructure and core identity/project models
+- Applied `system_metadata` baseline and reviewed pending core-table revision
 - Root, health and readiness routes
-- Three endpoint tests and one model-metadata test
+- Three endpoint tests and two model-metadata tests
 - Backend-only Docker configuration
 
 See [Day 2 backend progress](docs/day-2-backend-foundation.md) and the [backend README](backend/README.md) for details.
@@ -151,7 +152,7 @@ python -m pytest -v
 Expected result:
 
 ```text
-4 passed
+5 passed
 ```
 
 The existing Starlette/HTTPX compatibility warning may remain visible; pytest is not configured to hide real warnings.
@@ -246,19 +247,19 @@ Alembic and table checks are available through project-root helper scripts:
 .\scripts\check_db_tables.ps1
 ```
 
-`db_migrate.ps1` is the only command above that changes database schema. It applies the reviewed `0001_system_metadata` revision. The other scripts inspect connectivity, revision state or table existence.
+`db_migrate.ps1` is the only command above that changes database schema. It applies reviewed pending revisions through Alembic. The other scripts inspect connectivity, revision state or table existence.
 
-No business table has been designed or created. The first infrastructure migration is applied, and `system_metadata` is verified in PostgreSQL.
+The infrastructure migration is applied. Models and a second migration are prepared for `users`, `organizations`, `projects`, `project_members` and `audit_events`; this task does not apply that revision. No workflow, cost or outcome table exists.
 
 ## Next development steps
 
-### Next milestone: review the first business model slice
+### Next milestone: apply and verify the core model migration
 
-- Preserve the verified `0001_system_metadata` baseline
-- Define the smallest tenant-aware business model slice from the approved database design
-- Review ownership, constraints and migration risks before implementation
-- Add no user, project, workflow or outcome table without explicit approval
+- Reconfirm `DATABASE CONNECTED` and review Alembic history
+- Apply `0002_core_identity_projects` deliberately
+- Confirm Alembic reaches head and `ALL CORE TABLES EXIST`
+- Keep authentication, APIs and workflow economics as separate reviewed milestones
 
-Follow the [first Alembic migration guide](docs/day-3-alembic-migration.md). Domain models and migrations remain separate reviewed work.
+Follow the [core database model guide](docs/day-3-core-database-models.md). Workflow, cost and outcome models remain separate reviewed work.
 
 Authentication and frontend implementation remain later milestones.
