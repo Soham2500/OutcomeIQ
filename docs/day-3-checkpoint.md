@@ -1,8 +1,8 @@
 # OutcomeIQ — Day 3 Checkpoint: Database Foundation
 
 **Project:** OutcomeIQ — Outcome-aware AI FinOps Platform  
-**Milestone:** Day 3 Alembic validation and first infrastructure migration
-**Status:** Core migrations applied; data access and safe seed tooling added
+**Milestone:** Day 3 database foundation closure
+**Status:** 100% complete; ready for Day 4 authentication foundation
 
 ## What Day 3 Prompt 1 Built
 
@@ -73,7 +73,17 @@ The local database has since reached `0002_core_identity_projects (head)`, and a
 - PowerShell wrappers that work from the project root
 - Import and exposure tests that require no live database
 
-The seed tooling was not executed during implementation. Current core row counts remain zero.
+The idempotent seed has since been executed. Each core table contains one demo record, and the demo user has no password hash.
+
+## Day 3 Final Validation Added
+
+- Read-only schema inspection for all approved core tables and columns
+- Alembic validation using migration files and the database's current revision
+- Verified `ALEMBIC STATE VALID`
+- Verified `ALL CORE TABLES EXIST`
+- Verified one safe demo row in each core table
+- Day 3 final summary and Day 4 authentication-readiness documents
+- A ready-to-use Day 4 Codex starter prompt
 
 ## Files Created
 
@@ -128,6 +138,14 @@ The seed tooling was not executed during implementation. Current core row counts
 - `backend/tests/test_repositories_imports.py`
 - `backend/tests/test_dev_seed_imports.py`
 - `docs/day-3-core-data-access-layer.md`
+- `backend/scripts/inspect_db_schema.py`
+- `backend/scripts/validate_alembic_state.py`
+- `scripts/inspect_db_schema.ps1`
+- `scripts/validate_alembic_state.ps1`
+- `backend/tests/test_database_scripts_imports.py`
+- `docs/day-3-final-summary.md`
+- `docs/day-4-auth-readiness.md`
+- `docs/day-4-start-prompt.md`
 
 ## Files Updated
 
@@ -157,7 +175,7 @@ database = connected
 redis    = not_configured
 ```
 
-Connection remains lazy during import, credentials stay in ignored `backend/.env`, and no secret is stored in tracked documentation. The database is at `0002_core_identity_projects (head)`, and the table checker reports `ALL CORE TABLES EXIST`. The read-only data checker currently reports zero rows and `CORE DEVELOPMENT DATA MISSING` because seeding remains explicit.
+Connection remains lazy during import, credentials stay in ignored `backend/.env`, and no secret is stored in tracked documentation. The database is at `0002_core_identity_projects (head)`, the table checker reports `ALL CORE TABLES EXIST`, the Alembic validator reports `ALEMBIC STATE VALID`, and each seeded core table contains one safe demo row.
 
 ## Intentionally Not Implemented
 
@@ -172,22 +190,22 @@ Connection remains lazy during import, credentials stay in ignored `backend/.env
 - Redis
 - Frontend
 
-## Current Verification and Next Action
+## Final Verification
 
 1. `scripts/check_db_ready.ps1` reports `DATABASE CONNECTED`.
 2. `scripts/db_current.ps1` reports `0002_core_identity_projects (head)`.
 3. `scripts/check_db_tables.ps1` reports `ALL CORE TABLES EXIST`.
-4. Backend tests pass without requiring PostgreSQL, migrations or seed data.
-5. Run `scripts/db_seed_dev.ps1` deliberately when demo records are wanted.
-6. Run `scripts/check_core_data.ps1` and confirm `CORE DEVELOPMENT DATA FOUND`.
-7. Run the seed again and verify counts do not increase.
+4. `scripts/validate_alembic_state.ps1` reports `ALEMBIC STATE VALID`.
+5. `scripts/check_core_data.ps1` reports one row per core table and `CORE DEVELOPMENT DATA FOUND`.
+6. `scripts/inspect_db_schema.ps1` safely lists the approved schema.
+7. Backend tests pass without requiring PostgreSQL, migrations or seed execution.
 
 Before future rollback integration tests, create a separate disposable `outcomeiq_test` database. Do not test destructive downgrade behavior against local development data.
 
 Detailed migration instructions are in `day-3-alembic-migration.md`.
 
-## Next Recommended Day 3 Prompt
+## Next Recommended Prompt
 
-The next prompt should execute and verify the safe seed without adding new models:
+Day 3 is complete. Continue with the reviewed Day 4 authentication foundation:
 
-> Run the existing development seed twice, verify idempotence and core row counts, rerun tests, and update the Day 3 checkpoint. Do not add authentication, APIs, migrations or workflow economics tables.
+> Use `docs/day-4-start-prompt.md` to implement password hashing, auth schemas/service, register/login endpoints, JWT access tokens, a current-user dependency placeholder and focused tests. Do not expose password hashes or add project/workflow APIs.

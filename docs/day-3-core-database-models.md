@@ -86,4 +86,4 @@ ALL CORE TABLES EXIST
 
 ## Next Step
 
-Revision `0002_core_identity_projects` is applied, Alembic is at head, and all six approved tables exist. The next step is the explicit local development seed and idempotence check before reviewing Day 4 authentication boundaries.
+Revision `0002_core_identity_projects` is applied, Alembic is at head, all six approved tables exist, and the seed is verified. The next step is reviewing Day 4 authentication boundaries.

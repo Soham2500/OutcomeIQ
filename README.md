@@ -10,13 +10,13 @@ OutcomeIQ is an outcome-aware AI FinOps platform that connects the complete cost
 - **Day 2 backend foundation and closure:** 100% complete
 - **FastAPI application:** Running successfully
 - **Swagger UI:** Working
-- **Automated tests:** 8 foundation, schema and import tests passing
+- **Automated tests:** 9 foundation, schema and import tests passing
 - **Smoke API check:** Root, health and readiness passing
-- **Day 3 database foundation:** PostgreSQL connected; SQLAlchemy and Alembic validated
+- **Day 3 database foundation:** 100% complete; ready for Day 4
 - **PostgreSQL:** Local `outcomeiq_dev` connection verified
 - **Database migrations/tables:** `0002_core_identity_projects` applied; all core tables exist
 - **Data access layer:** Core Pydantic schemas and SQLAlchemy repositories added
-- **Development seed:** Idempotent tooling ready; seed data not run automatically
+- **Development seed:** Verified one safe demo row per core table
 - **Authentication:** Not implemented yet
 - **Frontend:** Not implemented yet
 
@@ -81,6 +81,9 @@ These documents define the architecture and product rules that implementation mu
 - [First Alembic infrastructure migration](docs/day-3-alembic-migration.md)
 - [Core identity and project models](docs/day-3-core-database-models.md)
 - [Core data access layer](docs/day-3-core-data-access-layer.md)
+- [Day 3 final summary](docs/day-3-final-summary.md)
+- [Day 4 authentication readiness](docs/day-4-auth-readiness.md)
+- [Day 4 starter prompt](docs/day-4-start-prompt.md)
 
 ## Backend foundation status
 
@@ -97,7 +100,7 @@ The Day 2 foundation includes:
 - Applied infrastructure and core identity/project migrations
 - Core Pydantic schemas, repositories and explicit development seed tooling
 - Root, health and readiness routes
-- Three endpoint tests, two model tests and three access-layer import/contract tests
+- Three endpoint tests, two model tests and four access/diagnostic import tests
 - Backend-only Docker configuration
 
 See [Day 2 backend progress](docs/day-2-backend-foundation.md) and the [backend README](backend/README.md) for details.
@@ -120,6 +123,8 @@ From the project root, PowerShell helpers are available for common tasks:
 .\scripts\check_db_tables.ps1
 .\scripts\db_seed_dev.ps1
 .\scripts\check_core_data.ps1
+.\scripts\inspect_db_schema.ps1
+.\scripts\validate_alembic_state.ps1
 ```
 
 The check and verification scripts do not install packages, create databases or start Uvicorn. `run_backend.ps1` starts the server only when explicitly invoked. The smoke script expects an already-running API.
@@ -158,7 +163,7 @@ python -m pytest -v
 Expected result:
 
 ```text
-8 passed
+9 passed
 ```
 
 The existing Starlette/HTTPX compatibility warning may remain visible; pytest is not configured to hide real warnings.
@@ -220,7 +225,7 @@ After introducing `.gitattributes`, future Git operations may report normalized 
 
 The readiness endpoint reports PostgreSQL as `not_configured`, `connected` or `error`. Redis remains `not_configured`. A missing database never prevents FastAPI startup.
 
-## Day 3 database foundation
+## Day 3 database foundation complete
 
 Create the local environment file manually if needed:
 
@@ -251,21 +256,24 @@ Alembic and table checks are available through project-root helper scripts:
 .\scripts\db_current.ps1
 .\scripts\db_migrate.ps1
 .\scripts\check_db_tables.ps1
+.\scripts\check_core_data.ps1
+.\scripts\inspect_db_schema.ps1
+.\scripts\validate_alembic_state.ps1
 ```
 
 `db_migrate.ps1` is the only command above that changes database schema. It applies reviewed pending revisions through Alembic. The other scripts inspect connectivity, revision state or table existence.
 
-Both reviewed migrations are applied, and the table checker reports `ALL CORE TABLES EXIST`. The core access layer and seed tooling are available, but seed data is not created automatically. No workflow, cost or outcome table exists.
+Both reviewed migrations are applied. The table checker reports `ALL CORE TABLES EXIST`, Alembic validation reports `ALEMBIC STATE VALID`, and the safe seed exists once in each core table. No workflow, cost or outcome table exists.
 
 ## Next development steps
 
-### Next milestone: seed and verify local development data
+### Next milestone: Day 4 authentication foundation
 
-- Run the explicit development seed
-- Verify demo records and row counts
-- Run the seed again to confirm idempotence
-- Keep authentication, APIs and workflow economics as separate reviewed milestones
+- Add password hashing and verification
+- Add auth schemas and service behavior
+- Add register/login and JWT access-token foundations
+- Add current-user dependency scaffolding and focused tests
 
-Follow the [core data access guide](docs/day-3-core-data-access-layer.md). Workflow, cost and outcome models remain separate reviewed work.
+Start with the [Day 4 authentication readiness checklist](docs/day-4-auth-readiness.md) and [ready-to-use prompt](docs/day-4-start-prompt.md). Project authorization, workflow APIs and frontend work remain separate milestones.
 
 Authentication and frontend implementation remain later milestones.

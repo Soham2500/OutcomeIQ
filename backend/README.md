@@ -4,7 +4,7 @@ Initial FastAPI modular-monolith foundation for the OutcomeIQ outcome-aware AI F
 
 ## Current status
 
-**Day 2 is complete.** Day 3 has verified PostgreSQL connectivity, both approved migrations applied, and the first core data access layer ready.
+**Day 2 is complete and Day 3 is 100% complete.** PostgreSQL, migrations, core data access, safe seed data and read-only database validation are verified.
 
 Available now:
 
@@ -22,6 +22,7 @@ Available now:
 - Applied core migration for users, organizations, projects, memberships and audit events
 - Pydantic schemas and SQLAlchemy repositories for core records
 - Explicit, idempotent local development seed tooling
+- Read-only schema inspection and Alembic-state validation
 - Endpoint, model and access-layer tests
 - Docker packaging
 
@@ -55,6 +56,8 @@ Set-ExecutionPolicy -Scope Process -ExecutionPolicy Bypass
 .\scripts\check_db_ready.ps1
 .\scripts\db_seed_dev.ps1
 .\scripts\check_core_data.ps1
+.\scripts\inspect_db_schema.ps1
+.\scripts\validate_alembic_state.ps1
 .\scripts\db_history.ps1
 .\scripts\db_current.ps1
 .\scripts\db_migrate.ps1
@@ -70,6 +73,8 @@ Set-ExecutionPolicy -Scope Process -ExecutionPolicy Bypass
 - `check_db_ready.ps1` reports database configuration/connectivity without creating databases, tables or migrations.
 - `db_seed_dev.ps1` explicitly inserts only the safe demo identity/project records.
 - `check_core_data.ps1` reports core row counts and demo-data presence without changing data.
+- `inspect_db_schema.ps1` lists safe table and column metadata without changing data.
+- `validate_alembic_state.ps1` confirms migration files and the current database head without running migrations.
 - `db_history.ps1` and `db_current.ps1` inspect Alembic state.
 - `db_migrate.ps1` explicitly applies reviewed migrations through `alembic upgrade head`.
 - `check_db_tables.ps1` safely checks whether `system_metadata` exists.
@@ -171,7 +176,7 @@ python -m pytest -v
 Expected result:
 
 ```text
-8 passed
+9 passed
 ```
 
 Run only the health tests when needed:
@@ -182,7 +187,7 @@ python -m pytest tests\test_health.py -v
 
 The pytest configuration intentionally leaves warnings visible.
 
-The current `StarletteDeprecationWarning` related to FastAPI TestClient and HTTPX is non-blocking. It does not change the `8 passed` result and should remain visible until the upstream compatibility path is addressed deliberately.
+The current `StarletteDeprecationWarning` related to FastAPI TestClient and HTTPX is non-blocking. It does not change the `9 passed` result and should remain visible until the upstream compatibility path is addressed deliberately.
 
 ## Verified commands
 
@@ -200,7 +205,7 @@ With the API running in the first window, use a second PowerShell window:
 .\scripts\smoke_api.ps1
 ```
 
-Verified results are eight passing pytest tests and successful root, health and readiness smoke checks.
+Verified results are nine passing pytest tests and successful root, health and readiness smoke checks.
 
 ## Run with Docker
 
@@ -297,7 +302,21 @@ The seed is never run at application startup. Invoke it explicitly from the proj
 .\scripts\check_core_data.ps1
 ```
 
-Before seeding, zero row counts and `CORE DEVELOPMENT DATA MISSING` are valid. After seeding, the checker should report `CORE DEVELOPMENT DATA FOUND`.
+The verified local seed contains one user, organization, project, project membership and audit event. The checker reports `CORE DEVELOPMENT DATA FOUND`.
+
+## Day 3 database foundation complete
+
+Run the final read-only database checks from the project root:
+
+```powershell
+.\scripts\check_db_ready.ps1
+.\scripts\check_db_tables.ps1
+.\scripts\check_core_data.ps1
+.\scripts\inspect_db_schema.ps1
+.\scripts\validate_alembic_state.ps1
+```
+
+Expected key results are `DATABASE CONNECTED`, `ALL CORE TABLES EXIST`, `CORE DEVELOPMENT DATA FOUND` and `ALEMBIC STATE VALID`.
 
 ## Troubleshooting
 
@@ -359,4 +378,4 @@ Confirm Docker Desktop is running and configured for Linux containers.
 
 ## Next steps
 
-The next step is to run the local seed deliberately and verify idempotence. Authentication logic, APIs and workflow economics models remain deliberately unimplemented.
+The next step is the Day 4 authentication foundation: password hashing, auth schemas/service, register/login endpoints, JWT access tokens, current-user scaffolding and tests. Project APIs, workflow economics and frontend work remain deferred.

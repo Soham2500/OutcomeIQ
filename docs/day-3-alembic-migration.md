@@ -79,4 +79,4 @@ The revision supports downgrade by dropping `system_metadata`, but no rollback h
 - Redis or frontend components
 - Automatic database creation or automatic migration at application startup
 
-The infrastructure and core migrations are complete. The next step is explicit local seed verification, while authentication and workflow schema work remain deferred.
+The infrastructure and core migrations are complete, and local seed verification has passed. The next step is the Day 4 authentication foundation; workflow schema work remains deferred.

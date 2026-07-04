@@ -30,7 +30,7 @@ Exposing routes before authentication and authorization boundaries are defined w
 
 The local-only seed creates a deterministic demo user, organization, project, owner membership and one system audit event. It uses no real password and stores no secrets. The service checks for each record before creating it, so repeated runs do not intentionally create duplicates.
 
-The seed does not create tables or run migrations. The current database has the core tables but no seed rows; running the seed remains an explicit developer action.
+The seed does not create tables or run migrations. It has been run explicitly and verified with one safe demo record in each core table.
 
 ## Commands
 
@@ -69,4 +69,4 @@ The check script prints row counts but never creates, updates or deletes data.
 
 ## Next Step
 
-Run the development seed deliberately, verify the resulting counts, run it a second time to demonstrate idempotence, and confirm no duplicate demo records are created. After that checkpoint, design the Day 4 authentication service boundary before exposing any API.
+The development seed and idempotence checkpoint are complete. Next, design the Day 4 authentication service boundary before exposing any API.
