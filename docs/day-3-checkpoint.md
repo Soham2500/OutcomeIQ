@@ -2,7 +2,7 @@
 
 **Project:** OutcomeIQ — Outcome-aware AI FinOps Platform  
 **Milestone:** Day 3 Alembic validation and first infrastructure migration
-**Status:** PostgreSQL connected; first safe migration prepared but not applied
+**Status:** PostgreSQL connected; first safe migration applied and verified
 
 ## What Day 3 Prompt 1 Built
 
@@ -44,7 +44,8 @@ FastAPI still starts when `DATABASE_URL` is missing or empty.
 - The revision includes a unique metadata key and a downgrade that drops only this table.
 - PowerShell helpers inspect history/current state, apply the reviewed upgrade and verify table existence.
 - A model metadata test runs without requiring PostgreSQL or Alembic execution.
-- No migration was applied during repository preparation.
+- Revision `0001_system_metadata` is now the current database head.
+- The table verification script reports `SYSTEM_METADATA TABLE EXISTS`.
 
 ## Files Created
 
@@ -100,33 +101,33 @@ database = connected
 redis    = not_configured
 ```
 
-Connection remains lazy during import, credentials stay in ignored `backend/.env`, and no secret is stored in tracked documentation. Before the first upgrade, the table verification result should be `SYSTEM_METADATA TABLE MISSING`.
+Connection remains lazy during import, credentials stay in ignored `backend/.env`, and no secret is stored in tracked documentation. Alembic reports `0001_system_metadata (head)`, and the table verification result is `SYSTEM_METADATA TABLE EXISTS`.
 
 ## Intentionally Not Implemented
 
 - Business SQLAlchemy models or tables
 - User, project, workflow, run, outcome or cost tables
-- Migration upgrade/downgrade execution during this preparation task
+- Business migration revisions beyond the infrastructure baseline
 - Automatic table creation
 - Authentication
 - Project or workflow APIs
 - Redis
 - Frontend
 
-## Manual Steps Soham Must Do Next
+## Verified Migration Results
 
-1. Run `scripts/check_db_ready.ps1` and confirm `DATABASE CONNECTED`.
-2. Run `scripts/db_history.ps1` and review the single head revision.
-3. Run `scripts/db_current.ps1` to record the pre-upgrade state.
-4. Run `scripts/db_migrate.ps1` deliberately.
-5. Run `scripts/db_current.ps1` and `scripts/check_db_tables.ps1`.
-6. Confirm revision `0001_system_metadata` and `SYSTEM_METADATA TABLE EXISTS`.
-7. Create a separate disposable `outcomeiq_test` database before future rollback integration tests.
+1. `scripts/check_db_ready.ps1` reports `DATABASE CONNECTED`.
+2. `scripts/db_history.ps1` shows the single infrastructure revision.
+3. `scripts/db_current.ps1` reports `0001_system_metadata (head)`.
+4. `scripts/check_db_tables.ps1` reports `SYSTEM_METADATA TABLE EXISTS`.
+5. Backend tests pass without requiring PostgreSQL or running Alembic.
+
+Before future rollback integration tests, create a separate disposable `outcomeiq_test` database. Do not test destructive downgrade behavior against local development data.
 
 Detailed migration instructions are in `day-3-alembic-migration.md`.
 
 ## Next Recommended Day 3 Prompt
 
-After the infrastructure migration is applied and verified, the next prompt should review the first business schema slice:
+The next prompt should review the first business schema slice:
 
 > Review the approved database design and propose the smallest tenant-aware business model slice for OutcomeIQ. Define boundaries, invariants and migration risks first. Do not create user, project, workflow or outcome tables until I approve the exact slice.

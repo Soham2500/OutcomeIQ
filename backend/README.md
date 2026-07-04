@@ -4,7 +4,7 @@ Initial FastAPI modular-monolith foundation for the OutcomeIQ outcome-aware AI F
 
 ## Current status
 
-**Day 2 is complete.** Day 3 now has verified PostgreSQL connectivity and a prepared first infrastructure migration. It has not been applied automatically.
+**Day 2 is complete.** Day 3 now has verified PostgreSQL connectivity and the applied `0001_system_metadata` infrastructure migration.
 
 Available now:
 
@@ -27,7 +27,6 @@ Not implemented yet:
 - Authentication
 - Business APIs
 - Business SQLAlchemy models and tables
-- Applied migration state (until `db_migrate.ps1` is run deliberately)
 - Redis integration
 - Frontend code
 
@@ -273,14 +272,14 @@ From the project root, inspect migration state with:
 .\scripts\db_current.ps1
 ```
 
-Apply the reviewed migration explicitly, then verify the table:
+Apply any pending reviewed migration explicitly, then verify the table:
 
 ```powershell
 .\scripts\db_migrate.ps1
 .\scripts\check_db_tables.ps1
 ```
 
-The prepared revision creates only `system_metadata`. It does not create business tables. See `docs/day-3-alembic-migration.md` for the command sequence and rollback warning.
+Revision `0001_system_metadata` is applied and the table check reports `SYSTEM_METADATA TABLE EXISTS`. It creates no business tables. See `docs/day-3-alembic-migration.md` for the command sequence and rollback warning.
 
 ## Troubleshooting
 
@@ -342,4 +341,4 @@ Confirm Docker Desktop is running and configured for Linux containers.
 
 ## Next steps
 
-The next database step is to apply and verify the first infrastructure migration deliberately. Business SQLAlchemy models, tables and APIs remain deliberately unimplemented and must follow the approved database design.
+The next database step is to review the smallest tenant-aware business model slice. Business SQLAlchemy models, tables and APIs remain deliberately unimplemented and must follow the approved database design.

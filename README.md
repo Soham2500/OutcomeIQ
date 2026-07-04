@@ -14,7 +14,7 @@ OutcomeIQ is an outcome-aware AI FinOps platform that connects the complete cost
 - **Smoke API check:** Root, health and readiness passing
 - **Day 3 database foundation:** PostgreSQL connected; SQLAlchemy and Alembic validated
 - **PostgreSQL:** Local `outcomeiq_dev` connection verified
-- **Database migrations/tables:** First `system_metadata` revision prepared but not applied
+- **Database migrations/tables:** `0001_system_metadata` applied and verified
 - **Authentication:** Not implemented yet
 - **Frontend:** Not implemented yet
 
@@ -248,17 +248,16 @@ Alembic and table checks are available through project-root helper scripts:
 
 `db_migrate.ps1` is the only command above that changes database schema. It applies the reviewed `0001_system_metadata` revision. The other scripts inspect connectivity, revision state or table existence.
 
-No business table has been designed or created. The first infrastructure migration is prepared, but this repository setup task did not apply it.
+No business table has been designed or created. The first infrastructure migration is applied, and `system_metadata` is verified in PostgreSQL.
 
 ## Next development steps
 
-### Next milestone: apply and verify the first infrastructure migration
+### Next milestone: review the first business model slice
 
-- Reconfirm `DATABASE CONNECTED`
-- Review the single-table migration history
-- Run `db_migrate.ps1` deliberately
-- Confirm the Alembic current revision and `SYSTEM_METADATA TABLE EXISTS`
-- Review the first business model slice separately
+- Preserve the verified `0001_system_metadata` baseline
+- Define the smallest tenant-aware business model slice from the approved database design
+- Review ownership, constraints and migration risks before implementation
+- Add no user, project, workflow or outcome table without explicit approval
 
 Follow the [first Alembic migration guide](docs/day-3-alembic-migration.md). Domain models and migrations remain separate reviewed work.
 

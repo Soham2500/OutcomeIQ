@@ -6,7 +6,7 @@ Alembic is the database migration tool used with SQLAlchemy. It records reviewed
 
 OutcomeIQ's first revision creates only `system_metadata`. This infrastructure table is intentionally independent of users, projects, workflows and outcomes. It verifies that model registration, migration discovery, PostgreSQL connectivity and upgrade tracking work before business schema work begins.
 
-## Prepared Model and Revision
+## Model and Revision
 
 - Model: `app.models.system.SystemMetadata`
 - Table: `system_metadata`
@@ -23,7 +23,7 @@ Run all helper scripts from the project root. First confirm PostgreSQL connectiv
 .\scripts\check_db_ready.ps1
 ```
 
-Inspect the prepared history and current database revision:
+Inspect migration history and the current database revision:
 
 ```powershell
 .\scripts\db_history.ps1
@@ -48,7 +48,17 @@ Expected post-migration output:
 SYSTEM_METADATA TABLE EXISTS
 ```
 
-Before the upgrade, `SYSTEM_METADATA TABLE MISSING` is expected.
+Before the initial upgrade, `SYSTEM_METADATA TABLE MISSING` was expected.
+
+## Verified Local Status
+
+The local development database has completed this migration:
+
+- Database readiness: `DATABASE CONNECTED`
+- Current revision: `0001_system_metadata (head)`
+- Table verification: `SYSTEM_METADATA TABLE EXISTS`
+
+Running `db_migrate.ps1` again while the database is already at head should make no schema change.
 
 ## Rollback Warning
 
@@ -62,4 +72,4 @@ The revision supports downgrade by dropping `system_metadata`, but no rollback h
 - Redis or frontend components
 - Automatic database creation or automatic migration at application startup
 
-The next step is to apply this single revision deliberately and verify both Alembic's current revision and the table's existence before designing any business model slice.
+The infrastructure baseline is complete. The next step is to review the smallest tenant-aware business model slice before creating any business table or migration.
