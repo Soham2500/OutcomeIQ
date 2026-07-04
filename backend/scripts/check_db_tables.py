@@ -28,7 +28,17 @@ COST_TABLES = (
     "workflow_run_costs",
 )
 
-REQUIRED_TABLES = CORE_TABLES + WORKFLOW_TABLES + COST_TABLES
+OUTCOME_TABLES = (
+    "outcome_contracts",
+    "workflow_run_outcomes",
+)
+
+REQUIRED_TABLES = (
+    CORE_TABLES
+    + WORKFLOW_TABLES
+    + COST_TABLES
+    + OUTCOME_TABLES
+)
 
 
 def print_missing_tables(missing_tables: list[str]) -> None:

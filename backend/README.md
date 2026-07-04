@@ -4,7 +4,7 @@ Initial FastAPI modular-monolith foundation for the OutcomeIQ outcome-aware AI F
 
 ## Current status
 
-**Day 2, Day 3 and Day 4 are complete. Day 5 is in progress.** Workflow logging plus deterministic, evidence-aware run cost calculation are implemented with explicit migrations and synthetic verification.
+**Day 2, Day 3 and Day 4 are complete. Day 5 is in progress.** Workflow logging, deterministic run cost calculation and outcome storage models are implemented with explicit migrations.
 
 Available now:
 
@@ -38,13 +38,15 @@ Available now:
 - Decimal-based cost calculation with partial-evidence notes
 - Protected cost and pricing-rate APIs
 - Idempotent demo pricing seed and full Day 5 verification automation
+- Outcome Contract and one-per-run outcome models with `0005_outcome_tracking`
 - Endpoint, model and access-layer tests
 - Docker packaging
 
 Not implemented yet:
 
 - Advanced authentication such as refresh tokens, reset, MFA or SSO
-- Outcome and recommendation APIs/models
+- Outcome APIs and verification services
+- Recommendation APIs and models
 - Cost-per-outcome and failure-waste analytics
 - Real provider pricing or billing synchronization
 - Redis integration
@@ -221,7 +223,7 @@ python -m pytest -v
 Expected result:
 
 ```text
-37 passed
+38 passed
 ```
 
 Run only the health tests when needed:
@@ -232,7 +234,7 @@ python -m pytest tests\test_health.py -v
 
 The pytest configuration intentionally leaves warnings visible.
 
-The current `StarletteDeprecationWarning` related to FastAPI TestClient and HTTPX is non-blocking. It does not change the `37 passed` result and should remain visible until the upstream compatibility path is addressed deliberately.
+The current `StarletteDeprecationWarning` related to FastAPI TestClient and HTTPX is non-blocking. It does not change the `38 passed` result and should remain visible until the upstream compatibility path is addressed deliberately.
 
 ## Verified commands
 
@@ -250,7 +252,7 @@ With the API running in the first window, use a second PowerShell window:
 .\scripts\smoke_api.ps1
 ```
 
-Verified results are thirty-seven passing tests, including auth, authorization, workflow logging, cost schemas, Decimal arithmetic and protected route registration.
+Verified results are thirty-eight passing tests, including auth, workflow logging, cost arithmetic and outcome metadata registration.
 
 ## Run with Docker
 
@@ -336,7 +338,7 @@ Apply any pending reviewed migration explicitly, then verify the table:
 .\scripts\check_db_tables.ps1
 ```
 
-Revisions `0003_workflow_logging` and `0004_cost_calculation` are explicit reviewed steps and are never run by application startup. The table checker lists any pending workflow or cost tables; after explicit migration it reports `ALL REQUIRED TABLES EXIST`. See `docs/day-5-workflow-database-models.md` and `docs/day-5-cost-calculation-foundation.md`.
+Revisions `0003_workflow_logging`, `0004_cost_calculation` and `0005_outcome_tracking` are explicit reviewed steps and are never run by application startup. The table checker lists any pending workflow, cost or outcome tables; after explicit migration it reports `ALL REQUIRED TABLES EXIST`.
 
 ## Development seed and core data check
 
@@ -468,4 +470,4 @@ Seed the demo rates and run the cost smoke test manually, or use the complete op
 .\scripts\day5_cost_full_verify.ps1
 ```
 
-The next milestone is verified outcome tracking. Real provider integrations, billing sync, recommendations and frontend work remain deferred.
+The next milestone is outcome schemas, repositories and a verification service. Real provider integrations, billing sync, recommendations and frontend work remain deferred.

@@ -74,3 +74,26 @@ class CostCalculationStatus(str, Enum):
     CALCULATED = "calculated"
     PARTIAL = "partial"
     FAILED = "failed"
+
+
+class OutcomeContractStatus(str, Enum):
+    ACTIVE = "active"
+    INACTIVE = "inactive"
+    ARCHIVED = "archived"
+
+
+class WorkflowOutcomeStatus(str, Enum):
+    PENDING = "pending"
+    SUCCEEDED = "succeeded"
+    FAILED = "failed"
+    ESCALATED = "escalated"
+    REOPENED = "reopened"
+    ABANDONED = "abandoned"
+    REVERSED = "reversed"
+
+
+class OutcomeVerificationSource(str, Enum):
+    MANUAL = "manual"
+    SIMULATED = "simulated"
+    API = "api"
+    SYSTEM = "system"

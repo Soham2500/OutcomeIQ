@@ -165,9 +165,14 @@ $RequiredPaths = @(
     @{ Label = "Cost service tests"; RelativePath = "backend\tests\test_cost_service_imports.py" },
     @{ Label = "Cost route registration tests"; RelativePath = "backend\tests\test_cost_route_registration.py" },
     @{ Label = "Day 5 cost calculation guide"; RelativePath = "docs\day-5-cost-calculation-foundation.md" },
+    @{ Label = "Outcome contract model"; RelativePath = "backend\app\models\outcome_contract.py" },
+    @{ Label = "Workflow run outcome model"; RelativePath = "backend\app\models\workflow_run_outcome.py" },
+    @{ Label = "Outcome model tests"; RelativePath = "backend\tests\test_outcome_models.py" },
+    @{ Label = "Day 5 outcome model guide"; RelativePath = "docs\day-5-outcome-models-migration.md" },
     @{ Label = "Core identity/project migration"; RelativePath = "backend\alembic\versions\20260704_0002_create_core_identity_project_tables.py" },
     @{ Label = "Workflow logging migration"; RelativePath = "backend\alembic\versions\20260704_0003_create_workflow_logging_tables.py" },
     @{ Label = "Cost calculation migration"; RelativePath = "backend\alembic\versions\20260704_0004_create_cost_calculation_tables.py" },
+    @{ Label = "Outcome tracking migration"; RelativePath = "backend\alembic\versions\20260704_0005_create_outcome_tracking_tables.py" },
     @{ Label = "Local database creation SQL helper"; RelativePath = "database\local\create_outcomeiq_dev.sql" }
 )
 

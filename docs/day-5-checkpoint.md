@@ -26,6 +26,10 @@ Day 5 is in progress. Workflow logging and the deterministic cost calculation fo
 - Added idempotent, explicitly non-production demo pricing seed tooling.
 - Added a synthetic cost API smoke test and opt-in full verification automation.
 - Extended required-table and repository verification coverage.
+- Added Outcome Contract and workflow-run outcome status/source enums.
+- Added `outcome_contracts` and one-per-run `workflow_run_outcomes` models.
+- Prepared reversible Alembic revision `0005_outcome_tracking`.
+- Extended required-table and metadata-test coverage for outcome storage.
 
 No migration is applied automatically by these implementation changes. `scripts/check_db_tables.ps1` reports any pending workflow or cost tables until reviewed revisions are explicitly applied.
 
@@ -34,9 +38,10 @@ No migration is applied automatically by these implementation changes. `scripts/
 - Real AI-provider calls or credentials
 - Cost-per-outcome and failure-waste calculation
 - Outcome verification
+- Outcome repositories, services and APIs
 - Recommendation engine
 - Frontend
 
 ## Next Step
 
-Run `.\scripts\day5_cost_full_verify.ps1` or execute the documented manual steps. The next product milestone is verified outcome tracking, followed later by cost-per-success and failure-waste analysis.
+Review and explicitly apply `0005_outcome_tracking`, then implement outcome schemas, repositories and a verification service in a separate prompt. Cost-per-success and failure-waste analysis remain later milestones.

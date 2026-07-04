@@ -10,7 +10,7 @@ OutcomeIQ is an outcome-aware AI FinOps platform that connects the complete cost
 - **Day 2 backend foundation and closure:** 100% complete
 - **FastAPI application:** Running successfully
 - **Swagger UI:** Working
-- **Automated tests:** 37 foundation, authentication, workflow and cost tests passing
+- **Automated tests:** 38 foundation, authentication, workflow, cost and outcome-model tests passing
 - **Smoke API check:** Root, health and readiness passing
 - **Day 3 database foundation:** 100% complete
 - **PostgreSQL:** Local `outcomeiq_dev` connection verified
@@ -22,6 +22,7 @@ OutcomeIQ is an outcome-aware AI FinOps platform that connects the complete cost
 - **Day 4 milestone:** 100% complete; auth/project smoke test passing
 - **Day 5 workflow logging foundation:** Models, migration and protected simulated logging APIs implemented
 - **Day 5 cost foundation:** Pricing, deterministic run-cost calculation, APIs and automation implemented
+- **Day 5 outcome storage:** Outcome Contract and workflow-run outcome models plus migration prepared
 - **Frontend:** Not implemented yet
 
 The project currently provides a clean FastAPI modular-monolith foundation with environment-backed settings, structured logging, versioned routing, health/readiness endpoints, tests and Docker packaging.
@@ -99,6 +100,7 @@ These documents define the architecture and product rules that implementation mu
 - [Day 5 checkpoint](docs/day-5-checkpoint.md)
 - [Day 5 workflow logging APIs](docs/day-5-workflow-logging-apis.md)
 - [Day 5 cost calculation foundation](docs/day-5-cost-calculation-foundation.md)
+- [Day 5 outcome models and migration](docs/day-5-outcome-models-migration.md)
 
 ## Backend foundation status
 
@@ -183,7 +185,7 @@ python -m pytest -v
 Expected result:
 
 ```text
-37 passed
+38 passed
 ```
 
 The existing Starlette/HTTPX compatibility warning may remain visible; pytest is not configured to hide real warnings.
@@ -326,7 +328,7 @@ Never use real credentials in development or commit `backend/.env`. See [Day 4 a
 - Run the live workflow check with `.\scripts\smoke_workflow_logging_api.ps1`
 - Demo pricing, deterministic Decimal cost calculation and protected cost APIs are implemented
 - Run the full cost verification with `.\scripts\day5_cost_full_verify.ps1`
-- Next milestone: verified outcome tracking
+- Next milestone: outcome repositories, schemas and verification service
 - Real provider calls, billing sync, outcome metrics and recommendations remain deferred
 
 Start with [the Day 5 plan](docs/day-5-workflow-logging-plan.md) and [ready-to-use prompt](docs/day-5-start-prompt.md). Never commit `backend/.env`, store provider secrets, or persist raw prompts/responses.
