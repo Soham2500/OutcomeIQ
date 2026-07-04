@@ -10,7 +10,7 @@ OutcomeIQ is an outcome-aware AI FinOps platform that connects the complete cost
 - **Day 2 backend foundation and closure:** 100% complete
 - **FastAPI application:** Running successfully
 - **Swagger UI:** Working
-- **Automated tests:** 28 foundation, authentication, authorization and model tests passing
+- **Automated tests:** 32 foundation, authentication, authorization and workflow tests passing
 - **Smoke API check:** Root, health and readiness passing
 - **Day 3 database foundation:** 100% complete
 - **PostgreSQL:** Local `outcomeiq_dev` connection verified
@@ -20,7 +20,7 @@ OutcomeIQ is an outcome-aware AI FinOps platform that connects the complete cost
 - **Authentication:** Basic register, login, bearer JWT and current-user foundation implemented
 - **Organization/project APIs:** Membership-scoped reads and owner/admin updates implemented
 - **Day 4 milestone:** 100% complete; auth/project smoke test passing
-- **Day 5 workflow logging foundation:** Five models and migration prepared; migration not yet applied
+- **Day 5 workflow logging foundation:** Models, migration and protected simulated logging APIs implemented
 - **Frontend:** Not implemented yet
 
 The project currently provides a clean FastAPI modular-monolith foundation with environment-backed settings, structured logging, versioned routing, health/readiness endpoints, tests and Docker packaging.
@@ -96,6 +96,7 @@ These documents define the architecture and product rules that implementation mu
 - [Day 5 starter prompt](docs/day-5-start-prompt.md)
 - [Day 5 workflow database models](docs/day-5-workflow-database-models.md)
 - [Day 5 checkpoint](docs/day-5-checkpoint.md)
+- [Day 5 workflow logging APIs](docs/day-5-workflow-logging-apis.md)
 
 ## Backend foundation status
 
@@ -128,6 +129,7 @@ From the project root, PowerShell helpers are available for common tasks:
 .\scripts\run_backend.ps1
 .\scripts\smoke_api.ps1
 .\scripts\smoke_auth_project_api.ps1
+.\scripts\smoke_workflow_logging_api.ps1
 .\scripts\check_docker.ps1
 .\scripts\check_db_ready.ps1
 .\scripts\db_history.ps1
@@ -176,7 +178,7 @@ python -m pytest -v
 Expected result:
 
 ```text
-28 passed
+32 passed
 ```
 
 The existing Starlette/HTTPX compatibility warning may remain visible; pytest is not configured to hide real warnings.
@@ -242,6 +244,16 @@ After introducing `.gitattributes`, future Git operations may report normalized 
 | POST/GET | `/api/v1/projects` | Create or list projects |
 | GET/PATCH | `/api/v1/projects/{project_id}` | Read or update a project |
 | GET | `/api/v1/projects/{project_id}/members` | List project memberships |
+| POST/GET | `/api/v1/workflows` | Create or list authorized workflows |
+| GET/PATCH | `/api/v1/workflows/{workflow_id}` | Read or update a workflow |
+| POST/GET | `/api/v1/workflows/{workflow_id}/configurations` | Create or list configurations |
+| POST/GET | `/api/v1/workflow-runs` | Start or list workflow runs |
+| GET | `/api/v1/workflow-runs/{workflow_run_id}` | Read a workflow run |
+| POST | `/api/v1/workflow-runs/{workflow_run_id}/model-calls` | Record simulated model telemetry |
+| POST | `/api/v1/workflow-runs/{workflow_run_id}/tool-calls` | Record simulated tool telemetry |
+| POST | `/api/v1/workflow-runs/{workflow_run_id}/complete` | Complete a running workflow run |
+| POST | `/api/v1/workflow-runs/{workflow_run_id}/fail` | Fail a running workflow run |
+| GET | `/api/v1/workflow-runs/{workflow_run_id}/trace` | Read the ordered run trace |
 | GET | `/docs` | Swagger UI |
 
 The readiness endpoint reports PostgreSQL as `not_configured`, `connected` or `error`. Redis remains `not_configured`. A missing database never prevents FastAPI startup.
@@ -299,10 +311,12 @@ Never use real credentials in development or commit `backend/.env`. See [Day 4 a
 - Day 4 authentication, organization and project API foundation is complete
 - `AUTH PROJECT API SMOKE CHECK PASSED` is the verified live result
 - Models prepared: `workflows`, `workflow_configurations`, `workflow_runs`, `model_calls`, `tool_calls`
+- Protected workflow logging APIs and a synthetic end-to-end smoke script are implemented
 - Apply the reviewed revision explicitly with `.\scripts\db_migrate.ps1`
 - Verify all tables with `.\scripts\check_db_tables.ps1`
 - Day 5 records simulated telemetry only; no real provider keys or production data
-- Next milestone: repositories and a simulated workflow logging API
+- Run the live workflow check with `.\scripts\smoke_workflow_logging_api.ps1`
+- Next milestone: raw provider-rate inputs and a cost-calculation engine
 - Real provider calls, outcome verification, analytics and recommendations remain deferred
 
 Start with [the Day 5 plan](docs/day-5-workflow-logging-plan.md) and [ready-to-use prompt](docs/day-5-start-prompt.md). Never commit `backend/.env`, store provider secrets, or persist raw prompts/responses.

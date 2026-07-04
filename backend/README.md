@@ -4,7 +4,7 @@ Initial FastAPI modular-monolith foundation for the OutcomeIQ outcome-aware AI F
 
 ## Current status
 
-**Day 2, Day 3 and Day 4 are complete. Day 5 has started.** Authentication and the organization/project MVP API foundation are verified. Five workflow logging models and an unapplied migration are now prepared.
+**Day 2, Day 3 and Day 4 are complete. Day 5 is in progress.** Five workflow logging models, an explicit migration, protected APIs and a synthetic smoke flow are implemented.
 
 Available now:
 
@@ -31,6 +31,9 @@ Available now:
 - Safe shared audit service and live auth/project API smoke test
 - Workflow, workflow-configuration, run, model-call and tool-call models
 - Unapplied `0003_workflow_logging` Alembic revision
+- Workflow schemas, repositories and run-state validation service
+- Protected workflow/configuration/run/call/trace endpoints
+- Synthetic workflow logging API smoke script
 - Endpoint, model and access-layer tests
 - Docker packaging
 
@@ -39,7 +42,7 @@ Not implemented yet:
 - Advanced authentication such as refresh tokens, reset, MFA or SSO
 - Workflow, cost, outcome and recommendation APIs
 - Outcome, cost-summary and recommendation models/tables
-- Workflow repositories and HTTP APIs
+- Provider pricing and workflow cost calculation
 - Redis integration
 - Frontend code
 
@@ -61,6 +64,7 @@ Set-ExecutionPolicy -Scope Process -ExecutionPolicy Bypass
 .\scripts\day2_verify.ps1
 .\scripts\run_backend.ps1
 .\scripts\smoke_api.ps1
+.\scripts\smoke_workflow_logging_api.ps1
 .\scripts\check_docker.ps1
 .\scripts\check_db_ready.ps1
 .\scripts\db_seed_dev.ps1
@@ -78,6 +82,7 @@ Set-ExecutionPolicy -Scope Process -ExecutionPolicy Bypass
 - `day2_verify.ps1` checks all Day 1/2 deliverables and runs tests.
 - `run_backend.ps1` activates `.venv` and starts Uvicorn with auto-reload.
 - `smoke_api.ps1` checks the three running API endpoints from another terminal.
+- `smoke_workflow_logging_api.ps1` records one complete synthetic workflow trace against an already-running API.
 - `check_docker.ps1` reports Docker and Compose availability without starting anything.
 - `check_db_ready.ps1` reports database configuration/connectivity without creating databases, tables or migrations.
 - `db_seed_dev.ps1` explicitly inserts only the safe demo identity/project records.
@@ -164,6 +169,16 @@ Open:
 | POST/GET | `/api/v1/projects` | Create or list projects |
 | GET/PATCH | `/api/v1/projects/{project_id}` | Read or update a project |
 | GET | `/api/v1/projects/{project_id}/members` | List project memberships |
+| POST/GET | `/api/v1/workflows` | Create or list authorized workflows |
+| GET/PATCH | `/api/v1/workflows/{workflow_id}` | Read or update a workflow |
+| POST/GET | `/api/v1/workflows/{workflow_id}/configurations` | Create or list configurations |
+| POST/GET | `/api/v1/workflow-runs` | Start or list workflow runs |
+| GET | `/api/v1/workflow-runs/{workflow_run_id}` | Read a workflow run |
+| POST | `/api/v1/workflow-runs/{workflow_run_id}/model-calls` | Record simulated model telemetry |
+| POST | `/api/v1/workflow-runs/{workflow_run_id}/tool-calls` | Record simulated tool telemetry |
+| POST | `/api/v1/workflow-runs/{workflow_run_id}/complete` | Complete a running workflow run |
+| POST | `/api/v1/workflow-runs/{workflow_run_id}/fail` | Fail a running workflow run |
+| GET | `/api/v1/workflow-runs/{workflow_run_id}/trace` | Read the ordered run trace |
 | GET | `/docs` | Swagger UI |
 
 ## Stop the server
@@ -193,7 +208,7 @@ python -m pytest -v
 Expected result:
 
 ```text
-28 passed
+32 passed
 ```
 
 Run only the health tests when needed:
@@ -204,7 +219,7 @@ python -m pytest tests\test_health.py -v
 
 The pytest configuration intentionally leaves warnings visible.
 
-The current `StarletteDeprecationWarning` related to FastAPI TestClient and HTTPX is non-blocking. It does not change the `28 passed` result and should remain visible until the upstream compatibility path is addressed deliberately.
+The current `StarletteDeprecationWarning` related to FastAPI TestClient and HTTPX is non-blocking. It does not change the `32 passed` result and should remain visible until the upstream compatibility path is addressed deliberately.
 
 ## Verified commands
 
@@ -222,7 +237,7 @@ With the API running in the first window, use a second PowerShell window:
 .\scripts\smoke_api.ps1
 ```
 
-Verified results are twenty-eight passing tests, including isolated auth flow, authorization behavior, audit-redaction, route, Day 4 closure and workflow-model metadata checks.
+Verified results are thirty-two passing tests, including isolated auth flow, authorization behavior, audit-redaction, workflow schemas, imports and route registration.
 
 ## Run with Docker
 
@@ -426,4 +441,10 @@ After reviewing the migration, apply and verify it from the project root:
 .\scripts\check_db_tables.ps1
 ```
 
-The next milestone is repositories and a simulated workflow logging API. Real provider integrations, outcomes, cost attribution, recommendations and frontend work remain deferred.
+After the migration is applied, start the backend and run the synthetic end-to-end trace from another project-root PowerShell window:
+
+```powershell
+.\scripts\smoke_workflow_logging_api.ps1
+```
+
+The next milestone is a reviewed provider-rate and cost-calculation engine. Real provider integrations, outcomes, recommendations and frontend work remain deferred.
