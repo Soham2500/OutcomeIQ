@@ -7,11 +7,16 @@ class Base(DeclarativeBase):
     """Base class for OutcomeIQ SQLAlchemy models."""
 
 
-# Import only the approved infrastructure and core identity/project models so
-# Alembic can discover them. Workflow, cost and outcome models remain deferred.
+# Import approved models so Alembic can discover their metadata. Outcome and
+# decision models remain deferred to later milestones.
 import app.models.system  # noqa: E402, F401
 import app.models.user  # noqa: E402, F401
 import app.models.organization  # noqa: E402, F401
 import app.models.project  # noqa: E402, F401
 import app.models.project_member  # noqa: E402, F401
 import app.models.audit_event  # noqa: E402, F401
+import app.models.workflow  # noqa: E402, F401
+import app.models.workflow_configuration  # noqa: E402, F401
+import app.models.workflow_run  # noqa: E402, F401
+import app.models.model_call  # noqa: E402, F401
+import app.models.tool_call  # noqa: E402, F401

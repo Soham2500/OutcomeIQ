@@ -10,7 +10,7 @@ OutcomeIQ is an outcome-aware AI FinOps platform that connects the complete cost
 - **Day 2 backend foundation and closure:** 100% complete
 - **FastAPI application:** Running successfully
 - **Swagger UI:** Working
-- **Automated tests:** 27 foundation, authentication, authorization and closure tests passing
+- **Automated tests:** 28 foundation, authentication, authorization and model tests passing
 - **Smoke API check:** Root, health and readiness passing
 - **Day 3 database foundation:** 100% complete
 - **PostgreSQL:** Local `outcomeiq_dev` connection verified
@@ -20,6 +20,7 @@ OutcomeIQ is an outcome-aware AI FinOps platform that connects the complete cost
 - **Authentication:** Basic register, login, bearer JWT and current-user foundation implemented
 - **Organization/project APIs:** Membership-scoped reads and owner/admin updates implemented
 - **Day 4 milestone:** 100% complete; auth/project smoke test passing
+- **Day 5 workflow logging foundation:** Five models and migration prepared; migration not yet applied
 - **Frontend:** Not implemented yet
 
 The project currently provides a clean FastAPI modular-monolith foundation with environment-backed settings, structured logging, versioned routing, health/readiness endpoints, tests and Docker packaging.
@@ -43,7 +44,7 @@ The project currently provides a clean FastAPI modular-monolith foundation with 
 pro/
 ├── backend/                    FastAPI modular-monolith backend
 │   ├── app/                    Application source
-│   ├── alembic/                Migration environment and first infrastructure revision
+│   ├── alembic/                Migration environment and reviewed revisions
 │   ├── tests/                  Backend tests
 │   ├── scripts/                Future administrative scripts
 │   ├── Dockerfile
@@ -93,6 +94,8 @@ These documents define the architecture and product rules that implementation mu
 - [Day 4 final summary](docs/day-4-final-summary.md)
 - [Day 5 workflow logging plan](docs/day-5-workflow-logging-plan.md)
 - [Day 5 starter prompt](docs/day-5-start-prompt.md)
+- [Day 5 workflow database models](docs/day-5-workflow-database-models.md)
+- [Day 5 checkpoint](docs/day-5-checkpoint.md)
 
 ## Backend foundation status
 
@@ -109,7 +112,7 @@ The Day 2 foundation includes:
 - Applied infrastructure and core identity/project migrations
 - Core Pydantic schemas, repositories and explicit development seed tooling
 - Root, health and readiness routes
-- Three endpoint tests, two model tests and four access/diagnostic import tests
+- Three endpoint tests plus model, authorization and diagnostic coverage
 - Backend-only Docker configuration
 
 See [Day 2 backend progress](docs/day-2-backend-foundation.md) and the [backend README](backend/README.md) for details.
@@ -173,7 +176,7 @@ python -m pytest -v
 Expected result:
 
 ```text
-27 passed
+28 passed
 ```
 
 The existing Starlette/HTTPX compatibility warning may remain visible; pytest is not configured to hide real warnings.
@@ -281,7 +284,7 @@ Alembic and table checks are available through project-root helper scripts:
 
 `db_migrate.ps1` is the only command above that changes database schema. It applies reviewed pending revisions through Alembic. The other scripts inspect connectivity, revision state or table existence.
 
-Both reviewed migrations are applied. The table checker reports `ALL CORE TABLES EXIST`, Alembic validation reports `ALEMBIC STATE VALID`, and the safe seed exists once in each core table. No workflow, cost or outcome table exists.
+The core migrations are applied. Day 5 revision `0003_workflow_logging` is prepared but intentionally unapplied, so the table checker currently lists the five workflow tables as missing. After explicit migration it reports `ALL REQUIRED TABLES EXIST`. No outcome, cost-summary or recommendation table exists.
 
 ## Test authentication in Swagger
 
@@ -291,12 +294,15 @@ Never use real credentials in development or commit `backend/.env`. See [Day 4 a
 
 ## Next development steps
 
-### Day 5 workflow logging engine
+### Day 5 workflow logging foundation
 
 - Day 4 authentication, organization and project API foundation is complete
 - `AUTH PROJECT API SMOKE CHECK PASSED` is the verified live result
-- Next models: `workflows`, `workflow_runs`, `model_calls`, `tool_calls`
+- Models prepared: `workflows`, `workflow_configurations`, `workflow_runs`, `model_calls`, `tool_calls`
+- Apply the reviewed revision explicitly with `.\scripts\db_migrate.ps1`
+- Verify all tables with `.\scripts\check_db_tables.ps1`
 - Day 5 records simulated telemetry only; no real provider keys or production data
-- Workflow APIs, outcome verification, analytics and recommendations remain deferred
+- Next milestone: repositories and a simulated workflow logging API
+- Real provider calls, outcome verification, analytics and recommendations remain deferred
 
 Start with [the Day 5 plan](docs/day-5-workflow-logging-plan.md) and [ready-to-use prompt](docs/day-5-start-prompt.md). Never commit `backend/.env`, store provider secrets, or persist raw prompts/responses.

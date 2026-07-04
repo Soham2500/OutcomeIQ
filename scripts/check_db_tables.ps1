@@ -16,7 +16,7 @@ try {
 
     . $ActivateScript
     Set-Location $BackendPath
-    Write-Host "OutcomeIQ core database table check" -ForegroundColor Cyan
+    Write-Host "OutcomeIQ required database table check" -ForegroundColor Cyan
     python -m scripts.check_db_tables
     $ResultCode = $LASTEXITCODE
 }

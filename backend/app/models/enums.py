@@ -33,3 +33,38 @@ class AuditAction(str, Enum):
     LOGIN = "login"
     LOGOUT = "logout"
     SYSTEM = "system"
+
+
+class WorkflowStatus(str, Enum):
+    ACTIVE = "active"
+    INACTIVE = "inactive"
+    ARCHIVED = "archived"
+
+
+class WorkflowRunStatus(str, Enum):
+    PENDING = "pending"
+    RUNNING = "running"
+    SUCCEEDED = "succeeded"
+    FAILED = "failed"
+    CANCELLED = "cancelled"
+
+
+class ModelCallStatus(str, Enum):
+    PENDING = "pending"
+    SUCCEEDED = "succeeded"
+    FAILED = "failed"
+    RETRIED = "retried"
+    FALLBACK_USED = "fallback_used"
+
+
+class ToolCallStatus(str, Enum):
+    PENDING = "pending"
+    SUCCEEDED = "succeeded"
+    FAILED = "failed"
+
+
+class WorkflowRunTrigger(str, Enum):
+    MANUAL = "manual"
+    API = "api"
+    SIMULATED = "simulated"
+    SCHEDULED = "scheduled"

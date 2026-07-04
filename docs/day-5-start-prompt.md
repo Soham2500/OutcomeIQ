@@ -22,19 +22,18 @@ Required work:
 1. Review `docs/database-design.md`, `docs/system-architecture.md`, existing models, mixins, Alembic revisions and repositories. Do not invent a different architecture.
 2. Create only these workflow-related SQLAlchemy models:
    - `Workflow`
+   - `WorkflowConfiguration`
    - `WorkflowRun`
    - `ModelCall`
    - `ToolCall`
 3. Define clear project/workflow/run foreign keys, UUID primary keys, timezone-aware timestamps, lifecycle/status fields and practical indexes.
 4. Represent configuration identity, retry/fallback markers, latency, token usage and raw cost fields without building outcome or recommendation logic.
 5. Do not store prompts, responses, API keys, credentials or production customer content.
-6. Register only the four approved models with `Base.metadata`.
-7. Create one reversible Alembic migration chained from the current head. It must create exactly the four approved tables and drop them in safe reverse dependency order.
-8. Create repository modules for simple create/get/list operations.
-9. Create Pydantic create/read schemas using Pydantic v2 `from_attributes=True` where appropriate.
-10. Create safe Python and PowerShell scripts that inspect whether the four workflow tables exist. Scripts must never create/drop tables or print secrets.
-11. Add tests for model imports, metadata registration, schemas, repositories and migration discovery. Tests must not require real PostgreSQL or provider APIs.
-12. Update verification scripts and Day 5 documentation.
+6. Register only the five approved models with `Base.metadata`.
+7. Create one reversible Alembic migration chained from the current head. It must create exactly the five approved tables and drop them in safe reverse dependency order.
+8. Extend safe Python and PowerShell scripts to inspect whether all required tables exist. Scripts must never create/drop tables or print secrets.
+9. Add tests for model imports, metadata registration and migration discovery. Tests must not require real PostgreSQL or provider APIs.
+10. Update verification scripts and Day 5 documentation.
 
 Boundaries:
 

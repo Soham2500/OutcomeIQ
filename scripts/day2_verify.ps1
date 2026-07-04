@@ -121,7 +121,16 @@ $RequiredPaths = @(
     @{ Label = "Day 4 final summary"; RelativePath = "docs\day-4-final-summary.md" },
     @{ Label = "Day 5 workflow logging plan"; RelativePath = "docs\day-5-workflow-logging-plan.md" },
     @{ Label = "Day 5 starter prompt"; RelativePath = "docs\day-5-start-prompt.md" },
+    @{ Label = "Workflow model"; RelativePath = "backend\app\models\workflow.py" },
+    @{ Label = "Workflow configuration model"; RelativePath = "backend\app\models\workflow_configuration.py" },
+    @{ Label = "Workflow run model"; RelativePath = "backend\app\models\workflow_run.py" },
+    @{ Label = "Model call model"; RelativePath = "backend\app\models\model_call.py" },
+    @{ Label = "Tool call model"; RelativePath = "backend\app\models\tool_call.py" },
+    @{ Label = "Workflow model tests"; RelativePath = "backend\tests\test_workflow_models.py" },
+    @{ Label = "Day 5 workflow database model guide"; RelativePath = "docs\day-5-workflow-database-models.md" },
+    @{ Label = "Day 5 checkpoint"; RelativePath = "docs\day-5-checkpoint.md" },
     @{ Label = "Core identity/project migration"; RelativePath = "backend\alembic\versions\20260704_0002_create_core_identity_project_tables.py" },
+    @{ Label = "Workflow logging migration"; RelativePath = "backend\alembic\versions\20260704_0003_create_workflow_logging_tables.py" },
     @{ Label = "Local database creation SQL helper"; RelativePath = "database\local\create_outcomeiq_dev.sql" }
 )
 

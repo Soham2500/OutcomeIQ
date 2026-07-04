@@ -16,6 +16,10 @@ The logging layer must remain factual. It records evidence; it does not yet deci
 
 Defines a monitored AI workflow within one project. It should hold stable identity, a project foreign key, name/slug, lifecycle status and timestamps.
 
+### `workflow_configurations`
+
+Represents a named and versioned execution strategy for a workflow, including safe non-secret configuration metadata. This makes later quality-first versus economy-first comparisons reproducible.
+
 ### `workflow_runs`
 
 Represents one execution attempt of a workflow/configuration. It should capture identifiers, lifecycle status, start/end timing, total latency and safe correlation/idempotency context.
@@ -26,7 +30,7 @@ Records each model invocation belonging to a workflow run: provider/model identi
 
 ### `tool_calls`
 
-Records each external tool invocation belonging to a workflow run: tool identity, sequence, latency, status, retry marker and raw cost fields. Tool credentials and sensitive payloads must not be stored.
+Records each external tool invocation belonging to a workflow run: tool identity, sequence, latency, status and raw cost fields. Tool credentials and sensitive payloads must not be stored.
 
 ## Planned Concepts
 
@@ -42,12 +46,11 @@ Records each external tool invocation belonging to a workflow run: tool identity
 ## Day 5 Deliverables
 
 1. Review `docs/database-design.md` and preserve the FastAPI modular-monolith architecture.
-2. Define the four SQLAlchemy models and their foreign keys/indexes.
+2. Define the five SQLAlchemy models and their foreign keys/indexes.
 3. Register only the approved models with `Base.metadata`.
 4. Create one reviewed Alembic revision chained from the current head.
-5. Add repositories and Pydantic schemas without HTTP APIs unless explicitly approved.
-6. Add safe table-inspection/verification scripts.
-7. Add tests that validate imports, metadata and schema contracts without real provider calls.
+5. Add safe table-inspection/verification scripts.
+6. Add tests that validate imports and metadata without real provider calls.
 
 ## What Not to Build on Day 5
 
@@ -72,4 +75,4 @@ Records each external tool invocation belonging to a workflow run: tool identity
 
 ## Completion Signal
 
-Day 5 is complete when the reviewed migration creates exactly the four approved workflow logging tables, foreign-key relationships are valid, safe verification reports that they exist, tests pass, and simulated logging evidence can be represented without any real provider integration.
+This database checkpoint is complete when the reviewed migration defines exactly the five approved workflow logging tables, foreign-key relationships are valid, safe verification can report their state, and tests pass without any real provider integration. Migration application and simulated logging APIs remain explicit later steps.

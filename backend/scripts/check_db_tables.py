@@ -1,4 +1,4 @@
-"""Safely report whether the approved OutcomeIQ core tables exist."""
+"""Safely report whether all required OutcomeIQ tables exist."""
 
 from sqlalchemy import inspect
 
@@ -15,6 +15,16 @@ CORE_TABLES = (
     "audit_events",
 )
 
+WORKFLOW_TABLES = (
+    "workflows",
+    "workflow_configurations",
+    "workflow_runs",
+    "model_calls",
+    "tool_calls",
+)
+
+REQUIRED_TABLES = CORE_TABLES + WORKFLOW_TABLES
+
 
 def print_missing_tables(missing_tables: list[str]) -> None:
     """Print a deterministic, secret-free missing-table report."""
@@ -28,7 +38,7 @@ def main() -> int:
 
     settings = get_settings()
     if not settings.database_configured or db_session.engine is None:
-        print_missing_tables(list(CORE_TABLES))
+        print_missing_tables(list(REQUIRED_TABLES))
         print("Database is not configured or its engine is unavailable.")
         return 0
 
@@ -36,11 +46,11 @@ def main() -> int:
         inspector = inspect(db_session.engine)
         missing_tables = [
             table_name
-            for table_name in CORE_TABLES
+            for table_name in REQUIRED_TABLES
             if not inspector.has_table(table_name)
         ]
     except Exception:
-        print_missing_tables(list(CORE_TABLES))
+        print_missing_tables(list(REQUIRED_TABLES))
         print("Database table check could not complete.")
         return 1
 
@@ -48,7 +58,7 @@ def main() -> int:
         print_missing_tables(missing_tables)
         return 0
 
-    print("ALL CORE TABLES EXIST")
+    print("ALL REQUIRED TABLES EXIST")
 
     return 0
 

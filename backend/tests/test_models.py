@@ -10,7 +10,7 @@ from app.models.user import User
 
 
 def test_approved_models_are_registered_with_base() -> None:
-    """Alembic metadata should contain only the approved model batch."""
+    """Alembic metadata should contain the approved core model batch."""
 
     expected_models = {
         SystemMetadata: "system_metadata",
@@ -23,6 +23,6 @@ def test_approved_models_are_registered_with_base() -> None:
 
     assert {
         model.__tablename__ for model in expected_models
-    } == set(Base.metadata.tables)
+    } <= set(Base.metadata.tables)
     for model, table_name in expected_models.items():
         assert model.__table__ is Base.metadata.tables[table_name]

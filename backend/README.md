@@ -4,7 +4,7 @@ Initial FastAPI modular-monolith foundation for the OutcomeIQ outcome-aware AI F
 
 ## Current status
 
-**Day 2, Day 3 and Day 4 are complete.** Authentication and the organization/project MVP API foundation are verified, including the live auth/project smoke path.
+**Day 2, Day 3 and Day 4 are complete. Day 5 has started.** Authentication and the organization/project MVP API foundation are verified. Five workflow logging models and an unapplied migration are now prepared.
 
 Available now:
 
@@ -17,7 +17,7 @@ Available now:
 - SQLAlchemy declarative base with approved infrastructure and core models
 - Conditional engine and session factory when `DATABASE_URL` is present
 - Safe database readiness check using `SELECT 1`
-- Alembic environment with the `SystemMetadata` model registered
+- Alembic environment with approved core and workflow models registered
 - First infrastructure migration for `system_metadata`
 - Applied core migration for users, organizations, projects, memberships and audit events
 - Pydantic schemas and SQLAlchemy repositories for core records
@@ -29,6 +29,8 @@ Available now:
 - Automatic owner membership for newly created projects
 - Membership-scoped project listing/read access and owner/admin updates
 - Safe shared audit service and live auth/project API smoke test
+- Workflow, workflow-configuration, run, model-call and tool-call models
+- Unapplied `0003_workflow_logging` Alembic revision
 - Endpoint, model and access-layer tests
 - Docker packaging
 
@@ -36,7 +38,8 @@ Not implemented yet:
 
 - Advanced authentication such as refresh tokens, reset, MFA or SSO
 - Workflow, cost, outcome and recommendation APIs
-- Workflow, cost, outcome and recommendation models/tables
+- Outcome, cost-summary and recommendation models/tables
+- Workflow repositories and HTTP APIs
 - Redis integration
 - Frontend code
 
@@ -83,7 +86,7 @@ Set-ExecutionPolicy -Scope Process -ExecutionPolicy Bypass
 - `validate_alembic_state.ps1` confirms migration files and the current database head without running migrations.
 - `db_history.ps1` and `db_current.ps1` inspect Alembic state.
 - `db_migrate.ps1` explicitly applies reviewed migrations through `alembic upgrade head`.
-- `check_db_tables.ps1` safely checks whether `system_metadata` exists.
+- `check_db_tables.ps1` safely checks all required core and workflow tables.
 
 ## Setup on Windows PowerShell
 
@@ -190,7 +193,7 @@ python -m pytest -v
 Expected result:
 
 ```text
-27 passed
+28 passed
 ```
 
 Run only the health tests when needed:
@@ -201,7 +204,7 @@ python -m pytest tests\test_health.py -v
 
 The pytest configuration intentionally leaves warnings visible.
 
-The current `StarletteDeprecationWarning` related to FastAPI TestClient and HTTPX is non-blocking. It does not change the `27 passed` result and should remain visible until the upstream compatibility path is addressed deliberately.
+The current `StarletteDeprecationWarning` related to FastAPI TestClient and HTTPX is non-blocking. It does not change the `28 passed` result and should remain visible until the upstream compatibility path is addressed deliberately.
 
 ## Verified commands
 
@@ -219,7 +222,7 @@ With the API running in the first window, use a second PowerShell window:
 .\scripts\smoke_api.ps1
 ```
 
-Verified results are twenty-seven passing tests, including isolated auth flow, authorization behavior, audit-redaction, route and Day 4 closure checks.
+Verified results are twenty-eight passing tests, including isolated auth flow, authorization behavior, audit-redaction, route, Day 4 closure and workflow-model metadata checks.
 
 ## Run with Docker
 
@@ -305,7 +308,7 @@ Apply any pending reviewed migration explicitly, then verify the table:
 .\scripts\check_db_tables.ps1
 ```
 
-Revisions `0001_system_metadata` and `0002_core_identity_projects` are applied. The table check reports `ALL CORE TABLES EXIST`. See `docs/day-3-core-data-access-layer.md` for repository, schema and seed boundaries.
+Revisions `0001_system_metadata` and `0002_core_identity_projects` are applied. Revision `0003_workflow_logging` is prepared but intentionally unapplied. Before applying it, the table checker lists the five workflow tables as missing; afterward it reports `ALL REQUIRED TABLES EXIST`. See `docs/day-5-workflow-database-models.md` for boundaries and commands.
 
 ## Development seed and core data check
 
@@ -412,6 +415,15 @@ Confirm Uvicorn shows a successful startup and open `http://127.0.0.1:8000/docs`
 
 Confirm Docker Desktop is running and configured for Linux containers.
 
-## Day 4 complete and next steps
+## Day 5 workflow logging foundation
 
-The live smoke result is `AUTH PROJECT API SMOKE CHECK PASSED`. The next milestone is the Day 5 workflow logging database foundation: `workflows`, `workflow_runs`, `model_calls` and `tool_calls`, using simulated telemetry and no real provider integrations. Workflow APIs, outcomes, cost attribution, recommendations and frontend work remain deferred.
+The live Day 4 smoke result is `AUTH PROJECT API SMOKE CHECK PASSED`. Day 5 now defines `workflows`, `workflow_configurations`, `workflow_runs`, `model_calls` and `tool_calls` without applying the migration automatically.
+
+After reviewing the migration, apply and verify it from the project root:
+
+```powershell
+.\scripts\db_migrate.ps1
+.\scripts\check_db_tables.ps1
+```
+
+The next milestone is repositories and a simulated workflow logging API. Real provider integrations, outcomes, cost attribution, recommendations and frontend work remain deferred.
