@@ -8,8 +8,8 @@ Use this checklist for the manual one-month MVP deployment. Record the deployed 
 - [ ] Intended commit SHA has been reviewed and pushed
 - [ ] `backend/.env` is not committed or visible in Git status
 - [ ] `frontend/.env` is not committed or visible in Git status
-- [ ] `\.\scripts\pre_deploy_check.ps1` passes
-- [ ] `\.\scripts\docker_verify.ps1` passes with Docker Desktop running
+- [ ] `.\scripts\pre_deploy_check.ps1` passes
+- [ ] `.\scripts\docker_verify.ps1` passes with Docker Desktop running
 - [ ] Frontend production build passes
 - [ ] Backend tests pass
 - [ ] No real AI-provider key is present or required
@@ -48,7 +48,7 @@ Use this checklist for the manual one-month MVP deployment. Record the deployed 
 - [ ] Synthetic user registration and login work
 - [ ] Dashboard loads for the synthetic demo project
 - [ ] Recommendations page loads
-- [ ] `\.\scripts\prod_smoke_check.ps1` passes
+- [ ] `.\scripts\prod_smoke_check.ps1` passes
 - [ ] No secrets are visible in the repository, frontend bundle or browser console
 - [ ] Logs contain no access tokens, passwords or database URLs
 - [ ] Production database backup/restore expectations are documented

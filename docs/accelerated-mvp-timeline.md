@@ -42,10 +42,12 @@ Next: final report and presentation assets.
 - Production environment examples and pre-deploy gate — implemented
 - Render/Vercel deployment guide and deployment checklist — implemented
 - One-month cost plan and public production smoke tooling — implemented
+- Final deployment runbook and evidence-based go-live checklist — implemented
+- Manual rollback, production troubleshooting and launch-note package — implemented
 
 Next deployment step: perform the manual Render/Vercel deployment with simulated AI telemetry, then run the public production smoke check. No real AI-provider key is needed initially.
 
-Deployment references: `docs/render-deployment-guide.md`, `docs/deployment-checklist.md` and `docs/one-month-live-cost-plan.md`.
+Deployment references: `docs/deployment-runbook.md`, `docs/final-go-live-checklist.md`, `docs/rollback-checklist.md`, `docs/production-troubleshooting.md` and `docs/launch-notes-template.md`.
 
 ### Week 4 — Academic and interview package
 
@@ -58,3 +60,5 @@ Deployment references: `docs/render-deployment-guide.md`, `docs/deployment-check
 ## Scope Constraint
 
 This compressed timeline is possible only if scope stays MVP-focused. Defer real provider billing integrations, autonomous routing, advanced ML forecasting, enterprise SSO/chargeback, multi-cloud allocation and production-scale optimization until the core proof is stable and demonstrated.
+
+Real AI APIs remain deferred until token limits, monthly budget caps, approved model allowlists, complete call logging and a provider kill switch exist.

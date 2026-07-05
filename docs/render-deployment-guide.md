@@ -4,7 +4,7 @@
 
 This runbook prepares OutcomeIQ for a manual one-month public MVP deployment. It does not contain credentials and does not authorize automatic deployment. The first live version continues to use simulated AI-provider telemetry, so no OpenAI, Anthropic or other real provider key is required.
 
-Before beginning, run `\.\scripts\pre_deploy_check.ps1` locally and review the [deployment checklist](deployment-checklist.md).
+Before beginning, run `.\scripts\pre_deploy_check.ps1` locally and review the [deployment checklist](deployment-checklist.md).
 
 ## 1. Push a Reviewed Revision
 

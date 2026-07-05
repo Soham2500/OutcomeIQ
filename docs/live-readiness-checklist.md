@@ -17,6 +17,11 @@ OutcomeIQ is now treated as a live-quality MVP. Fast delivery remains acceptable
 - [x] Render/Vercel manual deployment runbook and rollback notes exist
 - [x] Public production smoke script exists: `.\scripts\prod_smoke_check.ps1`
 - [x] One-month deployment cost plan exists
+- [x] Final manual deployment runbook exists
+- [x] Evidence-based final go-live checklist exists
+- [x] Manual rollback and secret-exposure checklist exists
+- [x] Production troubleshooting guide exists
+- [x] Sanitized launch-note template exists
 
 ## 2. Security Status
 
@@ -83,3 +88,10 @@ Manual deployment references:
 - `docs/render-deployment-guide.md`
 - `docs/deployment-checklist.md`
 - `docs/one-month-live-cost-plan.md`
+- `docs/deployment-runbook.md`
+- `docs/final-go-live-checklist.md`
+- `docs/rollback-checklist.md`
+- `docs/production-troubleshooting.md`
+- `docs/launch-notes-template.md`
+
+The first live version remains simulated. Real AI APIs require token limits, budget caps, approved model allowlists, complete model-call logging and a provider kill switch before consideration.

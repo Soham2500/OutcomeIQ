@@ -57,6 +57,7 @@ Available now:
 - Deterministic three-workflow/twelve-run demo fixture and live-quality gates
 - Placeholder production environment contract and non-deploying pre-deploy gate
 - Render/Vercel manual deployment runbook and public production smoke check
+- Final go-live, rollback, troubleshooting and launch-note documentation
 
 Not implemented yet:
 
@@ -171,6 +172,13 @@ Deployment preparation documents:
 - `docs/render-deployment-guide.md` — manual Render backend/database and Render/Vercel frontend sequence
 - `docs/deployment-checklist.md` — before, during and after-deployment acceptance checklist
 - `docs/one-month-live-cost-plan.md` — bounded one-month public MVP cost plan
+- `docs/deployment-runbook.md` — final operator sequence from local checks through browser validation
+- `docs/final-go-live-checklist.md` — evidence-based go/no-go decision checklist
+- `docs/rollback-checklist.md` — manual containment, rollback and secret-rotation steps
+- `docs/production-troubleshooting.md` — production symptom and recovery guide
+- `docs/launch-notes-template.md` — sanitized v0.1 release record template
+
+The first live version must use only the simulated AI provider. Add real AI APIs later only after token limits, monthly budget caps, model allowlists, complete call logging and a provider kill switch are implemented.
 
 ## Setup on Windows PowerShell
 
@@ -555,4 +563,4 @@ OutcomeIQ’s core cost-per-success proof is represented in the backend. Run the
 .\scripts\day5_full_verify.ps1
 ```
 
-The backend, frontend and PostgreSQL now run together through the root production-like local Compose stack. Run `.\scripts\docker_verify.ps1` for container verification, then follow `docs/render-deployment-guide.md` for manual hosting. The first live version remains simulated and needs no real AI-provider key. Actual cloud deployment, real provider integrations and autonomous actions remain deferred until explicitly performed.
+The backend, frontend and PostgreSQL now run together through the root production-like local Compose stack. Run `.\scripts\docker_verify.ps1` for container verification, then follow `docs/deployment-runbook.md` for manual hosting and final validation. The first live version remains simulated and needs no real AI-provider key. Actual cloud deployment, real provider integrations and autonomous actions remain deferred until explicitly performed.

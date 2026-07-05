@@ -33,6 +33,7 @@ OutcomeIQ is an outcome-aware AI FinOps platform that connects the complete cost
 - **Live-quality hardening:** Deterministic demo fixture plus host and Docker quality gates implemented
 - **Pre-deployment readiness:** Placeholder production environment contracts and non-deploying gate implemented
 - **Deployment runbook:** Render/Vercel guide, checklist, public smoke tooling and one-month cost plan implemented
+- **Go-live operations:** Final manual runbook, go/no-go checklist, rollback procedure, troubleshooting guide and launch-note template implemented
 
 OutcomeIQ is moving from fast MVP construction to live-quality MVP hardening. Fast delivery is allowed only when tests, builds, secret checks, migrations and applicable end-to-end gates remain green.
 
@@ -132,6 +133,11 @@ These documents define the architecture and product rules that implementation mu
 - [Render and Vercel deployment guide](docs/render-deployment-guide.md)
 - [Deployment checklist](docs/deployment-checklist.md)
 - [One-month live cost plan](docs/one-month-live-cost-plan.md)
+- [Final manual deployment runbook](docs/deployment-runbook.md)
+- [Final go-live checklist](docs/final-go-live-checklist.md)
+- [Rollback checklist](docs/rollback-checklist.md)
+- [Production troubleshooting guide](docs/production-troubleshooting.md)
+- [Launch notes template](docs/launch-notes-template.md)
 - [Accelerated MVP timeline](docs/accelerated-mvp-timeline.md)
 
 ## Backend foundation status
@@ -269,6 +275,10 @@ After manually deploying the backend and frontend, verify their public unauthent
 ```
 
 Follow the [Render and Vercel deployment guide](docs/render-deployment-guide.md), complete the [deployment checklist](docs/deployment-checklist.md), and approve the [one-month cost plan](docs/one-month-live-cost-plan.md) before provisioning paid resources. The next step is manual deployment; repository scripts do not create cloud resources.
+
+For the launch window, follow the [final deployment runbook](docs/deployment-runbook.md), make the go/no-go decision with the [final checklist](docs/final-go-live-checklist.md), and keep the [rollback checklist](docs/rollback-checklist.md) open. Use the [production troubleshooting guide](docs/production-troubleshooting.md) for failures and the [launch notes template](docs/launch-notes-template.md) to record a sanitized release.
+
+The first live version must remain on the simulated AI provider. Real AI APIs should be considered only after token limits, monthly budget caps, model allowlists, complete model-call logging and a provider kill switch are implemented.
 
 ## Run the frontend locally
 
@@ -505,6 +515,7 @@ Never use real credentials in development or commit `backend/.env`. See [Day 4 a
 - Deterministic demo data is available through `.\scripts\db_seed_demo.ps1`
 - Placeholder production environment examples and `.\scripts\pre_deploy_check.ps1` are implemented
 - Render/Vercel guidance, the deployment checklist, one-month cost plan and public smoke-check script are implemented
+- Final go-live, rollback, troubleshooting and launch-note documentation is implemented
 - Next deployment step: manually deploy the simulated-provider MVP and run `.\scripts\prod_smoke_check.ps1`
 - Next milestone: final report, architecture diagrams and presentation assets
 - Real provider calls, billing sync and autonomous decisions remain deferred
