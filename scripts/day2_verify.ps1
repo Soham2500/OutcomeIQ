@@ -217,7 +217,14 @@ $RequiredPaths = @(
     @{ Label = "Cost calculation migration"; RelativePath = "backend\alembic\versions\20260704_0004_create_cost_calculation_tables.py" },
     @{ Label = "Outcome tracking migration"; RelativePath = "backend\alembic\versions\20260704_0005_create_outcome_tracking_tables.py" },
     @{ Label = "Recommendation migration"; RelativePath = "backend\alembic\versions\20260704_0006_create_recommendations_table.py" },
-    @{ Label = "Local database creation SQL helper"; RelativePath = "database\local\create_outcomeiq_dev.sql" }
+    @{ Label = "Local database creation SQL helper"; RelativePath = "database\local\create_outcomeiq_dev.sql" },
+    @{ Label = "Deterministic demo seed Python helper"; RelativePath = "backend\scripts\seed_demo_data.py" },
+    @{ Label = "Deterministic demo seed PowerShell wrapper"; RelativePath = "scripts\db_seed_demo.ps1" },
+    @{ Label = "Docker deterministic demo seed wrapper"; RelativePath = "scripts\docker_seed_demo.ps1" },
+    @{ Label = "Live host quality gate"; RelativePath = "scripts\live_quality_gate.ps1" },
+    @{ Label = "Live Docker quality gate"; RelativePath = "scripts\live_docker_quality_gate.ps1" },
+    @{ Label = "Live readiness checklist"; RelativePath = "docs\live-readiness-checklist.md" },
+    @{ Label = "Deterministic demo data guide"; RelativePath = "docs\demo-data-guide.md" }
 )
 
 foreach ($Required in $RequiredPaths) {

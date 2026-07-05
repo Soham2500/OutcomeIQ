@@ -54,6 +54,7 @@ Available now:
 - Endpoint, model and access-layer tests
 - Docker packaging
 - Root Compose stack with PostgreSQL, FastAPI and nginx/React services
+- Deterministic three-workflow/twelve-run demo fixture and live-quality gates
 
 Not implemented yet:
 
@@ -106,6 +107,10 @@ Set-ExecutionPolicy -Scope Process -ExecutionPolicy Bypass
 .\scripts\docker_backend_shell.ps1
 .\scripts\docker_verify.ps1
 .\scripts\docker_down.ps1
+.\scripts\db_seed_demo.ps1
+.\scripts\docker_seed_demo.ps1
+.\scripts\live_quality_gate.ps1
+.\scripts\live_docker_quality_gate.ps1
 .\scripts\day5_cost_full_verify.ps1
 .\scripts\check_docker.ps1
 .\scripts\check_db_ready.ps1
@@ -141,6 +146,9 @@ Set-ExecutionPolicy -Scope Process -ExecutionPolicy Bypass
 - `day7_dashboard_charts_verify.ps1` validates the frontend, database readiness and opt-in local demo flow without starting servers.
 - `docker_verify.ps1` builds and verifies the complete local PostgreSQL/backend/frontend stack.
 - `docker_down.ps1` stops containers without deleting the named database volume.
+- `db_seed_demo.ps1` converges the local database on the deterministic support dataset.
+- `live_quality_gate.ps1` runs the complete host tests, build, database, seed and smoke sequence.
+- `live_docker_quality_gate.ps1` verifies the container stack and deterministic Docker seed.
 - `day5_cost_full_verify.ps1` performs the opt-in migration, seed, startup and cost smoke workflow safely.
 - `check_docker.ps1` reports Docker and Compose availability without starting anything.
 - `check_db_ready.ps1` reports database configuration/connectivity without creating databases, tables or migrations.

@@ -37,6 +37,8 @@ Next: final report and presentation assets.
 - Integration and regression testing
 - Reproducible synthetic demo data
 - End-to-end acceptance scripts
+- Live-quality host and Docker gates — implemented
+- Deterministic, idempotent presentation dataset — implemented
 
 ### Week 4 — Academic and interview package
 

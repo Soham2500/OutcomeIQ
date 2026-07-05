@@ -2,6 +2,8 @@
 param()
 
 $ErrorActionPreference = "Stop"
+$ConfirmPreference = "None"
+$ProgressPreference = "SilentlyContinue"
 $OriginalLocation = Get-Location
 $ProjectRoot = [System.IO.Path]::GetFullPath((Join-Path $PSScriptRoot ".."))
 $PowerShellExecutable = (Get-Process -Id $PID).Path
@@ -26,7 +28,11 @@ function Test-HttpEndpoint {
     param([string]$Uri)
 
     try {
-        $Response = Invoke-WebRequest -Uri $Uri -Method Get -TimeoutSec 5
+        $Response = Invoke-WebRequest `
+            -Uri $Uri `
+            -Method Get `
+            -TimeoutSec 5 `
+            -UseBasicParsing
         return $Response.StatusCode -ge 200 -and $Response.StatusCode -lt 400
     }
     catch {

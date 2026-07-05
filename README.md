@@ -30,6 +30,9 @@ OutcomeIQ is an outcome-aware AI FinOps platform that connects the complete cost
 - **Day 7 demo:** Cost/outcome charts and repeatable five-run API demo data flow implemented
 - **Day 8 frontend polish:** Presentation-ready shell and protected evaluator Demo Guide implemented
 - **Day 8 Docker:** PostgreSQL, FastAPI and nginx/React local production-like stack implemented
+- **Live-quality hardening:** Deterministic demo fixture plus host and Docker quality gates implemented
+
+OutcomeIQ is moving from fast MVP construction to live-quality MVP hardening. Fast delivery is allowed only when tests, builds, secret checks, migrations and applicable end-to-end gates remain green.
 
 The project currently provides a clean FastAPI modular-monolith foundation with environment-backed settings, structured logging, versioned routing, health/readiness endpoints, tests and Docker packaging.
 
@@ -121,6 +124,8 @@ These documents define the architecture and product rules that implementation mu
 - [Day 7 dashboard charts and demo data](docs/day-7-dashboard-charts-demo-data.md)
 - [Day 8 frontend polish and demo walkthrough](docs/day-8-frontend-polish-demo-walkthrough.md)
 - [Day 8 Docker local production setup](docs/day-8-docker-local-production-setup.md)
+- [Deterministic demo data guide](docs/demo-data-guide.md)
+- [Live-readiness checklist](docs/live-readiness-checklist.md)
 - [Accelerated MVP timeline](docs/accelerated-mvp-timeline.md)
 
 ## Backend foundation status
@@ -178,6 +183,10 @@ From the project root, PowerShell helpers are available for common tasks:
 .\scripts\docker_backend_shell.ps1
 .\scripts\docker_verify.ps1
 .\scripts\docker_down.ps1
+.\scripts\db_seed_demo.ps1
+.\scripts\docker_seed_demo.ps1
+.\scripts\live_quality_gate.ps1
+.\scripts\live_docker_quality_gate.ps1
 .\scripts\day5_cost_full_verify.ps1
 .\scripts\check_docker.ps1
 .\scripts\check_db_ready.ps1
@@ -214,6 +223,28 @@ Stop containers without deleting PostgreSQL data:
 ```
 
 The credentials in `docker-compose.yml` are local demo placeholders, not production secrets. See [Docker local production setup](docs/day-8-docker-local-production-setup.md).
+
+## Live-quality gates
+
+Run the complete host-based quality gate:
+
+```powershell
+.\scripts\live_quality_gate.ps1
+```
+
+Run the complete container-based quality gate with Docker Desktop running:
+
+```powershell
+.\scripts\live_docker_quality_gate.ps1
+```
+
+Seed only the deterministic local demo fixture:
+
+```powershell
+.\scripts\db_seed_demo.ps1
+```
+
+The seed converges on three customer-support workflows and twelve stable runs instead of creating uncontrolled duplicates.
 
 ## Run the frontend locally
 
@@ -446,6 +477,8 @@ Never use real credentials in development or commit `backend/.env`. See [Day 4 a
 - Verify frontend polish with `.\scripts\day8_frontend_polish_verify.ps1`
 - The three-service Docker local production-like stack is implemented
 - Verify it with `.\scripts\docker_verify.ps1`
+- Live-quality host and Docker gates are implemented
+- Deterministic demo data is available through `.\scripts\db_seed_demo.ps1`
 - Next milestone: final report, architecture diagrams and presentation assets
 - Real provider calls, billing sync and autonomous decisions remain deferred
 
