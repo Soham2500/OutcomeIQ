@@ -2,6 +2,7 @@ import { Navigate, Route, Routes } from "react-router-dom";
 import { TOKEN_KEY } from "./api/client";
 import { Layout } from "./components/Layout";
 import { DashboardPage } from "./pages/DashboardPage";
+import { DemoGuidePage } from "./pages/DemoGuidePage";
 import { LoginPage } from "./pages/LoginPage";
 import { ProjectsPage } from "./pages/ProjectsPage";
 import { RecommendationsPage } from "./pages/RecommendationsPage";
@@ -33,6 +34,7 @@ export default function App() {
         <Route element={<DashboardPage />} path="/dashboard" />
         <Route element={<ProjectsPage />} path="/projects" />
         <Route element={<RecommendationsPage />} path="/recommendations" />
+        <Route element={<DemoGuidePage />} path="/demo-guide" />
       </Route>
       <Route element={<HomeRedirect />} path="*" />
     </Routes>

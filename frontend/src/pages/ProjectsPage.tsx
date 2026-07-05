@@ -9,6 +9,7 @@ import { EmptyState } from "../components/EmptyState";
 import { ErrorState } from "../components/ErrorState";
 import { LoadingState } from "../components/LoadingState";
 import type { Project } from "../types/project";
+import { shortId } from "../utils/format";
 
 function createSlug(value: string): string {
   const base = value
@@ -79,14 +80,14 @@ export function ProjectsPage() {
       <div>
         <h1 className="text-2xl font-semibold text-slate-900">Projects</h1>
         <p className="mt-1 text-sm text-slate-500">
-          Create the organization and project boundary used by workflow evidence.
+          Projects group workflows, costs, outcomes, and recommendations.
         </p>
       </div>
 
       <section className="rounded-xl border border-slate-200 bg-white p-5 shadow-card md:p-6">
         <h2 className="font-semibold text-slate-900">Create a project</h2>
         <p className="mt-1 text-sm text-slate-500">
-          The MVP creates a simple organization first, then places the project inside it.
+          Create an organization boundary first, then place the AI workflow project inside it.
         </p>
         {error ? <div className="mt-4"><ErrorState message={error} /></div> : null}
         {success ? (
@@ -145,7 +146,7 @@ export function ProjectsPage() {
           <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
             {projects.map((project) => (
               <article
-                className="rounded-xl border border-slate-200 bg-white p-5 shadow-card"
+                className="rounded-xl border border-slate-200 bg-white p-5 shadow-card transition hover:-translate-y-0.5 hover:border-brand-100 hover:shadow-md"
                 key={project.id}
               >
                 <div className="flex items-start justify-between gap-3">
@@ -158,7 +159,7 @@ export function ProjectsPage() {
                   {project.description || "No project description provided."}
                 </p>
                 <p className="mt-4 font-mono text-xs text-slate-400">
-                  {project.id.slice(0, 8)}
+                  Project ID · {shortId(project.id)}
                 </p>
               </article>
             ))}

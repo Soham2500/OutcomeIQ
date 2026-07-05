@@ -28,6 +28,7 @@ OutcomeIQ is an outcome-aware AI FinOps platform that connects the complete cost
 - **Day 6 recommendation APIs:** Deterministic, human-reviewed recommendation foundation implemented
 - **Day 7 frontend:** React/Vite dashboard, auth, projects and recommendations foundation implemented
 - **Day 7 demo:** Cost/outcome charts and repeatable five-run API demo data flow implemented
+- **Day 8 frontend polish:** Presentation-ready shell and protected evaluator Demo Guide implemented
 
 The project currently provides a clean FastAPI modular-monolith foundation with environment-backed settings, structured logging, versioned routing, health/readiness endpoints, tests and Docker packaging.
 
@@ -117,6 +118,7 @@ These documents define the architecture and product rules that implementation mu
 - [Day 6 recommendation API foundation](docs/day-6-recommendation-api-foundation.md)
 - [Day 7 frontend dashboard foundation](docs/day-7-frontend-dashboard-foundation.md)
 - [Day 7 dashboard charts and demo data](docs/day-7-dashboard-charts-demo-data.md)
+- [Day 8 frontend polish and demo walkthrough](docs/day-8-frontend-polish-demo-walkthrough.md)
 - [Accelerated MVP timeline](docs/accelerated-mvp-timeline.md)
 
 ## Backend foundation status
@@ -165,6 +167,7 @@ From the project root, PowerShell helpers are available for common tasks:
 .\scripts\day7_frontend_foundation_verify.ps1
 .\scripts\seed_demo_data_via_api.ps1
 .\scripts\day7_dashboard_charts_verify.ps1
+.\scripts\day8_frontend_polish_verify.ps1
 .\scripts\day5_cost_full_verify.ps1
 .\scripts\check_docker.ps1
 .\scripts\check_db_ready.ps1
@@ -205,6 +208,8 @@ Populate the local dashboard through authenticated APIs after starting the backe
 ```
 
 Demo login: `demo@outcomeiq.local` / `Demo@12345`. These credentials are synthetic and local-only.
+
+After login, open `/demo-guide` for the presentation sequence, setup commands and simulated-scope disclosure.
 
 ## Run the backend locally
 
@@ -383,7 +388,7 @@ Never use real credentials in development or commit `backend/.env`. See [Day 4 a
 
 ## Next development steps
 
-### Local demo polish and configuration comparison
+### Deployment preparation or final report assets
 
 - Day 4 authentication, organization and project API foundation is complete
 - `AUTH PROJECT API SMOKE CHECK PASSED` is the verified live result
@@ -405,7 +410,9 @@ Never use real credentials in development or commit `backend/.env`. See [Day 4 a
 - Verify the frontend foundation with `.\scripts\day7_frontend_foundation_verify.ps1`
 - Recharts cost/outcome visuals and the five-run API demo seed are implemented
 - Run the opt-in demo verification with `.\scripts\day7_dashboard_charts_verify.ps1`
-- Next milestone: configuration comparison and final end-to-end presentation polish
+- The presentation-ready app shell and protected Demo Guide are implemented
+- Verify frontend polish with `.\scripts\day8_frontend_polish_verify.ps1`
+- Next milestone: Docker/deployment preparation or final report and presentation assets
 - Real provider calls, billing sync and autonomous decisions remain deferred
 
-Continue with [Day 7 charts and demo data](docs/day-7-dashboard-charts-demo-data.md). Never commit private `.env` files, store provider secrets, or persist raw prompts/responses.
+Continue with the [Day 8 demo walkthrough](docs/day-8-frontend-polish-demo-walkthrough.md). Never commit private `.env` files, store provider secrets, or persist raw prompts/responses.

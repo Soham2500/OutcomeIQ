@@ -26,8 +26,9 @@
 - Core loading, empty and error states — implemented
 - Evidence-focused cost/outcome charts — implemented
 - Repeatable five-run API demo data flow — implemented
+- Presentation-ready frontend shell and evaluator Demo Guide — implemented
 
-Next: configuration comparison, end-to-end demo polish and presentation evidence.
+Next: Docker/deployment preparation or final report and presentation assets.
 
 ### Week 3 — Delivery engineering
 

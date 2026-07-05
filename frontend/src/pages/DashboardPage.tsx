@@ -13,7 +13,7 @@ import { OutcomeStatusChart } from "../components/charts/OutcomeStatusChart";
 import { SuccessRateCard } from "../components/charts/SuccessRateCard";
 import type { DashboardData } from "../types/dashboard";
 import type { Project } from "../types/project";
-import { formatDateTime, formatUsd } from "../utils/formatters";
+import { formatDateTime, formatUsd, shortId } from "../utils/format";
 
 export function DashboardPage() {
   const [projects, setProjects] = useState<Project[]>([]);
@@ -49,7 +49,10 @@ export function DashboardPage() {
     } catch (requestError) {
       setDashboard(null);
       setError(
-        getApiErrorMessage(requestError, "Dashboard data could not be loaded."),
+        getApiErrorMessage(
+          requestError,
+          "Could not load dashboard data. Check backend and demo seed.",
+        ),
       );
     } finally {
       setLoadingDashboard(false);
@@ -149,9 +152,15 @@ export function DashboardPage() {
             <StatCard
               hint="Outcome-aware unit economics"
               label="Cost per successful outcome"
-              value={formatUsd(
-                dashboard.outcomeSummary.cost_per_successful_outcome_usd,
-              )}
+              value={
+                dashboard.outcomeSummary.cost_per_successful_outcome_usd === null ||
+                dashboard.outcomeSummary.cost_per_successful_outcome_usd ===
+                  undefined
+                  ? "Not available yet"
+                  : formatUsd(
+                      dashboard.outcomeSummary.cost_per_successful_outcome_usd,
+                    )
+              }
             />
           </section>
 
@@ -184,7 +193,7 @@ export function DashboardPage() {
             {dashboard.workflowRuns.length === 0 ? (
               <div className="p-6">
                 <EmptyState
-                  description="Seed demo data or record workflow telemetry to populate this table."
+                  description="Seed demo data or create workflow runs to see analytics."
                   title="No workflow runs recorded"
                 />
               </div>
@@ -205,7 +214,9 @@ export function DashboardPage() {
                     {dashboard.workflowRuns.map((run, index) => (
                       <tr key={run.workflow_run_id ?? `run-${index}`}>
                         <td className="whitespace-nowrap px-5 py-3 font-mono text-xs text-slate-700">
-                          {run.workflow_run_id?.slice(0, 8) ?? `Run ${index + 1}`}
+                          {run.workflow_run_id
+                            ? shortId(run.workflow_run_id)
+                            : `Run ${index + 1}`}
                         </td>
                         <td className="whitespace-nowrap px-5 py-3 capitalize text-slate-700">
                           {(run.status || "unknown").replaceAll("_", " ")}

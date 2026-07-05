@@ -14,11 +14,19 @@ import type {
   Recommendation,
   RecommendationSeverity,
 } from "../types/recommendation";
+import { formatUsd } from "../utils/format";
 
 const severityClasses: Record<RecommendationSeverity, string> = {
   low: "bg-sky-50 text-sky-700",
   medium: "bg-amber-50 text-amber-700",
   high: "bg-rose-50 text-rose-700",
+};
+
+const statusClasses: Record<string, string> = {
+  open: "bg-violet-50 text-violet-700",
+  accepted: "bg-emerald-50 text-emerald-700",
+  dismissed: "bg-slate-100 text-slate-600",
+  resolved: "bg-blue-50 text-blue-700",
 };
 
 export function RecommendationsPage() {
@@ -127,7 +135,8 @@ export function RecommendationsPage() {
         <div>
           <h1 className="text-2xl font-semibold text-slate-900">Recommendations</h1>
           <p className="mt-1 text-sm text-slate-500">
-            Deterministic suggestions backed by workflow cost and outcome evidence.
+            Rule-based MVP suggestions backed by cost and outcome evidence. They do
+            not automatically change workflows.
           </p>
         </div>
         {projects.length > 0 ? (
@@ -189,10 +198,12 @@ export function RecommendationsPage() {
                     >
                       {recommendation.severity}
                     </span>
-                    <span className="rounded-full bg-slate-100 px-2.5 py-1 text-xs font-medium capitalize text-slate-600">
+                    <span
+                      className={`rounded-full px-2.5 py-1 text-xs font-medium capitalize ${statusClasses[recommendation.status] ?? statusClasses.open}`}
+                    >
                       {recommendation.status}
                     </span>
-                    <span className="text-xs text-slate-400">
+                    <span className="rounded-full bg-brand-50 px-2.5 py-1 text-xs font-medium capitalize text-brand-700">
                       {recommendation.recommendation_type.replaceAll("_", " ")}
                     </span>
                   </div>
@@ -206,7 +217,7 @@ export function RecommendationsPage() {
                   ) : null}
                   {recommendation.potential_savings_usd !== null ? (
                     <p className="mt-3 text-sm font-medium text-emerald-700">
-                      Potential savings: ${Number(recommendation.potential_savings_usd).toFixed(4)}
+                      Potential savings: {formatUsd(recommendation.potential_savings_usd)}
                     </p>
                   ) : null}
                 </div>

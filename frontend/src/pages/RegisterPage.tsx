@@ -2,6 +2,7 @@ import { type FormEvent, useState } from "react";
 import { Link, Navigate, useNavigate } from "react-router-dom";
 import { register } from "../api/authApi";
 import { getApiErrorMessage, TOKEN_KEY } from "../api/client";
+import { AppLogo } from "../components/AppLogo";
 
 export function RegisterPage() {
   const navigate = useNavigate();
@@ -35,7 +36,7 @@ export function RegisterPage() {
   return (
     <main className="flex min-h-screen items-center justify-center bg-slate-950 px-5 py-12">
       <section className="w-full max-w-md rounded-2xl bg-white p-7 shadow-2xl md:p-9">
-        <p className="text-sm font-semibold text-brand-600">OutcomeIQ</p>
+        <AppLogo />
         <h1 className="mt-2 text-2xl font-semibold text-slate-900">
           Create your account
         </h1>

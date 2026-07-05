@@ -1,5 +1,5 @@
 import type { DecimalValue } from "../../types/dashboard";
-import { formatUsd } from "../../utils/formatters";
+import { formatUsd } from "../../utils/format";
 
 interface CostOutcomeInsightProps {
   totalCost?: DecimalValue | null;

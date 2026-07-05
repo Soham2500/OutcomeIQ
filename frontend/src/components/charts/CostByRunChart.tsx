@@ -8,7 +8,7 @@ import {
   YAxis,
 } from "recharts";
 import type { DashboardWorkflowRun, DecimalValue } from "../../types/dashboard";
-import { formatUsd, toFiniteNumber } from "../../utils/formatters";
+import { formatUsd, toFiniteNumber } from "../../utils/format";
 
 interface CostByRunChartProps {
   runs?: DashboardWorkflowRun[];
