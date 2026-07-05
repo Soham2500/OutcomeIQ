@@ -46,3 +46,26 @@ def test_ready(client: TestClient, monkeypatch: pytest.MonkeyPatch) -> None:
     assert payload["database"] in {"not_configured", "connected", "error"}
     assert payload["database"] == "not_configured"
     assert payload["redis"] == "not_configured"
+
+
+def test_local_frontend_origins_pass_cors_preflight(client: TestClient) -> None:
+    local_origins = (
+        "http://localhost:5173",
+        "http://127.0.0.1:5173",
+        "http://localhost:3000",
+        "http://127.0.0.1:3000",
+    )
+
+    for origin in local_origins:
+        response = client.options(
+            "/api/v1/auth/login",
+            headers={
+                "Origin": origin,
+                "Access-Control-Request-Method": "POST",
+                "Access-Control-Request-Headers": "content-type",
+            },
+        )
+
+        assert response.status_code == 200
+        assert response.headers["access-control-allow-origin"] == origin
+        assert response.headers["access-control-allow-credentials"] == "true"

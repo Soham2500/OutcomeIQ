@@ -50,6 +50,7 @@ Available now:
 - Protected generate, list, read and status-update recommendation endpoints
 - Synthetic recommendation smoke test and full verification automation
 - Separate React/TypeScript frontend with typed clients for auth, projects, dashboard analytics and recommendations
+- Recharts cost/outcome visuals and repeatable API-based five-run demo data flow
 - Endpoint, model and access-layer tests
 - Docker packaging
 
@@ -94,6 +95,8 @@ Set-ExecutionPolicy -Scope Process -ExecutionPolicy Bypass
 .\scripts\run_frontend.ps1
 .\scripts\frontend_typecheck.ps1
 .\scripts\day7_frontend_foundation_verify.ps1
+.\scripts\seed_demo_data_via_api.ps1
+.\scripts\day7_dashboard_charts_verify.ps1
 .\scripts\day5_cost_full_verify.ps1
 .\scripts\check_docker.ps1
 .\scripts\check_db_ready.ps1
@@ -125,6 +128,8 @@ Set-ExecutionPolicy -Scope Process -ExecutionPolicy Bypass
 - `run_frontend.ps1` explicitly starts the Vite development server.
 - `frontend_typecheck.ps1` validates the TypeScript project without starting it.
 - `day7_frontend_foundation_verify.ps1` checks secret protection, installs dependencies and runs the frontend typecheck.
+- `seed_demo_data_via_api.ps1` creates five simulated, fully costed and outcome-verified support runs through authenticated APIs.
+- `day7_dashboard_charts_verify.ps1` validates the frontend, database readiness and opt-in local demo flow without starting servers.
 - `day5_cost_full_verify.ps1` performs the opt-in migration, seed, startup and cost smoke workflow safely.
 - `check_docker.ps1` reports Docker and Compose availability without starting anything.
 - `check_db_ready.ps1` reports database configuration/connectivity without creating databases, tables or migrations.
@@ -266,7 +271,7 @@ python -m pytest -v
 Expected result:
 
 ```text
-57 passed
+58 passed
 ```
 
 Run only the health tests when needed:
@@ -277,7 +282,7 @@ python -m pytest tests\test_health.py -v
 
 The pytest configuration intentionally leaves warnings visible.
 
-The current `StarletteDeprecationWarning` related to FastAPI TestClient and HTTPX is non-blocking. It does not change the `57 passed` result and should remain visible until the upstream compatibility path is addressed deliberately.
+The current `StarletteDeprecationWarning` related to FastAPI TestClient and HTTPX is non-blocking. It does not change the `58 passed` result and should remain visible until the upstream compatibility path is addressed deliberately.
 
 ## Verified commands
 
@@ -295,7 +300,7 @@ With the API running in the first window, use a second PowerShell window:
 .\scripts\smoke_api.ps1
 ```
 
-Verified results are 57 passing tests, including auth, workflow logging, cost arithmetic, outcome unit economics, dashboard ownership joins and recommendation rules/routes.
+Verified results are 58 passing tests, including local CORS preflight, auth, workflow logging, cost arithmetic, outcome unit economics, dashboard ownership joins and recommendation rules/routes.
 
 ## Run with Docker
 
@@ -519,4 +524,4 @@ OutcomeIQ’s core cost-per-success proof is represented in the backend. Run the
 .\scripts\day5_full_verify.ps1
 ```
 
-The Day 6 dashboard and recommendation APIs plus the Day 7 frontend foundation are implemented. Run `.\scripts\day7_frontend_foundation_verify.ps1` for frontend validation. The next milestone is dashboard polish, evidence-focused charts and reproducible demo data; real provider integrations, ML optimization and autonomous actions remain deferred.
+The Day 6 APIs and Day 7 frontend, charts and repeatable demo data flow are implemented. Run `.\scripts\day7_dashboard_charts_verify.ps1` for the opt-in local demonstration check. The next milestone is configuration comparison and final presentation polish; real provider integrations, ML optimization and autonomous actions remain deferred.

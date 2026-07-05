@@ -57,3 +57,11 @@ export function getApiErrorMessage(
   }
   return error.response?.data?.message ?? fallback;
 }
+
+export function isApiStatus(error: unknown, status: number): boolean {
+  return axios.isAxiosError(error) && error.response?.status === status;
+}
+
+export function isApiNetworkError(error: unknown): boolean {
+  return axios.isAxiosError(error) && error.response === undefined;
+}

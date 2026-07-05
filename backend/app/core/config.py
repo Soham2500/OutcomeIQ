@@ -8,6 +8,14 @@ from pydantic_settings import BaseSettings, SettingsConfigDict
 from app.core.constants import API_VERSION, SERVICE_NAME
 
 
+LOCAL_DEVELOPMENT_CORS_ORIGINS = (
+    "http://localhost:5173",
+    "http://127.0.0.1:5173",
+    "http://localhost:3000",
+    "http://127.0.0.1:3000",
+)
+
+
 class Settings(BaseSettings):
     """Runtime settings loaded from environment variables or a local .env file."""
 
@@ -15,7 +23,7 @@ class Settings(BaseSettings):
     APP_VERSION: str = API_VERSION
     ENVIRONMENT: str = "development"
     API_V1_PREFIX: str = "/api/v1"
-    BACKEND_CORS_ORIGINS: str = "http://localhost:3000,http://localhost:5173"
+    BACKEND_CORS_ORIGINS: str = ",".join(LOCAL_DEVELOPMENT_CORS_ORIGINS)
     DATABASE_URL: str | None = None
     REDIS_URL: str | None = None
     JWT_SECRET_KEY: str | None = None
@@ -40,13 +48,18 @@ class Settings(BaseSettings):
 
     @property
     def cors_origins(self) -> list[str]:
-        """Return the comma-separated CORS setting as a clean list."""
+        """Return configured origins plus the approved local UI origins."""
 
-        return [
+        configured_origins = [
             origin.strip()
             for origin in self.BACKEND_CORS_ORIGINS.split(",")
             if origin.strip()
         ]
+        return list(
+            dict.fromkeys(
+                [*configured_origins, *LOCAL_DEVELOPMENT_CORS_ORIGINS]
+            )
+        )
 
     @property
     def database_configured(self) -> bool:

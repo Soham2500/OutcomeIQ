@@ -10,7 +10,7 @@ OutcomeIQ is an outcome-aware AI FinOps platform that connects the complete cost
 - **Day 2 backend foundation and closure:** 100% complete
 - **FastAPI application:** Running successfully
 - **Swagger UI:** Working
-- **Automated tests:** 57 foundation, workflow, cost, outcome, dashboard and recommendation tests passing
+- **Automated tests:** 58 foundation, CORS, workflow, cost, outcome, dashboard and recommendation tests passing
 - **Smoke API check:** Root, health and readiness passing
 - **Day 3 database foundation:** 100% complete
 - **PostgreSQL:** Local `outcomeiq_dev` connection verified
@@ -27,6 +27,7 @@ OutcomeIQ is an outcome-aware AI FinOps platform that connects the complete cost
 - **Day 6 dashboard APIs:** Project overview, runs, cost and outcome summaries implemented
 - **Day 6 recommendation APIs:** Deterministic, human-reviewed recommendation foundation implemented
 - **Day 7 frontend:** React/Vite dashboard, auth, projects and recommendations foundation implemented
+- **Day 7 demo:** Cost/outcome charts and repeatable five-run API demo data flow implemented
 
 The project currently provides a clean FastAPI modular-monolith foundation with environment-backed settings, structured logging, versioned routing, health/readiness endpoints, tests and Docker packaging.
 
@@ -39,7 +40,7 @@ The project currently provides a clean FastAPI modular-monolith foundation with 
 | Planned persistence | PostgreSQL, SQLAlchemy, Alembic |
 | Planned cache/jobs | Redis |
 | Analytics | Pandas, Scikit-learn |
-| Frontend | React, TypeScript, Vite, Tailwind CSS, React Router, Axios |
+| Frontend | React, TypeScript, Vite, Tailwind CSS, React Router, Axios, Recharts |
 | Packaging | Docker, Docker Compose |
 | Testing | Pytest, HTTPX/FastAPI TestClient |
 
@@ -115,6 +116,7 @@ These documents define the architecture and product rules that implementation mu
 - [Day 6 dashboard analytics API](docs/day-6-dashboard-analytics-api.md)
 - [Day 6 recommendation API foundation](docs/day-6-recommendation-api-foundation.md)
 - [Day 7 frontend dashboard foundation](docs/day-7-frontend-dashboard-foundation.md)
+- [Day 7 dashboard charts and demo data](docs/day-7-dashboard-charts-demo-data.md)
 - [Accelerated MVP timeline](docs/accelerated-mvp-timeline.md)
 
 ## Backend foundation status
@@ -161,6 +163,8 @@ From the project root, PowerShell helpers are available for common tasks:
 .\scripts\run_frontend.ps1
 .\scripts\frontend_typecheck.ps1
 .\scripts\day7_frontend_foundation_verify.ps1
+.\scripts\seed_demo_data_via_api.ps1
+.\scripts\day7_dashboard_charts_verify.ps1
 .\scripts\day5_cost_full_verify.ps1
 .\scripts\check_docker.ps1
 .\scripts\check_db_ready.ps1
@@ -192,6 +196,15 @@ Verify the foundation without starting a browser:
 ```powershell
 .\scripts\day7_frontend_foundation_verify.ps1
 ```
+
+Populate the local dashboard through authenticated APIs after starting the backend:
+
+```powershell
+.\scripts\db_seed_pricing.ps1
+.\scripts\seed_demo_data_via_api.ps1
+```
+
+Demo login: `demo@outcomeiq.local` / `Demo@12345`. These credentials are synthetic and local-only.
 
 ## Run the backend locally
 
@@ -227,7 +240,7 @@ python -m pytest -v
 Expected result:
 
 ```text
-57 passed
+58 passed
 ```
 
 The existing Starlette/HTTPX compatibility warning may remain visible; pytest is not configured to hide real warnings.
@@ -370,7 +383,7 @@ Never use real credentials in development or commit `backend/.env`. See [Day 4 a
 
 ## Next development steps
 
-### Day 7 dashboard polish and demo data
+### Local demo polish and configuration comparison
 
 - Day 4 authentication, organization and project API foundation is complete
 - `AUTH PROJECT API SMOKE CHECK PASSED` is the verified live result
@@ -390,7 +403,9 @@ Never use real credentials in development or commit `backend/.env`. See [Day 4 a
 - Run its complete acceptance path with `.\scripts\day6_recommendation_full_verify.ps1`
 - React authentication, project, dashboard and recommendation pages are implemented
 - Verify the frontend foundation with `.\scripts\day7_frontend_foundation_verify.ps1`
-- Next milestone: dashboard polish, evidence-focused charts and reproducible demo data
+- Recharts cost/outcome visuals and the five-run API demo seed are implemented
+- Run the opt-in demo verification with `.\scripts\day7_dashboard_charts_verify.ps1`
+- Next milestone: configuration comparison and final end-to-end presentation polish
 - Real provider calls, billing sync and autonomous decisions remain deferred
 
-Continue with the [Day 7 frontend foundation](docs/day-7-frontend-dashboard-foundation.md). Never commit `backend/.env`, store provider secrets, or persist raw prompts/responses.
+Continue with [Day 7 charts and demo data](docs/day-7-dashboard-charts-demo-data.md). Never commit private `.env` files, store provider secrets, or persist raw prompts/responses.

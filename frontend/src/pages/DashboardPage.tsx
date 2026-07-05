@@ -1,44 +1,19 @@
 import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
-import { getProjectDashboard } from "../api/dashboardApi";
 import { getApiErrorMessage } from "../api/client";
+import { getProjectDashboard } from "../api/dashboardApi";
 import { listProjects } from "../api/projectsApi";
 import { EmptyState } from "../components/EmptyState";
 import { ErrorState } from "../components/ErrorState";
 import { LoadingState } from "../components/LoadingState";
 import { StatCard } from "../components/StatCard";
-import type { DashboardData, DecimalValue } from "../types/dashboard";
+import { CostByRunChart } from "../components/charts/CostByRunChart";
+import { CostOutcomeInsight } from "../components/charts/CostOutcomeInsight";
+import { OutcomeStatusChart } from "../components/charts/OutcomeStatusChart";
+import { SuccessRateCard } from "../components/charts/SuccessRateCard";
+import type { DashboardData } from "../types/dashboard";
 import type { Project } from "../types/project";
-
-function asNumber(value: DecimalValue | null): number | null {
-  if (value === null) {
-    return null;
-  }
-  const parsed = Number(value);
-  return Number.isFinite(parsed) ? parsed : null;
-}
-
-function formatUsd(value: DecimalValue | null): string {
-  const parsed = asNumber(value);
-  if (parsed === null) {
-    return "—";
-  }
-  return new Intl.NumberFormat("en-US", {
-    style: "currency",
-    currency: "USD",
-    minimumFractionDigits: parsed < 0.01 ? 4 : 2,
-    maximumFractionDigits: parsed < 0.01 ? 6 : 2,
-  }).format(parsed);
-}
-
-function formatRate(value: DecimalValue): string {
-  const parsed = asNumber(value) ?? 0;
-  return `${(parsed * 100).toFixed(1)}%`;
-}
-
-function formatDate(value: string | null): string {
-  return value ? new Date(value).toLocaleString() : "—";
-}
+import { formatDateTime, formatUsd } from "../utils/formatters";
 
 export function DashboardPage() {
   const [projects, setProjects] = useState<Project[]>([]);
@@ -62,42 +37,31 @@ export function DashboardPage() {
     }
   }
 
+  async function loadDashboard(projectId: string) {
+    if (!projectId) {
+      setDashboard(null);
+      return;
+    }
+    setLoadingDashboard(true);
+    setError(null);
+    try {
+      setDashboard(await getProjectDashboard(projectId));
+    } catch (requestError) {
+      setDashboard(null);
+      setError(
+        getApiErrorMessage(requestError, "Dashboard data could not be loaded."),
+      );
+    } finally {
+      setLoadingDashboard(false);
+    }
+  }
+
   useEffect(() => {
     void loadProjectOptions();
   }, []);
 
   useEffect(() => {
-    if (!selectedProjectId) {
-      setDashboard(null);
-      return;
-    }
-
-    let active = true;
-    setLoadingDashboard(true);
-    setError(null);
-    getProjectDashboard(selectedProjectId)
-      .then((data) => {
-        if (active) {
-          setDashboard(data);
-        }
-      })
-      .catch((requestError: unknown) => {
-        if (active) {
-          setDashboard(null);
-          setError(
-            getApiErrorMessage(requestError, "Dashboard data could not be loaded."),
-          );
-        }
-      })
-      .finally(() => {
-        if (active) {
-          setLoadingDashboard(false);
-        }
-      });
-
-    return () => {
-      active = false;
-    };
+    void loadDashboard(selectedProjectId);
   }, [selectedProjectId]);
 
   if (loadingProjects) {
@@ -131,39 +95,84 @@ export function DashboardPage() {
             Cost, outcome and unit-economics evidence for AI workflows.
           </p>
         </div>
-        <label className="w-full sm:w-72">
-          <span className="field-label">Project</span>
-          <select
-            className="field-input"
-            onChange={(event) => setSelectedProjectId(event.target.value)}
-            value={selectedProjectId}
+        <div className="flex w-full flex-col gap-3 sm:w-auto sm:flex-row sm:items-end">
+          <label className="w-full sm:w-72">
+            <span className="field-label">Project</span>
+            <select
+              className="field-input"
+              onChange={(event) => setSelectedProjectId(event.target.value)}
+              value={selectedProjectId}
+            >
+              {projects.map((project) => (
+                <option key={project.id} value={project.id}>
+                  {project.name}
+                </option>
+              ))}
+            </select>
+          </label>
+          <button
+            className="secondary-button"
+            disabled={loadingDashboard || !selectedProjectId}
+            onClick={() => void loadDashboard(selectedProjectId)}
+            type="button"
           >
-            {projects.map((project) => (
-              <option key={project.id} value={project.id}>
-                {project.name}
-              </option>
-            ))}
-          </select>
-        </label>
+            {loadingDashboard ? "Refreshing…" : "Refresh"}
+          </button>
+        </div>
       </div>
 
-      {error ? <ErrorState message={error} /> : null}
-      {loadingDashboard ? <LoadingState message="Calculating project analytics…" /> : null}
+      {error ? (
+        <ErrorState
+          message={error}
+          onRetry={() => void loadDashboard(selectedProjectId)}
+        />
+      ) : null}
+      {loadingDashboard ? (
+        <LoadingState message="Calculating project analytics…" />
+      ) : null}
 
       {!loadingDashboard && dashboard ? (
         <>
-          <section className="grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
-            <StatCard label="Total workflow runs" value={dashboard.overview.total_workflow_runs} />
-            <StatCard label="Total cost" value={formatUsd(dashboard.costSummary.total_cost_usd)} />
-            <StatCard label="Success rate" value={formatRate(dashboard.outcomeSummary.success_rate)} />
+          <section className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
+            <StatCard
+              label="Total workflow runs"
+              value={dashboard.overview.total_workflow_runs ?? 0}
+            />
+            <StatCard
+              label="Total cost"
+              value={formatUsd(
+                dashboard.costSummary.total_cost_usd ??
+                  dashboard.overview.total_cost_usd,
+              )}
+            />
+            <SuccessRateCard successRate={dashboard.outcomeSummary.success_rate} />
             <StatCard
               hint="Outcome-aware unit economics"
               label="Cost per successful outcome"
-              value={formatUsd(dashboard.outcomeSummary.cost_per_successful_outcome_usd)}
+              value={formatUsd(
+                dashboard.outcomeSummary.cost_per_successful_outcome_usd,
+              )}
             />
-            <StatCard label="Successful outcomes" value={dashboard.overview.successful_outcomes} />
-            <StatCard label="Failed outcomes" value={dashboard.overview.failed_outcomes} />
           </section>
+
+          <section className="grid gap-6 xl:grid-cols-2">
+            <CostByRunChart runs={dashboard.workflowRuns} />
+            <OutcomeStatusChart
+              failed={dashboard.outcomeSummary.failed_runs}
+              pending={dashboard.outcomeSummary.pending_runs}
+              successful={dashboard.outcomeSummary.successful_runs}
+            />
+          </section>
+
+          <CostOutcomeInsight
+            costPerSuccessfulOutcome={
+              dashboard.outcomeSummary.cost_per_successful_outcome_usd
+            }
+            successfulOutcomes={dashboard.overview.successful_outcomes ?? 0}
+            totalCost={
+              dashboard.costSummary.total_cost_usd ?? dashboard.overview.total_cost_usd
+            }
+          />
 
           <section className="overflow-hidden rounded-xl border border-slate-200 bg-white shadow-card">
             <div className="border-b border-slate-200 px-5 py-4">
@@ -173,8 +182,11 @@ export function DashboardPage() {
               </p>
             </div>
             {dashboard.workflowRuns.length === 0 ? (
-              <div className="p-8 text-center text-sm text-slate-500">
-                No workflow runs have been recorded for this project.
+              <div className="p-6">
+                <EmptyState
+                  description="Seed demo data or record workflow telemetry to populate this table."
+                  title="No workflow runs recorded"
+                />
               </div>
             ) : (
               <div className="overflow-x-auto">
@@ -190,25 +202,26 @@ export function DashboardPage() {
                     </tr>
                   </thead>
                   <tbody className="divide-y divide-slate-100">
-                    {dashboard.workflowRuns.map((run) => (
-                      <tr key={run.workflow_run_id}>
+                    {dashboard.workflowRuns.map((run, index) => (
+                      <tr key={run.workflow_run_id ?? `run-${index}`}>
                         <td className="whitespace-nowrap px-5 py-3 font-mono text-xs text-slate-700">
-                          {run.workflow_run_id.slice(0, 8)}
+                          {run.workflow_run_id?.slice(0, 8) ?? `Run ${index + 1}`}
                         </td>
                         <td className="whitespace-nowrap px-5 py-3 capitalize text-slate-700">
-                          {run.status.replaceAll("_", " ")}
+                          {(run.status || "unknown").replaceAll("_", " ")}
                         </td>
                         <td className="whitespace-nowrap px-5 py-3 text-slate-700">
                           {formatUsd(run.total_cost_usd)}
                         </td>
                         <td className="whitespace-nowrap px-5 py-3 capitalize text-slate-700">
-                          {run.outcome_status?.replaceAll("_", " ") ?? "Pending evidence"}
+                          {run.outcome_status?.replaceAll("_", " ") ??
+                            "Pending evidence"}
                         </td>
                         <td className="whitespace-nowrap px-5 py-3 text-xs text-slate-500">
-                          {formatDate(run.started_at)}
+                          {formatDateTime(run.started_at)}
                         </td>
                         <td className="whitespace-nowrap px-5 py-3 text-xs text-slate-500">
-                          {formatDate(run.completed_at)}
+                          {formatDateTime(run.completed_at)}
                         </td>
                       </tr>
                     ))}

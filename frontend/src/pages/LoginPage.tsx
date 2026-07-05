@@ -1,7 +1,12 @@
 import { type FormEvent, useState } from "react";
 import { Link, Navigate, useLocation, useNavigate } from "react-router-dom";
 import { login } from "../api/authApi";
-import { getApiErrorMessage, TOKEN_KEY } from "../api/client";
+import {
+  getApiErrorMessage,
+  isApiNetworkError,
+  isApiStatus,
+  TOKEN_KEY,
+} from "../api/client";
 
 interface LoginLocationState {
   from?: string;
@@ -30,7 +35,17 @@ export function LoginPage() {
       localStorage.setItem(TOKEN_KEY, token.access_token);
       navigate(state?.from ?? "/dashboard", { replace: true });
     } catch (requestError) {
-      setError(getApiErrorMessage(requestError, "Login failed."));
+      if (isApiStatus(requestError, 401)) {
+        setError(
+          "Invalid email or password. If using demo login, run demo seed script first.",
+        );
+      } else if (isApiNetworkError(requestError)) {
+        setError(
+          "Cannot reach backend. Make sure backend is running and CORS is configured.",
+        );
+      } else {
+        setError(getApiErrorMessage(requestError, "Login failed."));
+      }
     } finally {
       setSubmitting(false);
     }

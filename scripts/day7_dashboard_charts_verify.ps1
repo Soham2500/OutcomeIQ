@@ -4,8 +4,8 @@ param()
 $ErrorActionPreference = "Stop"
 $OriginalLocation = Get-Location
 $ProjectRoot = [System.IO.Path]::GetFullPath((Join-Path $PSScriptRoot ".."))
-$FrontendPath = Join-Path $ProjectRoot "frontend"
 $PowerShellExecutable = (Get-Process -Id $PID).Path
+$HealthUrl = "http://127.0.0.1:8000/api/v1/health"
 $CurrentStep = "initialization"
 $Succeeded = $false
 
@@ -21,7 +21,7 @@ function Invoke-RepositoryScript {
     }
 }
 
-Write-Host "OutcomeIQ Day 7 frontend foundation verification" -ForegroundColor Cyan
+Write-Host "OutcomeIQ Day 7 dashboard charts verification" -ForegroundColor Cyan
 
 try {
     Set-Location $ProjectRoot
@@ -43,38 +43,49 @@ try {
         throw "A private environment file appears in Git status."
     }
 
-    $CurrentStep = "frontend structure"
-    if (-not (Test-Path -LiteralPath $FrontendPath -PathType Container)) {
-        throw "The frontend folder was not found."
-    }
-    if (-not (Test-Path -LiteralPath (Join-Path $FrontendPath "package.json") -PathType Leaf)) {
-        throw "frontend\package.json was not found."
-    }
-    $RequiredPaths = @(
-        "frontend\src\pages\DashboardPage.tsx",
-        "frontend\src\components\charts\CostByRunChart.tsx",
-        "frontend\src\components\charts\OutcomeStatusChart.tsx",
-        "frontend\src\components\charts\SuccessRateCard.tsx",
-        "frontend\src\components\charts\CostOutcomeInsight.tsx",
-        "scripts\seed_demo_data_via_api.ps1",
-        "scripts\day7_dashboard_charts_verify.ps1"
-    )
-    foreach ($RelativePath in $RequiredPaths) {
-        if (-not (Test-Path -LiteralPath (Join-Path $ProjectRoot $RelativePath) -PathType Leaf)) {
-            throw "Required frontend file is missing: $RelativePath"
-        }
-    }
-
     $CurrentStep = "frontend dependency installation"
     Invoke-RepositoryScript "scripts\install_frontend.ps1"
 
     $CurrentStep = "frontend typecheck"
     Invoke-RepositoryScript "scripts\frontend_typecheck.ps1"
 
+    $CurrentStep = "database readiness"
+    $DatabaseOutput = & $PowerShellExecutable `
+        -NoProfile `
+        -ExecutionPolicy Bypass `
+        -File (Join-Path $ProjectRoot "scripts\check_db_ready.ps1") 2>&1
+    $DatabaseExitCode = $LASTEXITCODE
+    $DatabaseOutput | ForEach-Object { Write-Host $_ }
+    $DatabaseLines = @($DatabaseOutput | ForEach-Object { "$($_)".Trim() })
+    if ($DatabaseExitCode -ne 0 -or "DATABASE CONNECTED" -notin $DatabaseLines) {
+        throw "Database readiness did not report DATABASE CONNECTED."
+    }
+
+    $CurrentStep = "database migration"
+    Invoke-RepositoryScript "scripts\db_migrate.ps1"
+
+    $CurrentStep = "demo pricing seed"
+    Invoke-RepositoryScript "scripts\db_seed_pricing.ps1"
+
+    $CurrentStep = "backend health check"
+    try {
+        $Health = Invoke-RestMethod -Uri $HealthUrl -Method Get -TimeoutSec 5
+    }
+    catch {
+        Write-Host "Start backend first with .\scripts\run_backend.ps1" -ForegroundColor Yellow
+        Write-Host "Then rerun this script." -ForegroundColor Yellow
+        throw "Backend health endpoint is not reachable."
+    }
+    if ($Health.status -ne "ok") {
+        throw "Backend health endpoint returned an unexpected status."
+    }
+
+    $CurrentStep = "API demo data seed"
+    Invoke-RepositoryScript "scripts\seed_demo_data_via_api.ps1"
     $Succeeded = $true
 }
 catch {
-    Write-Host "DAY 7 FRONTEND FOUNDATION VERIFY FAILED" -ForegroundColor Red
+    Write-Host "DAY 7 DASHBOARD CHARTS VERIFY FAILED" -ForegroundColor Red
     Write-Host "Failed step: $CurrentStep" -ForegroundColor Yellow
     Write-Host "Reason: $($_.Exception.Message)" -ForegroundColor DarkYellow
 }
@@ -83,7 +94,7 @@ finally {
 }
 
 if ($Succeeded) {
-    Write-Host "DAY 7 FRONTEND FOUNDATION VERIFY PASSED" -ForegroundColor Green
+    Write-Host "DAY 7 DASHBOARD CHARTS VERIFY PASSED" -ForegroundColor Green
     exit 0
 }
 
