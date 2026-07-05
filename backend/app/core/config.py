@@ -68,13 +68,15 @@ class Settings(BaseSettings):
 
     @property
     def cors_origins(self) -> list[str]:
-        """Return configured origins plus the approved local UI origins."""
+        """Return explicit production origins or local-safe development origins."""
 
         configured_origins = [
             origin.strip()
             for origin in self.BACKEND_CORS_ORIGINS.split(",")
             if origin.strip()
         ]
+        if self.ENVIRONMENT.strip().lower() == "production":
+            return list(dict.fromkeys(configured_origins))
         return list(
             dict.fromkeys(
                 [*configured_origins, *LOCAL_DEVELOPMENT_CORS_ORIGINS]

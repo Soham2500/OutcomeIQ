@@ -18,4 +18,5 @@ Dockerfile     text eol=lf
 *.html        text eol=lf
 *.txt         text eol=lf
 .env.example  text eol=lf
+.env.production.example text eol=lf
 *.ps1         text eol=lf

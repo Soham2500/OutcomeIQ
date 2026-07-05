@@ -31,6 +31,8 @@ OutcomeIQ is an outcome-aware AI FinOps platform that connects the complete cost
 - **Day 8 frontend polish:** Presentation-ready shell and protected evaluator Demo Guide implemented
 - **Day 8 Docker:** PostgreSQL, FastAPI and nginx/React local production-like stack implemented
 - **Live-quality hardening:** Deterministic demo fixture plus host and Docker quality gates implemented
+- **Pre-deployment readiness:** Placeholder production environment contracts and non-deploying gate implemented
+- **Deployment runbook:** Render/Vercel guide, checklist, public smoke tooling and one-month cost plan implemented
 
 OutcomeIQ is moving from fast MVP construction to live-quality MVP hardening. Fast delivery is allowed only when tests, builds, secret checks, migrations and applicable end-to-end gates remain green.
 
@@ -126,6 +128,10 @@ These documents define the architecture and product rules that implementation mu
 - [Day 8 Docker local production setup](docs/day-8-docker-local-production-setup.md)
 - [Deterministic demo data guide](docs/demo-data-guide.md)
 - [Live-readiness checklist](docs/live-readiness-checklist.md)
+- [Production environment and pre-deploy checks](docs/day-9-production-env-and-predeploy.md)
+- [Render and Vercel deployment guide](docs/render-deployment-guide.md)
+- [Deployment checklist](docs/deployment-checklist.md)
+- [One-month live cost plan](docs/one-month-live-cost-plan.md)
 - [Accelerated MVP timeline](docs/accelerated-mvp-timeline.md)
 
 ## Backend foundation status
@@ -187,6 +193,8 @@ From the project root, PowerShell helpers are available for common tasks:
 .\scripts\docker_seed_demo.ps1
 .\scripts\live_quality_gate.ps1
 .\scripts\live_docker_quality_gate.ps1
+.\scripts\pre_deploy_check.ps1
+.\scripts\prod_smoke_check.ps1 -BackendBaseUrl "https://YOUR_BACKEND_DOMAIN" -FrontendBaseUrl "https://YOUR_FRONTEND_DOMAIN"
 .\scripts\day5_cost_full_verify.ps1
 .\scripts\check_docker.ps1
 .\scripts\check_db_ready.ps1
@@ -245,6 +253,22 @@ Seed only the deterministic local demo fixture:
 ```
 
 The seed converges on three customer-support workflows and twelve stable runs instead of creating uncontrolled duplicates.
+
+Run the non-deploying production-readiness check:
+
+```powershell
+.\scripts\pre_deploy_check.ps1
+```
+
+The first live version remains intentionally simulated: it uses no real AI-provider keys or billing integrations.
+
+After manually deploying the backend and frontend, verify their public unauthenticated surfaces:
+
+```powershell
+.\scripts\prod_smoke_check.ps1 -BackendBaseUrl "https://YOUR_BACKEND_DOMAIN" -FrontendBaseUrl "https://YOUR_FRONTEND_DOMAIN"
+```
+
+Follow the [Render and Vercel deployment guide](docs/render-deployment-guide.md), complete the [deployment checklist](docs/deployment-checklist.md), and approve the [one-month cost plan](docs/one-month-live-cost-plan.md) before provisioning paid resources. The next step is manual deployment; repository scripts do not create cloud resources.
 
 ## Run the frontend locally
 
@@ -479,7 +503,10 @@ Never use real credentials in development or commit `backend/.env`. See [Day 4 a
 - Verify it with `.\scripts\docker_verify.ps1`
 - Live-quality host and Docker gates are implemented
 - Deterministic demo data is available through `.\scripts\db_seed_demo.ps1`
+- Placeholder production environment examples and `.\scripts\pre_deploy_check.ps1` are implemented
+- Render/Vercel guidance, the deployment checklist, one-month cost plan and public smoke-check script are implemented
+- Next deployment step: manually deploy the simulated-provider MVP and run `.\scripts\prod_smoke_check.ps1`
 - Next milestone: final report, architecture diagrams and presentation assets
 - Real provider calls, billing sync and autonomous decisions remain deferred
 
-Continue with the [Docker setup guide](docs/day-8-docker-local-production-setup.md). Never commit private `.env` files, store provider secrets, or persist raw prompts/responses.
+Continue with the [Render and Vercel deployment guide](docs/render-deployment-guide.md). Never commit private `.env` files, store provider secrets, or persist raw prompts/responses.

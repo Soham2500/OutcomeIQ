@@ -39,6 +39,13 @@ Next: final report and presentation assets.
 - End-to-end acceptance scripts
 - Live-quality host and Docker gates — implemented
 - Deterministic, idempotent presentation dataset — implemented
+- Production environment examples and pre-deploy gate — implemented
+- Render/Vercel deployment guide and deployment checklist — implemented
+- One-month cost plan and public production smoke tooling — implemented
+
+Next deployment step: perform the manual Render/Vercel deployment with simulated AI telemetry, then run the public production smoke check. No real AI-provider key is needed initially.
+
+Deployment references: `docs/render-deployment-guide.md`, `docs/deployment-checklist.md` and `docs/one-month-live-cost-plan.md`.
 
 ### Week 4 — Academic and interview package
 

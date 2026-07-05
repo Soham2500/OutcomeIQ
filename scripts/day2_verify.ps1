@@ -224,7 +224,10 @@ $RequiredPaths = @(
     @{ Label = "Live host quality gate"; RelativePath = "scripts\live_quality_gate.ps1" },
     @{ Label = "Live Docker quality gate"; RelativePath = "scripts\live_docker_quality_gate.ps1" },
     @{ Label = "Live readiness checklist"; RelativePath = "docs\live-readiness-checklist.md" },
-    @{ Label = "Deterministic demo data guide"; RelativePath = "docs\demo-data-guide.md" }
+    @{ Label = "Deterministic demo data guide"; RelativePath = "docs\demo-data-guide.md" },
+    @{ Label = "Backend production environment example"; RelativePath = "backend\.env.production.example" },
+    @{ Label = "Pre-deployment check script"; RelativePath = "scripts\pre_deploy_check.ps1" },
+    @{ Label = "Day 9 production environment guide"; RelativePath = "docs\day-9-production-env-and-predeploy.md" }
 )
 
 foreach ($Required in $RequiredPaths) {

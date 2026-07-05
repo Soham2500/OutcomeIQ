@@ -55,6 +55,8 @@ Available now:
 - Docker packaging
 - Root Compose stack with PostgreSQL, FastAPI and nginx/React services
 - Deterministic three-workflow/twelve-run demo fixture and live-quality gates
+- Placeholder production environment contract and non-deploying pre-deploy gate
+- Render/Vercel manual deployment runbook and public production smoke check
 
 Not implemented yet:
 
@@ -64,7 +66,7 @@ Not implemented yet:
 - Advanced cost-per-outcome cohorts and failure-waste analytics
 - Real provider pricing or billing synchronization
 - Redis integration
-- Production frontend deployment and complete UX polish
+- Actual production deployment and complete UX polish
 
 ## Prerequisites
 
@@ -111,6 +113,8 @@ Set-ExecutionPolicy -Scope Process -ExecutionPolicy Bypass
 .\scripts\docker_seed_demo.ps1
 .\scripts\live_quality_gate.ps1
 .\scripts\live_docker_quality_gate.ps1
+.\scripts\pre_deploy_check.ps1
+.\scripts\prod_smoke_check.ps1 -BackendBaseUrl "https://YOUR_BACKEND_DOMAIN" -FrontendBaseUrl "https://YOUR_FRONTEND_DOMAIN"
 .\scripts\day5_cost_full_verify.ps1
 .\scripts\check_docker.ps1
 .\scripts\check_db_ready.ps1
@@ -149,6 +153,8 @@ Set-ExecutionPolicy -Scope Process -ExecutionPolicy Bypass
 - `db_seed_demo.ps1` converges the local database on the deterministic support dataset.
 - `live_quality_gate.ps1` runs the complete host tests, build, database, seed and smoke sequence.
 - `live_docker_quality_gate.ps1` verifies the container stack and deterministic Docker seed.
+- `pre_deploy_check.ps1` validates secret safety, tests, frontend build and the host live-quality gate without deploying.
+- `prod_smoke_check.ps1` checks public backend health/docs and the frontend homepage after a manual deployment; it does not log in or expose secrets.
 - `day5_cost_full_verify.ps1` performs the opt-in migration, seed, startup and cost smoke workflow safely.
 - `check_docker.ps1` reports Docker and Compose availability without starting anything.
 - `check_db_ready.ps1` reports database configuration/connectivity without creating databases, tables or migrations.
@@ -159,6 +165,12 @@ Set-ExecutionPolicy -Scope Process -ExecutionPolicy Bypass
 - `db_history.ps1` and `db_current.ps1` inspect Alembic state.
 - `db_migrate.ps1` explicitly applies reviewed migrations through `alembic upgrade head`.
 - `check_db_tables.ps1` safely checks all required core, workflow and cost tables.
+
+Deployment preparation documents:
+
+- `docs/render-deployment-guide.md` — manual Render backend/database and Render/Vercel frontend sequence
+- `docs/deployment-checklist.md` — before, during and after-deployment acceptance checklist
+- `docs/one-month-live-cost-plan.md` — bounded one-month public MVP cost plan
 
 ## Setup on Windows PowerShell
 
@@ -543,4 +555,4 @@ OutcomeIQ’s core cost-per-success proof is represented in the backend. Run the
 .\scripts\day5_full_verify.ps1
 ```
 
-The backend, frontend and PostgreSQL now run together through the root production-like local Compose stack. Run `.\scripts\docker_verify.ps1` for the opt-in container verification. The next milestone is final report, architecture-diagram and presentation assets; cloud deployment, real provider integrations and autonomous actions remain deferred.
+The backend, frontend and PostgreSQL now run together through the root production-like local Compose stack. Run `.\scripts\docker_verify.ps1` for container verification, then follow `docs/render-deployment-guide.md` for manual hosting. The first live version remains simulated and needs no real AI-provider key. Actual cloud deployment, real provider integrations and autonomous actions remain deferred until explicitly performed.

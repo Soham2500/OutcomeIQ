@@ -12,6 +12,11 @@ OutcomeIQ is now treated as a live-quality MVP. Fast delivery remains acceptable
 - [x] Deterministic customer-support demo dataset exists
 - [x] Host quality gate exists: `.\scripts\live_quality_gate.ps1`
 - [x] Docker quality gate exists: `.\scripts\live_docker_quality_gate.ps1`
+- [x] Placeholder-only production environment examples exist
+- [x] Non-deploying pre-deployment gate exists: `.\scripts\pre_deploy_check.ps1`
+- [x] Render/Vercel manual deployment runbook and rollback notes exist
+- [x] Public production smoke script exists: `.\scripts\prod_smoke_check.ps1`
+- [x] One-month deployment cost plan exists
 
 ## 2. Security Status
 
@@ -48,6 +53,8 @@ Before every commit, verify that neither private environment file appears in `gi
 - [ ] Add centralized monitoring, alerts and audit retention
 - [ ] Define database backup and restore procedures
 - [ ] Complete production security, privacy and accessibility review
+- [ ] Perform the reviewed manual Render/Vercel deployment
+- [ ] Run the production smoke check against the final HTTPS domains
 
 ## 5. Quality Rule
 
@@ -65,6 +72,14 @@ Primary commands:
 ```powershell
 .\scripts\live_quality_gate.ps1
 .\scripts\live_docker_quality_gate.ps1
+.\scripts\pre_deploy_check.ps1
+.\scripts\prod_smoke_check.ps1 -BackendBaseUrl "https://YOUR_BACKEND_DOMAIN" -FrontendBaseUrl "https://YOUR_FRONTEND_DOMAIN"
 ```
 
 A milestone is not complete merely because it runs once; its fixture and verification paths must remain repeatable.
+
+Manual deployment references:
+
+- `docs/render-deployment-guide.md`
+- `docs/deployment-checklist.md`
+- `docs/one-month-live-cost-plan.md`
