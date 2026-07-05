@@ -1,0 +1,68 @@
+# Local demonstration only. Replace every placeholder credential before any
+# production deployment and use a real secret manager outside local development.
+services:
+  postgres:
+    image: postgres:16-alpine
+    container_name: outcomeiq_postgres
+    environment:
+      POSTGRES_DB: outcomeiq_dev
+      POSTGRES_USER: outcomeiq
+      POSTGRES_PASSWORD: outcomeiq_local_password
+    expose:
+      - "5432"
+    volumes:
+      - outcomeiq_postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U outcomeiq -d outcomeiq_dev"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+      start_period: 5s
+    restart: unless-stopped
+
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: outcomeiq_backend
+    depends_on:
+      postgres:
+        condition: service_healthy
+    ports:
+      - "8000:8000"
+    environment:
+      DATABASE_URL: postgresql+psycopg2://outcomeiq:outcomeiq_local_password@postgres:5432/outcomeiq_dev
+      APP_NAME: OutcomeIQ
+      APP_ENV: docker
+      DEBUG: "true"
+      SECRET_KEY: local-docker-dev-secret-change-before-production
+      ACCESS_TOKEN_EXPIRE_MINUTES: "1440"
+      BACKEND_CORS_ORIGINS: http://localhost:5173,http://127.0.0.1:5173,http://localhost:3000,http://127.0.0.1:3000,http://localhost:8080,http://127.0.0.1:8080
+    healthcheck:
+      test:
+        - CMD
+        - python
+        - -c
+        - "import urllib.request; urllib.request.urlopen('http://localhost:8000/api/v1/health')"
+      interval: 5s
+      timeout: 3s
+      retries: 12
+      start_period: 5s
+    restart: unless-stopped
+
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+      args:
+        VITE_API_BASE_URL: http://127.0.0.1:8000/api/v1
+    container_name: outcomeiq_frontend
+    depends_on:
+      backend:
+        condition: service_healthy
+    ports:
+      - "8080:80"
+    restart: unless-stopped
+
+volumes:
+  outcomeiq_postgres_data:

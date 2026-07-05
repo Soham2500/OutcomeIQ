@@ -28,11 +28,11 @@
 - Repeatable five-run API demo data flow — implemented
 - Presentation-ready frontend shell and evaluator Demo Guide — implemented
 
-Next: Docker/deployment preparation or final report and presentation assets.
+Next: final report and presentation assets.
 
 ### Week 3 — Delivery engineering
 
-- Docker and deployment setup
+- Docker local production-like setup — implemented
 - Environment/security review
 - Integration and regression testing
 - Reproducible synthetic demo data

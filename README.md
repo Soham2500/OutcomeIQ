@@ -29,6 +29,7 @@ OutcomeIQ is an outcome-aware AI FinOps platform that connects the complete cost
 - **Day 7 frontend:** React/Vite dashboard, auth, projects and recommendations foundation implemented
 - **Day 7 demo:** Cost/outcome charts and repeatable five-run API demo data flow implemented
 - **Day 8 frontend polish:** Presentation-ready shell and protected evaluator Demo Guide implemented
+- **Day 8 Docker:** PostgreSQL, FastAPI and nginx/React local production-like stack implemented
 
 The project currently provides a clean FastAPI modular-monolith foundation with environment-backed settings, structured logging, versioned routing, health/readiness endpoints, tests and Docker packaging.
 
@@ -119,6 +120,7 @@ These documents define the architecture and product rules that implementation mu
 - [Day 7 frontend dashboard foundation](docs/day-7-frontend-dashboard-foundation.md)
 - [Day 7 dashboard charts and demo data](docs/day-7-dashboard-charts-demo-data.md)
 - [Day 8 frontend polish and demo walkthrough](docs/day-8-frontend-polish-demo-walkthrough.md)
+- [Day 8 Docker local production setup](docs/day-8-docker-local-production-setup.md)
 - [Accelerated MVP timeline](docs/accelerated-mvp-timeline.md)
 
 ## Backend foundation status
@@ -168,6 +170,14 @@ From the project root, PowerShell helpers are available for common tasks:
 .\scripts\seed_demo_data_via_api.ps1
 .\scripts\day7_dashboard_charts_verify.ps1
 .\scripts\day8_frontend_polish_verify.ps1
+.\scripts\docker_build.ps1
+.\scripts\docker_up.ps1
+.\scripts\docker_migrate.ps1
+.\scripts\docker_seed_pricing.ps1
+.\scripts\docker_logs.ps1
+.\scripts\docker_backend_shell.ps1
+.\scripts\docker_verify.ps1
+.\scripts\docker_down.ps1
 .\scripts\day5_cost_full_verify.ps1
 .\scripts\check_docker.ps1
 .\scripts\check_db_ready.ps1
@@ -182,6 +192,28 @@ From the project root, PowerShell helpers are available for common tasks:
 ```
 
 Backend check scripts do not start Uvicorn implicitly. `run_backend.ps1` and `run_frontend.ps1` start their development servers only when explicitly invoked. The Day 7 verifier installs declared frontend dependencies and runs TypeScript validation; it does not open a browser.
+
+## Run the full stack with Docker
+
+Start Docker Desktop, then run the production-like local verification from the project root:
+
+```powershell
+.\scripts\docker_verify.ps1
+```
+
+After it passes:
+
+- Frontend: `http://127.0.0.1:8080`
+- Backend: `http://127.0.0.1:8000`
+- API docs: `http://127.0.0.1:8000/docs`
+
+Stop containers without deleting PostgreSQL data:
+
+```powershell
+.\scripts\docker_down.ps1
+```
+
+The credentials in `docker-compose.yml` are local demo placeholders, not production secrets. See [Docker local production setup](docs/day-8-docker-local-production-setup.md).
 
 ## Run the frontend locally
 
@@ -388,7 +420,7 @@ Never use real credentials in development or commit `backend/.env`. See [Day 4 a
 
 ## Next development steps
 
-### Deployment preparation or final report assets
+### Final report and presentation assets
 
 - Day 4 authentication, organization and project API foundation is complete
 - `AUTH PROJECT API SMOKE CHECK PASSED` is the verified live result
@@ -412,7 +444,9 @@ Never use real credentials in development or commit `backend/.env`. See [Day 4 a
 - Run the opt-in demo verification with `.\scripts\day7_dashboard_charts_verify.ps1`
 - The presentation-ready app shell and protected Demo Guide are implemented
 - Verify frontend polish with `.\scripts\day8_frontend_polish_verify.ps1`
-- Next milestone: Docker/deployment preparation or final report and presentation assets
+- The three-service Docker local production-like stack is implemented
+- Verify it with `.\scripts\docker_verify.ps1`
+- Next milestone: final report, architecture diagrams and presentation assets
 - Real provider calls, billing sync and autonomous decisions remain deferred
 
-Continue with the [Day 8 demo walkthrough](docs/day-8-frontend-polish-demo-walkthrough.md). Never commit private `.env` files, store provider secrets, or persist raw prompts/responses.
+Continue with the [Docker setup guide](docs/day-8-docker-local-production-setup.md). Never commit private `.env` files, store provider secrets, or persist raw prompts/responses.

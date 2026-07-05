@@ -53,6 +53,7 @@ Available now:
 - Recharts cost/outcome visuals and repeatable API-based five-run demo data flow
 - Endpoint, model and access-layer tests
 - Docker packaging
+- Root Compose stack with PostgreSQL, FastAPI and nginx/React services
 
 Not implemented yet:
 
@@ -97,6 +98,14 @@ Set-ExecutionPolicy -Scope Process -ExecutionPolicy Bypass
 .\scripts\day7_frontend_foundation_verify.ps1
 .\scripts\seed_demo_data_via_api.ps1
 .\scripts\day7_dashboard_charts_verify.ps1
+.\scripts\docker_build.ps1
+.\scripts\docker_up.ps1
+.\scripts\docker_migrate.ps1
+.\scripts\docker_seed_pricing.ps1
+.\scripts\docker_logs.ps1
+.\scripts\docker_backend_shell.ps1
+.\scripts\docker_verify.ps1
+.\scripts\docker_down.ps1
 .\scripts\day5_cost_full_verify.ps1
 .\scripts\check_docker.ps1
 .\scripts\check_db_ready.ps1
@@ -130,6 +139,8 @@ Set-ExecutionPolicy -Scope Process -ExecutionPolicy Bypass
 - `day7_frontend_foundation_verify.ps1` checks secret protection, installs dependencies and runs the frontend typecheck.
 - `seed_demo_data_via_api.ps1` creates five simulated, fully costed and outcome-verified support runs through authenticated APIs.
 - `day7_dashboard_charts_verify.ps1` validates the frontend, database readiness and opt-in local demo flow without starting servers.
+- `docker_verify.ps1` builds and verifies the complete local PostgreSQL/backend/frontend stack.
+- `docker_down.ps1` stops containers without deleting the named database volume.
 - `day5_cost_full_verify.ps1` performs the opt-in migration, seed, startup and cost smoke workflow safely.
 - `check_docker.ps1` reports Docker and Compose availability without starting anything.
 - `check_db_ready.ps1` reports database configuration/connectivity without creating databases, tables or migrations.
@@ -306,25 +317,25 @@ Verified results are 58 passing tests, including local CORS preflight, auth, wor
 
 Docker Desktop must be installed and running.
 
-From the `backend` directory:
+From the project root, build and verify the complete three-service stack:
 
 ```powershell
-docker compose up --build
+.\scripts\docker_verify.ps1
 ```
 
-Check the health endpoint:
+Open:
+
+- Backend: `http://127.0.0.1:8000`
+- Swagger UI: `http://127.0.0.1:8000/docs`
+- Frontend: `http://127.0.0.1:8080`
+
+Stop containers while preserving PostgreSQL data:
 
 ```powershell
-Invoke-RestMethod http://localhost:8000/api/v1/health
+.\scripts\docker_down.ps1
 ```
 
-Stop and remove the backend container:
-
-```powershell
-docker compose down
-```
-
-The Compose file intentionally contains only the backend service. PostgreSQL and Redis are deferred.
+The root Compose credentials are local demo placeholders only. The older `backend/docker-compose.yml` remains a backend-only development helper; use the root Compose stack for the full application.
 
 ## Configuration
 
@@ -524,4 +535,4 @@ OutcomeIQ’s core cost-per-success proof is represented in the backend. Run the
 .\scripts\day5_full_verify.ps1
 ```
 
-The Day 6 APIs and Day 7 frontend, charts and repeatable demo data flow are implemented. Run `.\scripts\day7_dashboard_charts_verify.ps1` for the opt-in local demonstration check. The next milestone is configuration comparison and final presentation polish; real provider integrations, ML optimization and autonomous actions remain deferred.
+The backend, frontend and PostgreSQL now run together through the root production-like local Compose stack. Run `.\scripts\docker_verify.ps1` for the opt-in container verification. The next milestone is final report, architecture-diagram and presentation assets; cloud deployment, real provider integrations and autonomous actions remain deferred.
