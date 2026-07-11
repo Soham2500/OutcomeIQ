@@ -51,8 +51,21 @@ export interface MyBilling {
 
 export interface CheckoutResponse {
   provider: string;
+  mode: string;
   plan_slug: string;
-  test_checkout_url: string;
+  checkout_type: "local_test" | "razorpay_subscription" | string;
+  test_checkout_url: string | null;
+  key_id: string | null;
+  subscription_id: string | null;
+  order_id: string | null;
+  amount: number | null;
+  currency: string;
+  name: string | null;
+  description: string | null;
+  prefill: {
+    email?: string | null;
+    name?: string | null;
+  } | null;
   message: string;
 }
 

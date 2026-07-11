@@ -25,6 +25,10 @@ from app.services.billing_service import (
     list_active_plans,
     update_subscription_status_from_test_webhook,
 )
+from app.services.razorpay_service import (
+    verify_webhook_signature,
+    webhook_secret_configured,
+)
 from app.services.usage_limit_service import get_usage_summary
 
 
@@ -58,12 +62,14 @@ def get_my_billing_endpoint(
 def create_checkout_endpoint(
     request: BillingCheckoutRequest,
     db: Annotated[Session, Depends(get_db)],
-    _current_user: Annotated[User, Depends(get_current_active_user)],
-) -> dict[str, str]:
+    current_user: Annotated[User, Depends(get_current_active_user)],
+) -> dict[str, object]:
     try:
-        return create_test_checkout_response(db, request.plan_slug)
+        return create_test_checkout_response(db, current_user, request.plan_slug)
     except LookupError as exc:
         raise HTTPException(status_code=404, detail=str(exc)) from exc
+    except RuntimeError as exc:
+        raise HTTPException(status_code=400, detail=str(exc)) from exc
 
 
 @router.post("/test/activate", response_model=SubscriptionRead)
@@ -91,17 +97,43 @@ async def razorpay_webhook_endpoint(
     request: Request,
     db: Annotated[Session, Depends(get_db)],
 ) -> dict[str, object]:
-    payload = await request.json()
+    raw_body = await request.body()
+    try:
+        import json
+
+        payload = json.loads(raw_body.decode("utf-8") or "{}")
+    except ValueError as exc:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="Webhook payload must be valid JSON.",
+        ) from exc
     if not isinstance(payload, dict):
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
             detail="Webhook payload must be a JSON object.",
         )
-    event = update_subscription_status_from_test_webhook(db, payload)
+    signature_valid = False
+    if webhook_secret_configured():
+        signature = request.headers.get("X-Razorpay-Signature")
+        signature_valid = verify_webhook_signature(raw_body, signature)
+        if not signature_valid:
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail="Invalid Razorpay webhook signature.",
+            )
+    event = update_subscription_status_from_test_webhook(
+        db,
+        payload,
+        signature_valid=signature_valid,
+    )
     return {
         "stored": True,
         "processed": event.processed,
-        "message": "Webhook stored in test mode. Live signature verification is future scope.",
+        "message": (
+            "Webhook verified and processed in test mode."
+            if event.processed
+            else "Webhook stored in test mode. No subscription update was applied."
+        ),
     }
 
 

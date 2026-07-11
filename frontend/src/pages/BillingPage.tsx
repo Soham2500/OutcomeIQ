@@ -88,6 +88,27 @@ export function BillingPage() {
         <StatCard label="Provider" value={billing.subscription.provider} />
       </section>
 
+      {billing.subscription.provider_subscription_id ? (
+        <SectionCard title="Provider reference">
+          <p className="font-mono text-sm text-slate-700">
+            {billing.subscription.provider_subscription_id}
+          </p>
+          <p className="mt-2 text-xs text-slate-500">
+            This is a safe test-mode subscription reference. No secret keys are shown.
+          </p>
+        </SectionCard>
+      ) : null}
+
+      <SectionCard tone="brand">
+        <p className="text-sm font-semibold text-brand-950">
+          Payments are in test mode. Real payment mode is not enabled yet.
+        </p>
+        <p className="mt-2 text-sm leading-6 text-brand-900">
+          Backend webhooks control subscription confirmation. The frontend never
+          stores Razorpay secrets and does not directly mark payments successful.
+        </p>
+      </SectionCard>
+
       <SectionCard
         title="Monthly usage"
         description={`Usage period: ${billing.usage.period_month}`}

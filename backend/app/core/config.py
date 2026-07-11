@@ -34,9 +34,13 @@ class Settings(BaseSettings):
     ACCESS_TOKEN_EXPIRE_MINUTES: int = 60
     LOG_LEVEL: str = "INFO"
     BILLING_PROVIDER_MODE: str = "test"
+    RAZORPAY_MODE: str = "test"
     RAZORPAY_KEY_ID: str | None = None
     RAZORPAY_KEY_SECRET: str | None = None
     RAZORPAY_WEBHOOK_SECRET: str | None = None
+    RAZORPAY_STARTER_PLAN_ID: str | None = None
+    RAZORPAY_PRO_PLAN_ID: str | None = None
+    RAZORPAY_CHECKOUT_ENABLED: bool = False
 
     model_config = SettingsConfigDict(
         env_file=".env",
@@ -54,6 +58,8 @@ class Settings(BaseSettings):
         "RAZORPAY_KEY_ID",
         "RAZORPAY_KEY_SECRET",
         "RAZORPAY_WEBHOOK_SECRET",
+        "RAZORPAY_STARTER_PLAN_ID",
+        "RAZORPAY_PRO_PLAN_ID",
         mode="before",
     )
     @classmethod

@@ -10,6 +10,12 @@ from app.models.enums import PaymentProvider, SubscriptionStatus
 from app.models.payment_event import PaymentEvent
 from app.models.plan import Plan
 from app.models.subscription import Subscription
+from app.models.user import User
+from app.services.razorpay_service import (
+    create_test_subscription_checkout,
+    is_configured as razorpay_is_configured,
+    parse_subscription_event,
+)
 
 
 FREE_PLAN = {
@@ -98,15 +104,45 @@ def get_current_plan_and_subscription(
     return plan, subscription
 
 
-def create_test_checkout_response(db: Session, plan_slug: str) -> dict[str, str]:
+def create_test_checkout_response(
+    db: Session,
+    user: User,
+    plan_slug: str,
+) -> dict[str, object]:
     plan = get_plan_by_slug(db, plan_slug)
     if plan is None or not plan.is_active:
         raise LookupError("Plan not found.")
+    if plan.slug == "free":
+        return {
+            "provider": PaymentProvider.MANUAL.value,
+            "mode": "test",
+            "checkout_type": "local_test",
+            "plan_slug": plan.slug,
+            "test_checkout_url": None,
+            "message": "Free plan does not require payment. Use local test activation.",
+        }
+
+    if razorpay_is_configured(plan.slug):
+        checkout = create_test_subscription_checkout(user, plan.slug)
+        subscription = ensure_default_subscription(db, user.id)
+        subscription.plan_id = plan.id
+        subscription.status = SubscriptionStatus.TRIALING.value
+        subscription.provider = PaymentProvider.RAZORPAY_TEST.value
+        subscription.provider_subscription_id = checkout.get("subscription_id")
+        subscription.current_period_start = datetime.now(timezone.utc)
+        subscription.current_period_end = datetime.now(timezone.utc) + timedelta(days=30)
+        subscription.cancel_at_period_end = False
+        db.add(subscription)
+        db.commit()
+        return checkout
+
     return {
         "provider": PaymentProvider.RAZORPAY_TEST.value,
+        "mode": "test",
+        "checkout_type": "local_test",
         "plan_slug": plan.slug,
         "test_checkout_url": f"https://checkout.razorpay.test/outcomeiq/{plan.slug}",
-        "message": "Test checkout prepared. No real payment gateway was called.",
+        "message": "Razorpay test mode is not configured. You can activate test plan locally.",
     }
 
 
@@ -158,13 +194,16 @@ def cancel_subscription(db: Session, user_id: uuid.UUID) -> Subscription:
 def store_razorpay_test_event(
     db: Session,
     payload: dict[str, object],
+    processed: bool = False,
 ) -> PaymentEvent:
+    event_data = parse_subscription_event(payload)
     event = PaymentEvent(
         provider=PaymentProvider.RAZORPAY_TEST.value,
-        event_type=str(payload.get("event") or "unknown"),
+        event_type=event_data["event_type"] or "unknown",
         provider_event_id=str(payload.get("id")) if payload.get("id") else None,
         payload_json=payload,
-        processed=False,
+        processed=processed,
+        processed_at=datetime.now(timezone.utc) if processed else None,
     )
     db.add(event)
     db.commit()
@@ -175,11 +214,34 @@ def store_razorpay_test_event(
 def update_subscription_status_from_test_webhook(
     db: Session,
     payload: dict[str, object],
+    signature_valid: bool = False,
 ) -> PaymentEvent:
-    """Store test webhook payloads for later verification.
+    """Store test webhook payloads and update mapped subscription when verified."""
 
-    Real provider signature verification and subscription mapping are intentionally
-    deferred until live-payment readiness.
-    """
-
-    return store_razorpay_test_event(db, payload)
+    event_data = parse_subscription_event(payload)
+    processed = False
+    if signature_valid and event_data["subscription_id"]:
+        subscription = db.scalar(
+            select(Subscription).where(
+                Subscription.provider_subscription_id == event_data["subscription_id"]
+            )
+        )
+        if subscription is not None:
+            event_type = event_data["event_type"] or ""
+            if event_type in {
+                "subscription.activated",
+                "subscription.charged",
+                "payment.captured",
+                "invoice.paid",
+            }:
+                subscription.status = SubscriptionStatus.ACTIVE.value
+                subscription.provider = PaymentProvider.RAZORPAY_TEST.value
+                subscription.cancel_at_period_end = False
+            elif event_type in {"subscription.cancelled", "subscription.halted"}:
+                subscription.status = SubscriptionStatus.CANCELLED.value
+                subscription.cancel_at_period_end = True
+            elif event_type in {"payment.failed", "subscription.pending"}:
+                subscription.status = SubscriptionStatus.PAST_DUE.value
+            db.add(subscription)
+            processed = True
+    return store_razorpay_test_event(db, payload, processed=processed)

@@ -364,6 +364,30 @@ Verify the billing foundation:
 
 See [subscription billing architecture](docs/subscription-billing-architecture.md), [Razorpay test-mode setup](docs/razorpay-test-mode-setup.md), and [early live launch plan](docs/early-live-launch-plan.md).
 
+## Razorpay Test Mode Billing
+
+OutcomeIQ supports Razorpay test-mode checkout preparation for Starter and Pro plans. Real payments are not enabled.
+
+- Backend creates test checkout payloads only when Razorpay test env vars are configured.
+- Frontend receives only safe public checkout fields such as `key_id`.
+- Frontend never stores Razorpay secrets.
+- Backend verifies Razorpay webhook signatures when `RAZORPAY_WEBHOOK_SECRET` is configured.
+- Local fallback activation remains available for demos without Razorpay keys.
+
+Verify the Razorpay test-mode foundation:
+
+```powershell
+.\scripts\day13_razorpay_test_verify.ps1
+```
+
+Test a local webhook payload:
+
+```powershell
+.\scripts\test_razorpay_webhook.ps1
+```
+
+See [Day 13 Razorpay test mode](docs/day-13-razorpay-test-mode.md). Keep Razorpay live mode disabled until KYC, policies, webhook testing and production verification are complete.
+
 ## Live Deployment
 
 OutcomeIQ’s early live deployment target is:

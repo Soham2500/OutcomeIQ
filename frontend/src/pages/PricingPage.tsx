@@ -15,6 +15,7 @@ import { ErrorState } from "../components/ErrorState";
 import { LoadingState } from "../components/LoadingState";
 import { PageHeader } from "../components/PageHeader";
 import { SectionCard } from "../components/SectionCard";
+import { openRazorpayCheckout } from "../utils/razorpayCheckout";
 
 function formatInr(value: BillingPlan["price_inr_monthly"]) {
   const amount = Number(value);
@@ -63,6 +64,17 @@ export function PricingPage() {
       const response = await createCheckout(planSlug);
       setCheckout(response);
       setSelectedPlanSlug(planSlug);
+      if (response.checkout_type === "razorpay_subscription") {
+        await openRazorpayCheckout(
+          response,
+          (message) => {
+            setSuccess(message);
+          },
+          (message) => {
+            setError(message);
+          },
+        );
+      }
     } catch (requestError) {
       setError(getApiErrorMessage(requestError, "Test checkout could not be created."));
     } finally {
@@ -141,7 +153,14 @@ export function PricingPage() {
                       {plan.description}
                     </p>
                   </div>
-                  {current ? <Badge tone="emerald">Current</Badge> : null}
+                  <div className="flex flex-col items-end gap-2">
+                    {plan.slug === "free" ? <Badge tone="slate">Free</Badge> : null}
+                    {plan.slug === "starter" ? (
+                      <Badge tone="brand">Recommended</Badge>
+                    ) : null}
+                    {paid ? <Badge tone="amber">Test Mode</Badge> : null}
+                    {current ? <Badge tone="emerald">Current</Badge> : null}
+                  </div>
                 </div>
                 <p className="mt-6 text-3xl font-semibold text-slate-950">
                   {formatInr(plan.price_inr_monthly)}
@@ -177,7 +196,7 @@ export function PricingPage() {
                     : workingPlanSlug === plan.slug
                       ? "Preparing…"
                       : paid
-                        ? "Upgrade in Test Mode"
+                        ? "Start Razorpay Test Checkout"
                         : "Start Free"}
                 </button>
               </article>
@@ -197,16 +216,21 @@ export function PricingPage() {
               onClick={() => void handleActivate(selectedPlanSlug)}
               type="button"
             >
-              Activate Test Plan
+              Activate Test Plan Locally
             </button>
           }
         >
           <div className="space-y-2 text-sm text-slate-600">
             <p>Provider: {checkout.provider}</p>
+            <p>Mode: {checkout.mode}</p>
             <p>Plan: {checkout.plan_slug}</p>
-            <p>Test URL: {checkout.test_checkout_url}</p>
+            <p>Checkout type: {checkout.checkout_type}</p>
+            {checkout.subscription_id ? (
+              <p>Test subscription: {checkout.subscription_id}</p>
+            ) : null}
+            {checkout.test_checkout_url ? <p>Test URL: {checkout.test_checkout_url}</p> : null}
             <p className="text-xs text-slate-400">
-              This URL is a placeholder for architecture only, not a live payment link.
+              Real payments are not enabled. This checkout is for test/sandbox validation.
             </p>
           </div>
         </SectionCard>

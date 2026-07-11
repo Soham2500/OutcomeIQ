@@ -27,6 +27,17 @@
 - Verified live webhook.
 - Real payments enabled only after production verification.
 
+## Day 13 Razorpay test-mode checklist
+
+- [ ] Pricing page works
+- [ ] Billing page works
+- [ ] Test checkout opens if Razorpay test variables are configured
+- [ ] Local fallback activation works if Razorpay is not configured
+- [ ] Webhook endpoint responds
+- [ ] Webhook signature verification works when secret is configured
+- [ ] No real payments enabled
+- [ ] No Razorpay secrets exposed to frontend
+
 ## Launch checklist
 
 - Backend health works.

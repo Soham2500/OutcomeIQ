@@ -20,12 +20,16 @@ If using the subscription-ready billing foundation in test mode:
 
 ```text
 BILLING_PROVIDER_MODE=test
+RAZORPAY_MODE=test
 RAZORPAY_KEY_ID=optional_test_key
 RAZORPAY_KEY_SECRET=optional_test_secret
 RAZORPAY_WEBHOOK_SECRET=optional_test_webhook_secret
+RAZORPAY_STARTER_PLAN_ID=optional_test_starter_plan_id
+RAZORPAY_PRO_PLAN_ID=optional_test_pro_plan_id
+RAZORPAY_CHECKOUT_ENABLED=false
 ```
 
-The Razorpay variables above are optional for the current MVP because real payment gateway calls are not enabled.
+The Razorpay variables above are optional for the current MVP. Keep `RAZORPAY_CHECKOUT_ENABLED=false` until you intentionally test Razorpay sandbox checkout. Live payment mode is not enabled.
 
 ## Vercel Frontend Environment Variables
 

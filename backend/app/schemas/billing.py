@@ -50,8 +50,18 @@ class BillingCheckoutRequest(BaseModel):
 
 class BillingCheckoutResponse(BaseModel):
     provider: str
+    mode: str = "test"
     plan_slug: str
-    test_checkout_url: str
+    checkout_type: str = "local_test"
+    test_checkout_url: str | None = None
+    key_id: str | None = None
+    subscription_id: str | None = None
+    order_id: str | None = None
+    amount: int | None = None
+    currency: str = "INR"
+    name: str | None = None
+    description: str | None = None
+    prefill: dict[str, str | None] | None = None
     message: str
 
 
