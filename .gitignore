@@ -23,12 +23,16 @@ frontend/.env
 !.env.example
 !**/.env.example
 !**/.env.production.example
+!**/.env.aws.example
 rzp-key.csv
 *.key
 *.pem
 *.secret
 *razorpay*.csv
 *rzp*.csv
+.aws/
+credentials
+config
 
 # Test and coverage artifacts
 .coverage

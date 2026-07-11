@@ -449,6 +449,58 @@ Runtime testing rules:
 - Checkout and Billing pages should be tested through an authenticated browser session.
 - Real payments should be enabled only after Render/Vercel deployment, webhook verification, public policy pages and the go-live checklist are complete.
 
+## AWS Deployment Quickstart
+
+Recommended early MVP architecture:
+
+- Frontend: AWS Amplify Hosting
+- Backend: AWS Lightsail instance running Docker
+- Database: PostgreSQL container on the same Lightsail instance
+- Payments: Razorpay test/live-ready webhook
+
+This keeps the first deployment simple and low-cost. Avoid ECS/Fargate, RDS, ALB and NAT Gateway until the MVP has real usage that justifies the extra cost.
+
+Verify AWS deployment readiness:
+
+```powershell
+.\scripts\day17_aws_deployment_ready_verify.ps1
+```
+
+After manual deployment, run:
+
+```powershell
+.\scripts\aws_live_smoke_check.ps1 -BackendUrl "https://api.yourdomain.com" -FrontendUrl "https://your-amplify-domain.amplifyapp.com"
+```
+
+AWS deployment references:
+
+- [Day 17 AWS deployment guide](docs/day-17-aws-deployment-guide.md)
+- [AWS Lightsail environment variables](docs/aws-lightsail-env-vars.md)
+- [AWS cost safety checklist](docs/aws-cost-safety-checklist.md)
+- [AWS Amplify frontend guide](docs/aws-amplify-frontend-guide.md)
+- [AWS Razorpay webhook guide](docs/aws-razorpay-webhook-guide.md)
+
+Secret safety:
+
+- Do not commit `backend/.env` or `frontend/.env`.
+- Do not commit AWS access keys.
+- Do not commit Razorpay key CSV files.
+- Keep Razorpay secrets only in the backend server environment.
+- Configure Razorpay webhook as `https://api.yourdomain.com/api/v1/billing/webhook/razorpay`.
+- Keep `PAYMENTS_LIVE_ENABLED=false` until HTTPS, policy pages, webhook verification and rollback checks are complete.
+
+Quick deployment commands on Lightsail:
+
+```bash
+cd /opt/outcomeiq
+cp backend/.env.aws.example backend/.env
+nano backend/.env
+docker compose -f docker-compose.aws.yml up -d --build
+docker compose -f docker-compose.aws.yml exec backend alembic upgrade head
+```
+
+See the short guide: [AWS deployment quickstart](docs/aws-deployment-quickstart.md).
+
 ## Launch Safety and Policy Pages
 
 Day 14 adds launch-safety surfaces for public MVP review while keeping real payments and real AI calls disabled.

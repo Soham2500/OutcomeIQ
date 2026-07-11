@@ -1,0 +1,45 @@
+# AWS Lightsail early-MVP deployment only.
+# Copy backend/.env.aws.example to backend/.env on the server and replace
+# placeholders there. Never commit backend/.env.
+services:
+  postgres:
+    image: postgres:16-alpine
+    container_name: outcomeiq_aws_postgres
+    env_file:
+      - ./backend/.env
+    volumes:
+      - outcomeiq_aws_postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U $${POSTGRES_USER} -d $${POSTGRES_DB}"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+      start_period: 10s
+    restart: unless-stopped
+
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: outcomeiq_aws_backend
+    depends_on:
+      postgres:
+        condition: service_healthy
+    env_file:
+      - ./backend/.env
+    ports:
+      - "8000:8000"
+    healthcheck:
+      test:
+        - CMD
+        - python
+        - -c
+        - "import urllib.request; urllib.request.urlopen('http://localhost:8000/api/v1/health')"
+      interval: 10s
+      timeout: 5s
+      retries: 12
+      start_period: 15s
+    restart: unless-stopped
+
+volumes:
+  outcomeiq_aws_postgres_data:
