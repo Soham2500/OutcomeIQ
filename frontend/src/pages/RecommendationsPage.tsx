@@ -11,6 +11,8 @@ import { Badge } from "../components/Badge";
 import { EmptyState } from "../components/EmptyState";
 import { ErrorState } from "../components/ErrorState";
 import { LoadingState } from "../components/LoadingState";
+import { PageHeader } from "../components/PageHeader";
+import { SectionCard } from "../components/SectionCard";
 import type { Project } from "../types/project";
 import type {
   Recommendation,
@@ -46,6 +48,9 @@ export function RecommendationsPage() {
   const [dismissingId, setDismissingId] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState<string | null>(null);
+  const [filter, setFilter] = useState<"all" | "open" | "high" | "dismissed">(
+    "all",
+  );
 
   async function loadProjectOptions() {
     setLoadingProjects(true);
@@ -154,18 +159,26 @@ export function RecommendationsPage() {
     );
   }
 
+  const filteredRecommendations = recommendations.filter((recommendation) => {
+    if (filter === "open") {
+      return recommendation.status === "open";
+    }
+    if (filter === "high") {
+      return recommendation.severity === "high";
+    }
+    if (filter === "dismissed") {
+      return recommendation.status === "dismissed";
+    }
+    return true;
+  });
+
   return (
     <div className="space-y-6">
-      <div className="flex flex-col justify-between gap-4 lg:flex-row lg:items-end">
-        <div>
-          <h1 className="text-2xl font-semibold text-slate-900">
-            Recommendations
-          </h1>
-          <p className="mt-1 text-sm text-slate-500">
-            Evidence-backed actions for cost, failure waste and outcome quality.
-          </p>
-        </div>
-        <div className="flex w-full flex-col gap-3 lg:w-auto lg:flex-row lg:items-end">
+      <PageHeader
+        description="Rule-based, human-reviewed recommendations backed by workflow cost and outcome evidence."
+        title="Recommendations"
+        actions={
+          <div className="flex w-full flex-col gap-3 lg:w-auto lg:flex-row lg:items-end">
           <label className="w-full lg:w-72">
             <span className="field-label">Project</span>
             <select
@@ -180,6 +193,14 @@ export function RecommendationsPage() {
               ))}
             </select>
           </label>
+          <button
+            className="secondary-button"
+            disabled={loadingRecommendations}
+            onClick={() => void loadRecommendations(selectedProjectId)}
+            type="button"
+          >
+            Refresh
+          </button>
           <button
             className="secondary-button"
             disabled={runningDemo || !selectedProjectId}
@@ -197,6 +218,30 @@ export function RecommendationsPage() {
             {generating ? "Generating…" : "Generate Recommendations"}
           </button>
         </div>
+        }
+      />
+
+      <SectionCard tone="brand">
+        <p className="text-sm font-semibold text-brand-950">
+          Recommendations are not AI-generated guesses.
+        </p>
+        <p className="mt-2 text-sm leading-6 text-brand-900">
+          OutcomeIQ uses deterministic backend rules over costs, outcomes and data
+          quality. Each recommendation should be reviewed by a human before action.
+        </p>
+      </SectionCard>
+
+      <div className="flex flex-wrap gap-2">
+        {(["all", "open", "high", "dismissed"] as const).map((item) => (
+          <button
+            className={filter === item ? "primary-button" : "secondary-button"}
+            key={item}
+            onClick={() => setFilter(item)}
+            type="button"
+          >
+            {item === "high" ? "High severity" : item}
+          </button>
+        ))}
       </div>
 
       {success ? (
@@ -241,11 +286,18 @@ export function RecommendationsPage() {
         />
       ) : null}
 
-      {!loadingRecommendations && recommendations.length > 0 ? (
+      {!loadingRecommendations && recommendations.length > 0 && filteredRecommendations.length === 0 ? (
+        <EmptyState
+          description="No recommendations match the selected filter."
+          title="No matching recommendations"
+        />
+      ) : null}
+
+      {!loadingRecommendations && filteredRecommendations.length > 0 ? (
         <div className="space-y-4">
-          {recommendations.map((recommendation) => (
+          {filteredRecommendations.map((recommendation) => (
             <article
-              className="rounded-xl border border-slate-200 bg-white p-5 shadow-card"
+              className="rounded-xl border border-slate-200 bg-white p-5 shadow-card transition hover:border-brand-100 hover:shadow-md"
               key={recommendation.id}
             >
               <div className="flex flex-col justify-between gap-4 sm:flex-row sm:items-start">
@@ -269,6 +321,28 @@ export function RecommendationsPage() {
                       {recommendation.description}
                     </p>
                   ) : null}
+                  <div className="mt-4 grid gap-3 md:grid-cols-2">
+                    <div className="rounded-lg bg-slate-50 p-4">
+                      <p className="text-xs font-semibold uppercase tracking-wider text-slate-500">
+                        Why this matters
+                      </p>
+                      <p className="mt-2 text-sm leading-6 text-slate-600">
+                        This recommendation is based on recorded workflow cost,
+                        outcome status or data completeness. It helps avoid scaling
+                        workflows without reliable evidence.
+                      </p>
+                    </div>
+                    <div className="rounded-lg bg-brand-50 p-4">
+                      <p className="text-xs font-semibold uppercase tracking-wider text-brand-700">
+                        Suggested action
+                      </p>
+                      <p className="mt-2 text-sm leading-6 text-brand-900">
+                        Review the metric evidence, inspect affected workflows and
+                        decide whether to optimize, investigate, restrict or keep
+                        the current configuration.
+                      </p>
+                    </div>
+                  </div>
                   {recommendation.potential_savings_usd !== null ? (
                     <p className="mt-3 text-sm font-medium text-emerald-700">
                       Potential savings: {formatUsd(recommendation.potential_savings_usd)}

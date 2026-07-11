@@ -119,3 +119,18 @@ class RecommendationStatus(str, Enum):
     ACCEPTED = "accepted"
     DISMISSED = "dismissed"
     RESOLVED = "resolved"
+
+
+class SubscriptionStatus(str, Enum):
+    FREE = "free"
+    TRIALING = "trialing"
+    ACTIVE = "active"
+    PAST_DUE = "past_due"
+    CANCELLED = "cancelled"
+    EXPIRED = "expired"
+
+
+class PaymentProvider(str, Enum):
+    MANUAL = "manual"
+    RAZORPAY_TEST = "razorpay_test"
+    STRIPE_TEST = "stripe_test"

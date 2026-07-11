@@ -300,6 +300,70 @@ Verify the Day 9 frontend polish:
 .\scripts\day9_frontend_polish_verify.ps1
 ```
 
+## Day 10 Demo Flow
+
+The Day 10 upgrade adds a stronger live-demo experience with an Analytics page, browser-only exports and more polished dashboard/recommendation explanations.
+
+1. Start the app with local scripts or Docker.
+2. Login/register.
+3. Create a project.
+4. Run demo data.
+5. Open **Dashboard**.
+6. Open **Analytics**.
+7. Export JSON/CSV.
+8. Generate Recommendations.
+9. Open **Demo Guide**.
+
+Verify the Day 10 upgrade:
+
+```powershell
+.\scripts\day10_major_upgrade_verify.ps1
+```
+
+The MVP uses simulated provider data. Real AI provider integration and real cloud billing integration are future scope.
+
+## Subscription-ready billing foundation
+
+OutcomeIQ now includes a test/sandbox billing architecture for early SaaS launch preparation:
+
+- Free, Starter and Pro plan model
+- Current subscription API
+- Usage counters for projects and workflow runs
+- Backend-owned soft usage limits
+- Pricing page
+- Billing page
+- Test-mode plan activation
+- Razorpay webhook storage placeholder
+
+Real payments are not enabled yet. Razorpay live mode is a future step after KYC, privacy policy, terms, refund/cancellation policy, verified webhooks and production checks. API keys must be stored only in backend environment variables.
+
+Seed billing plans after applying migrations:
+
+```powershell
+.\scripts\db_migrate.ps1
+.\scripts\db_seed_plans.ps1
+```
+
+Verify the billing foundation:
+
+```powershell
+.\scripts\day11_billing_foundation_verify.ps1
+```
+
+### Test subscription flow
+
+1. Register/login.
+2. Create project.
+3. Open **Pricing**.
+4. Upgrade to Starter in test mode.
+5. Open **Billing**.
+6. Check usage limits.
+7. Run demo data.
+8. Open Dashboard.
+9. Generate recommendations.
+
+See [subscription billing architecture](docs/subscription-billing-architecture.md), [Razorpay test-mode setup](docs/razorpay-test-mode-setup.md), and [early live launch plan](docs/early-live-launch-plan.md).
+
 ## Run the frontend locally
 
 Start the backend in one PowerShell window. From the project root, install and run the frontend in another:

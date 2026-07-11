@@ -37,6 +37,11 @@ from app.services.workflow_logging_service import (
     record_tool_call,
     start_workflow_run,
 )
+from app.services.usage_limit_service import (
+    LIMIT_MESSAGE,
+    check_workflow_run_monthly_limit,
+    increment_workflow_run_usage,
+)
 
 
 router = APIRouter()
@@ -84,13 +89,22 @@ def start_workflow_run_endpoint(
 ) -> WorkflowRun:
     _require_project_access(db, request.project_id, current_user.id)
     try:
-        return start_workflow_run(
+        check_workflow_run_monthly_limit(db, current_user.id)
+    except PermissionError as exc:
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail=LIMIT_MESSAGE,
+        ) from exc
+    try:
+        workflow_run = start_workflow_run(
             db,
             project_id=request.project_id,
             workflow_id=request.workflow_id,
             user_id=current_user.id,
             data=request,
         )
+        increment_workflow_run_usage(db, current_user.id)
+        return workflow_run
     except (IntegrityError, LookupError, ValueError) as exc:
         db.rollback()
         _raise_service_error(exc)

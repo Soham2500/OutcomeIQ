@@ -4,6 +4,7 @@ from fastapi import APIRouter
 
 from app.api.v1.endpoints import (
     auth,
+    billing,
     costs,
     dashboard,
     health,
@@ -22,6 +23,11 @@ api_router.include_router(
     auth.router,
     prefix="/auth",
     tags=["authentication"],
+)
+api_router.include_router(
+    billing.router,
+    prefix="/billing",
+    tags=["billing"],
 )
 api_router.include_router(
     organizations.router,

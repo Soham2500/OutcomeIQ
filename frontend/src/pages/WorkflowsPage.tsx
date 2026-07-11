@@ -112,7 +112,15 @@ export function WorkflowsPage() {
       setSuccess("Simulated workflow runs, costs and outcomes were recorded.");
       await loadWorkflows(selectedProjectId);
     } catch (requestError) {
-      setError(getApiErrorMessage(requestError, "Demo workflow could not run."));
+      const message = getApiErrorMessage(
+        requestError,
+        "Demo workflow could not run.",
+      );
+      setError(
+        message.includes("Plan limit reached")
+          ? "Monthly workflow run limit reached. Upgrade your subscription."
+          : message,
+      );
     } finally {
       setRunningDemo(false);
     }

@@ -1,13 +1,18 @@
 import { useEffect, useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import { getCurrentUser } from "../api/authApi";
+import { getMyBilling } from "../api/billingApi";
 import { TOKEN_KEY } from "../api/client";
+import { Badge } from "./Badge";
 
 const pageTitles: Record<string, string> = {
   "/dashboard": "Dashboard",
   "/projects": "Projects",
   "/workflows": "Workflows",
+  "/analytics": "Analytics",
   "/recommendations": "Recommendations",
+  "/pricing": "Pricing",
+  "/billing": "Billing",
   "/demo-guide": "Demo Guide",
 };
 
@@ -15,6 +20,7 @@ export function Topbar() {
   const navigate = useNavigate();
   const location = useLocation();
   const [userEmail, setUserEmail] = useState<string | null>(null);
+  const [planName, setPlanName] = useState<string | null>(null);
 
   useEffect(() => {
     let active = true;
@@ -27,6 +33,24 @@ export function Topbar() {
       .catch(() => {
         if (active) {
           setUserEmail(null);
+        }
+      });
+    return () => {
+      active = false;
+    };
+  }, []);
+
+  useEffect(() => {
+    let active = true;
+    getMyBilling()
+      .then((billing) => {
+        if (active) {
+          setPlanName(billing.plan.name);
+        }
+      })
+      .catch(() => {
+        if (active) {
+          setPlanName(null);
         }
       });
     return () => {
@@ -50,6 +74,7 @@ export function Topbar() {
         </p>
       </div>
       <div className="flex items-center gap-3">
+        {planName ? <Badge tone="brand">{planName}</Badge> : null}
         <div className="hidden text-right sm:block">
           <p className="text-xs text-slate-400">Signed in as</p>
           <p className="max-w-56 truncate text-sm font-medium text-slate-700">

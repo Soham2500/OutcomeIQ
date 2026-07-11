@@ -32,6 +32,10 @@ from app.repositories.project_repository import (
 from app.schemas.project import ProjectCreate, ProjectRead, ProjectUpdate
 from app.schemas.project_member import ProjectMemberRead
 from app.services.audit_service import record_audit_event
+from app.services.usage_limit_service import (
+    LIMIT_MESSAGE,
+    check_project_creation_limit,
+)
 
 
 router = APIRouter()
@@ -43,6 +47,14 @@ def create_project_endpoint(
     db: Annotated[Session, Depends(get_db)],
     current_user: Annotated[User, Depends(get_current_active_user)],
 ) -> Project:
+    try:
+        check_project_creation_limit(db, current_user.id)
+    except PermissionError as exc:
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail=LIMIT_MESSAGE,
+        ) from exc
+
     organization = get_organization_by_id(db, request.organization_id)
     if organization is None:
         raise HTTPException(

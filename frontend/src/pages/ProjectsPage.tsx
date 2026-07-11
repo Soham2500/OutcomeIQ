@@ -12,7 +12,7 @@ import { ErrorState } from "../components/ErrorState";
 import { LoadingState } from "../components/LoadingState";
 import type { DemoScenarioSummary } from "../types/demo";
 import type { Project } from "../types/project";
-import { shortId } from "../utils/format";
+import { formatDateTime, shortId } from "../utils/format";
 
 function createSlug(value: string): string {
   const base = value
@@ -77,7 +77,15 @@ export function ProjectsPage() {
       setDescription("");
       setSuccess(`${project.name} was created successfully.`);
     } catch (requestError) {
-      setError(getApiErrorMessage(requestError, "The project could not be created."));
+      const message = getApiErrorMessage(
+        requestError,
+        "The project could not be created.",
+      );
+      setError(
+        message.includes("Plan limit reached")
+          ? "Your plan limit is reached. Upgrade from Pricing page."
+          : message,
+      );
     } finally {
       setSubmitting(false);
     }
@@ -93,7 +101,15 @@ export function ProjectsPage() {
       setDemoSummary(summary);
       setSuccess("Demo scenario completed. Open the dashboard to see outcome-aware economics.");
     } catch (requestError) {
-      setError(getApiErrorMessage(requestError, "Demo scenario could not run."));
+      const message = getApiErrorMessage(
+        requestError,
+        "Demo scenario could not run.",
+      );
+      setError(
+        message.includes("Plan limit reached")
+          ? "Monthly workflow run limit reached. Upgrade your subscription."
+          : message,
+      );
     } finally {
       setRunningDemoProjectId(null);
     }
@@ -101,11 +117,15 @@ export function ProjectsPage() {
 
   return (
     <div className="space-y-6">
-      <div>
-        <h1 className="text-2xl font-semibold text-slate-900">Projects</h1>
-        <p className="mt-1 text-sm text-slate-500">
-          Create the organization/project boundary, then generate simulated workflow
-          data for the live demo.
+      <div className="rounded-2xl bg-slate-950 p-6 text-white shadow-xl md:p-8">
+        <p className="text-xs font-semibold uppercase tracking-[0.18em] text-brand-100">
+          Project workspace
+        </p>
+        <h1 className="mt-2 text-2xl font-semibold">Projects</h1>
+        <p className="mt-2 max-w-3xl text-sm leading-6 text-slate-300">
+          Create the organization/project boundary, then generate simulated
+          workflow data for the live demo. Each project owns its workflows, costs,
+          outcomes and recommendations.
         </p>
       </div>
 
@@ -197,12 +217,18 @@ export function ProjectsPage() {
                 <p className="mt-3 line-clamp-2 text-sm text-slate-500">
                   {project.description || "No project description provided."}
                 </p>
-                <p className="mt-4 font-mono text-xs text-slate-400">
+                <div className="mt-4 space-y-1 text-xs text-slate-400">
+                  <p>Created · {formatDateTime(project.created_at)}</p>
+                  <p className="font-mono">
                   Project ID · {shortId(project.id)}
-                </p>
+                  </p>
+                </div>
                 <div className="mt-5 flex flex-wrap gap-2">
                   <Link className="secondary-button" to="/dashboard">
                     Open Dashboard
+                  </Link>
+                  <Link className="secondary-button" to="/analytics">
+                    Open Analytics
                   </Link>
                   <button
                     className="primary-button"
@@ -214,6 +240,9 @@ export function ProjectsPage() {
                       ? "Running demo…"
                       : "Run Demo Scenario"}
                   </button>
+                  <Link className="secondary-button" to="/recommendations">
+                    Open Recommendations
+                  </Link>
                 </div>
               </article>
             ))}

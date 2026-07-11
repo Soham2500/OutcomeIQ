@@ -25,3 +25,7 @@ import app.models.workflow_run_cost  # noqa: E402, F401
 import app.models.outcome_contract  # noqa: E402, F401
 import app.models.workflow_run_outcome  # noqa: E402, F401
 import app.models.recommendation  # noqa: E402, F401
+import app.models.plan  # noqa: E402, F401
+import app.models.subscription  # noqa: E402, F401
+import app.models.payment_event  # noqa: E402, F401
+import app.models.usage_counter  # noqa: E402, F401
