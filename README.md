@@ -280,6 +280,26 @@ For the launch window, follow the [final deployment runbook](docs/deployment-run
 
 The first live version must remain on the simulated AI provider. Real AI APIs should be considered only after token limits, monthly budget caps, model allowlists, complete model-call logging and a provider kill switch are implemented.
 
+## Frontend Demo Flow
+
+The Day 9 frontend polish makes the core MVP demo operable from the UI without using Swagger for the basic flow.
+
+1. Start Docker, or start the local backend and frontend separately.
+2. Register or login.
+3. Create an organization and project from **Projects**.
+4. Run simulated demo data from **Projects**, **Workflows**, **Dashboard**, or **Recommendations**.
+5. Open **Dashboard** to view workflow runs, total cost, success rate and cost per successful outcome.
+6. Open **Recommendations** and generate evidence-backed recommendations.
+7. Open **Demo Guide** for the viva/demo explanation.
+
+The UI demo uses simulated provider/model data only. It does not call real AI APIs and does not require provider keys.
+
+Verify the Day 9 frontend polish:
+
+```powershell
+.\scripts\day9_frontend_polish_verify.ps1
+```
+
 ## Run the frontend locally
 
 Start the backend in one PowerShell window. From the project root, install and run the frontend in another:

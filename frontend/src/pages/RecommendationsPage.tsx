@@ -1,11 +1,13 @@
 import { useEffect, useState } from "react";
 import { getApiErrorMessage } from "../api/client";
+import { runDemoScenario } from "../api/demoApi";
 import { listProjects } from "../api/projectsApi";
 import {
   generateRecommendations,
   listRecommendations,
   updateRecommendationStatus,
 } from "../api/recommendationsApi";
+import { Badge } from "../components/Badge";
 import { EmptyState } from "../components/EmptyState";
 import { ErrorState } from "../components/ErrorState";
 import { LoadingState } from "../components/LoadingState";
@@ -13,20 +15,24 @@ import type { Project } from "../types/project";
 import type {
   Recommendation,
   RecommendationSeverity,
+  RecommendationStatus,
 } from "../types/recommendation";
 import { formatUsd } from "../utils/format";
 
-const severityClasses: Record<RecommendationSeverity, string> = {
-  low: "bg-sky-50 text-sky-700",
-  medium: "bg-amber-50 text-amber-700",
-  high: "bg-rose-50 text-rose-700",
+const severityTone: Record<RecommendationSeverity, "sky" | "amber" | "rose"> = {
+  low: "sky",
+  medium: "amber",
+  high: "rose",
 };
 
-const statusClasses: Record<string, string> = {
-  open: "bg-violet-50 text-violet-700",
-  accepted: "bg-emerald-50 text-emerald-700",
-  dismissed: "bg-slate-100 text-slate-600",
-  resolved: "bg-blue-50 text-blue-700",
+const statusTone: Record<
+  RecommendationStatus,
+  "violet" | "emerald" | "slate" | "sky"
+> = {
+  open: "violet",
+  accepted: "emerald",
+  dismissed: "slate",
+  resolved: "sky",
 };
 
 export function RecommendationsPage() {
@@ -36,8 +42,10 @@ export function RecommendationsPage() {
   const [loadingProjects, setLoadingProjects] = useState(true);
   const [loadingRecommendations, setLoadingRecommendations] = useState(false);
   const [generating, setGenerating] = useState(false);
+  const [runningDemo, setRunningDemo] = useState(false);
   const [dismissingId, setDismissingId] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
+  const [success, setSuccess] = useState<string | null>(null);
 
   async function loadProjectOptions() {
     setLoadingProjects(true);
@@ -53,47 +61,59 @@ export function RecommendationsPage() {
     }
   }
 
+  async function loadRecommendations(projectId: string) {
+    if (!projectId) {
+      setRecommendations([]);
+      return;
+    }
+    setLoadingRecommendations(true);
+    setError(null);
+    try {
+      setRecommendations(await listRecommendations(projectId));
+    } catch (requestError) {
+      setError(
+        getApiErrorMessage(requestError, "Recommendations could not be loaded."),
+      );
+    } finally {
+      setLoadingRecommendations(false);
+    }
+  }
+
   useEffect(() => {
     void loadProjectOptions();
   }, []);
 
   useEffect(() => {
-    if (!selectedProjectId) {
-      setRecommendations([]);
-      return;
-    }
-    let active = true;
-    setLoadingRecommendations(true);
-    setError(null);
-    listRecommendations(selectedProjectId)
-      .then((items) => {
-        if (active) {
-          setRecommendations(items);
-        }
-      })
-      .catch((requestError: unknown) => {
-        if (active) {
-          setError(
-            getApiErrorMessage(requestError, "Recommendations could not be loaded."),
-          );
-        }
-      })
-      .finally(() => {
-        if (active) {
-          setLoadingRecommendations(false);
-        }
-      });
-    return () => {
-      active = false;
-    };
+    void loadRecommendations(selectedProjectId);
   }, [selectedProjectId]);
+
+  async function handleRunDemo() {
+    setRunningDemo(true);
+    setError(null);
+    setSuccess(null);
+    try {
+      await runDemoScenario(selectedProjectId);
+      setSuccess("Demo data created. Generate recommendations to review evidence-backed actions.");
+      await loadRecommendations(selectedProjectId);
+    } catch (requestError) {
+      setError(getApiErrorMessage(requestError, "Demo data could not be created."));
+    } finally {
+      setRunningDemo(false);
+    }
+  }
 
   async function handleGenerate() {
     setGenerating(true);
     setError(null);
+    setSuccess(null);
     try {
-      await generateRecommendations(selectedProjectId);
+      const generated = await generateRecommendations(selectedProjectId);
       setRecommendations(await listRecommendations(selectedProjectId));
+      setSuccess(
+        generated.generated_count > 0
+          ? `${generated.generated_count} recommendation(s) generated.`
+          : "No new recommendations were generated for the current evidence.",
+      );
     } catch (requestError) {
       setError(
         getApiErrorMessage(requestError, "Recommendations could not be generated."),
@@ -125,64 +145,102 @@ export function RecommendationsPage() {
     return <LoadingState message="Loading projects…" />;
   }
 
-  if (error && projects.length === 0) {
-    return <ErrorState message={error} onRetry={() => void loadProjectOptions()} />;
+  if (projects.length === 0) {
+    return (
+      <EmptyState
+        description="Create a project and run demo data before generating recommendations."
+        title="No projects yet"
+      />
+    );
   }
 
   return (
     <div className="space-y-6">
-      <div className="flex flex-col justify-between gap-4 sm:flex-row sm:items-end">
+      <div className="flex flex-col justify-between gap-4 lg:flex-row lg:items-end">
         <div>
-          <h1 className="text-2xl font-semibold text-slate-900">Recommendations</h1>
+          <h1 className="text-2xl font-semibold text-slate-900">
+            Recommendations
+          </h1>
           <p className="mt-1 text-sm text-slate-500">
-            Rule-based MVP suggestions backed by cost and outcome evidence. They do
-            not automatically change workflows.
+            Evidence-backed actions for cost, failure waste and outcome quality.
           </p>
         </div>
-        {projects.length > 0 ? (
-          <div className="flex w-full flex-col gap-3 sm:w-auto sm:flex-row sm:items-end">
-            <label className="w-full sm:w-64">
-              <span className="field-label">Project</span>
-              <select
-                className="field-input"
-                onChange={(event) => setSelectedProjectId(event.target.value)}
-                value={selectedProjectId}
-              >
-                {projects.map((project) => (
-                  <option key={project.id} value={project.id}>
-                    {project.name}
-                  </option>
-                ))}
-              </select>
-            </label>
-            <button
-              className="primary-button whitespace-nowrap"
-              disabled={generating || !selectedProjectId}
-              onClick={() => void handleGenerate()}
-              type="button"
+        <div className="flex w-full flex-col gap-3 lg:w-auto lg:flex-row lg:items-end">
+          <label className="w-full lg:w-72">
+            <span className="field-label">Project</span>
+            <select
+              className="field-input"
+              onChange={(event) => setSelectedProjectId(event.target.value)}
+              value={selectedProjectId}
             >
-              {generating ? "Generating…" : "Generate recommendations"}
-            </button>
-          </div>
-        ) : null}
+              {projects.map((project) => (
+                <option key={project.id} value={project.id}>
+                  {project.name}
+                </option>
+              ))}
+            </select>
+          </label>
+          <button
+            className="secondary-button"
+            disabled={runningDemo || !selectedProjectId}
+            onClick={() => void handleRunDemo()}
+            type="button"
+          >
+            {runningDemo ? "Creating demo data…" : "Run Demo Data"}
+          </button>
+          <button
+            className="primary-button"
+            disabled={generating || !selectedProjectId}
+            onClick={() => void handleGenerate()}
+            type="button"
+          >
+            {generating ? "Generating…" : "Generate Recommendations"}
+          </button>
+        </div>
       </div>
 
-      {error ? <ErrorState message={error} /> : null}
-      {projects.length === 0 ? (
-        <EmptyState
-          description="Create a project before generating evidence-backed recommendations."
-          title="No project available"
+      {success ? (
+        <p className="rounded-lg bg-emerald-50 p-3 text-sm text-emerald-700">
+          {success}
+        </p>
+      ) : null}
+      {error ? (
+        <ErrorState
+          message={error}
+          onRetry={() => void loadRecommendations(selectedProjectId)}
         />
       ) : null}
       {loadingRecommendations ? (
         <LoadingState message="Loading recommendations…" />
       ) : null}
-      {!loadingRecommendations && projects.length > 0 && recommendations.length === 0 ? (
+
+      {!loadingRecommendations && recommendations.length === 0 ? (
         <EmptyState
-          description="Generate recommendations after workflow runs, costs and outcomes have been recorded."
+          action={
+            <div className="flex flex-wrap justify-center gap-3">
+              <button
+                className="secondary-button"
+                disabled={runningDemo}
+                onClick={() => void handleRunDemo()}
+                type="button"
+              >
+                {runningDemo ? "Creating demo data…" : "Run demo data first"}
+              </button>
+              <button
+                className="primary-button"
+                disabled={generating}
+                onClick={() => void handleGenerate()}
+                type="button"
+              >
+                {generating ? "Generating…" : "Generate recommendations"}
+              </button>
+            </div>
+          }
+          description="Run demo data first, then generate recommendations."
           title="No recommendations yet"
         />
       ) : null}
+
       {!loadingRecommendations && recommendations.length > 0 ? (
         <div className="space-y-4">
           {recommendations.map((recommendation) => (
@@ -193,19 +251,15 @@ export function RecommendationsPage() {
               <div className="flex flex-col justify-between gap-4 sm:flex-row sm:items-start">
                 <div>
                   <div className="flex flex-wrap items-center gap-2">
-                    <span
-                      className={`rounded-full px-2.5 py-1 text-xs font-semibold capitalize ${severityClasses[recommendation.severity]}`}
-                    >
+                    <Badge tone={severityTone[recommendation.severity]}>
                       {recommendation.severity}
-                    </span>
-                    <span
-                      className={`rounded-full px-2.5 py-1 text-xs font-medium capitalize ${statusClasses[recommendation.status] ?? statusClasses.open}`}
-                    >
+                    </Badge>
+                    <Badge tone={statusTone[recommendation.status]}>
                       {recommendation.status}
-                    </span>
-                    <span className="rounded-full bg-brand-50 px-2.5 py-1 text-xs font-medium capitalize text-brand-700">
+                    </Badge>
+                    <Badge tone="brand">
                       {recommendation.recommendation_type.replaceAll("_", " ")}
-                    </span>
+                    </Badge>
                   </div>
                   <h2 className="mt-3 font-semibold text-slate-900">
                     {recommendation.title}

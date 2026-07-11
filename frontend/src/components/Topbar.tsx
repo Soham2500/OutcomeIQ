@@ -6,6 +6,7 @@ import { TOKEN_KEY } from "../api/client";
 const pageTitles: Record<string, string> = {
   "/dashboard": "Dashboard",
   "/projects": "Projects",
+  "/workflows": "Workflows",
   "/recommendations": "Recommendations",
   "/demo-guide": "Demo Guide",
 };

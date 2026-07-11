@@ -7,6 +7,7 @@ import { LoginPage } from "./pages/LoginPage";
 import { ProjectsPage } from "./pages/ProjectsPage";
 import { RecommendationsPage } from "./pages/RecommendationsPage";
 import { RegisterPage } from "./pages/RegisterPage";
+import { WorkflowsPage } from "./pages/WorkflowsPage";
 import { ProtectedRoute } from "./routes/ProtectedRoute";
 
 function HomeRedirect() {
@@ -33,6 +34,7 @@ export default function App() {
       >
         <Route element={<DashboardPage />} path="/dashboard" />
         <Route element={<ProjectsPage />} path="/projects" />
+        <Route element={<WorkflowsPage />} path="/workflows" />
         <Route element={<RecommendationsPage />} path="/recommendations" />
         <Route element={<DemoGuidePage />} path="/demo-guide" />
       </Route>

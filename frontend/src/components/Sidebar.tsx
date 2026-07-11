@@ -4,6 +4,7 @@ import { AppLogo } from "./AppLogo";
 const navigation = [
   { label: "Dashboard", path: "/dashboard", icon: "◫" },
   { label: "Projects", path: "/projects", icon: "▣" },
+  { label: "Workflows", path: "/workflows", icon: "↻" },
   { label: "Recommendations", path: "/recommendations", icon: "◇" },
   { label: "Demo Guide", path: "/demo-guide", icon: "▷" },
 ];

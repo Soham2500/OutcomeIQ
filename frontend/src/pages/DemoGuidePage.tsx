@@ -1,29 +1,12 @@
 import { Link } from "react-router-dom";
 
 const demoSteps = [
-  "Login with the local demo account",
-  "Select the AI Support Cost Optimization Demo project",
-  "Review five simulated workflow runs",
-  "View the total workflow cost",
-  "Inspect successful, failed and escalated outcomes",
-  "Read cost per successful outcome",
-  "Generate and review rule-based recommendations",
-];
-
-const setupCommands = [
-  {
-    label: "Backend",
-    command:
-      "cd C:\\Users\\soham\\OneDrive\\Documents\\pro\n.\\scripts\\run_backend.ps1",
-  },
-  {
-    label: "Seed demo data",
-    command: ".\\scripts\\seed_demo_data_via_api.ps1",
-  },
-  {
-    label: "Frontend",
-    command: ".\\scripts\\run_frontend.ps1",
-  },
+  "Register or login with a local OutcomeIQ account.",
+  "Create an organization and project from the Projects page.",
+  "Run demo data from Projects, Workflows, Dashboard, or Recommendations.",
+  "Open Dashboard to view workflow runs, cost, outcomes, success rate and cost per successful outcome.",
+  "Open Recommendations and generate evidence-backed actions.",
+  "Explain why cost per request and cost per successful outcome can lead to different decisions.",
 ];
 
 export function DemoGuidePage() {
@@ -31,15 +14,15 @@ export function DemoGuidePage() {
     <div className="space-y-6">
       <section className="overflow-hidden rounded-2xl bg-slate-950 px-6 py-8 text-white shadow-xl md:px-10 md:py-10">
         <p className="text-xs font-semibold uppercase tracking-[0.2em] text-brand-100">
-          Evaluator walkthrough
+          Live MVP walkthrough
         </p>
         <h1 className="mt-3 max-w-3xl text-3xl font-semibold tracking-tight md:text-4xl">
-          From AI workflow spend to verified business value
+          Prove AI workflow value using cost per successful business outcome
         </h1>
         <p className="mt-4 max-w-3xl text-sm leading-6 text-slate-300 md:text-base">
-          Companies can track tokens, model calls and cloud cost, but often cannot
-          answer what an AI workflow cost per successful business outcome. OutcomeIQ
-          connects those two sides of the decision.
+          OutcomeIQ does not call a real AI provider in this MVP. It uses simulated
+          model/tool telemetry to demonstrate the business logic: AI spend only
+          matters when connected to verified outcomes.
         </p>
       </section>
 
@@ -59,8 +42,11 @@ export function DemoGuidePage() {
             ))}
           </ol>
           <div className="mt-6 flex flex-wrap gap-3">
-            <Link className="primary-button" to="/dashboard">
-              Start with dashboard
+            <Link className="primary-button" to="/projects">
+              Create project
+            </Link>
+            <Link className="secondary-button" to="/dashboard">
+              Open dashboard
             </Link>
             <Link className="secondary-button" to="/recommendations">
               Open recommendations
@@ -70,56 +56,54 @@ export function DemoGuidePage() {
 
         <article className="rounded-xl border border-brand-100 bg-brand-50 p-6 shadow-card">
           <p className="text-xs font-semibold uppercase tracking-wider text-brand-700">
-            Core proof
+            Core concept
           </p>
           <blockquote className="mt-4 text-2xl font-semibold leading-snug text-slate-950">
-            “Cheapest AI request is not always cheapest successful outcome.”
+            “The cheapest AI request is not always the cheapest successful
+            outcome.”
           </blockquote>
           <p className="mt-4 text-sm leading-6 text-slate-600">
-            A low-cost workflow can become expensive when failures, retries and
-            escalations reduce successful yield. OutcomeIQ makes that unit economics
-            visible before a company scales the workflow.
+            A workflow may look cheap per request but become expensive when it
+            fails, retries, falls back, or escalates. OutcomeIQ connects complete
+            workflow cost with outcome evidence so teams can decide whether to
+            scale, optimize, investigate, restrict, or stop.
           </p>
         </article>
       </section>
 
       <section className="rounded-xl border border-slate-200 bg-white p-6 shadow-card">
-        <h2 className="text-lg font-semibold text-slate-900">Local demo setup</h2>
-        <p className="mt-1 text-sm text-slate-500">
-          Run each service from the project root in its own PowerShell window.
-        </p>
-        <div className="mt-5 grid gap-4 lg:grid-cols-3">
-          {setupCommands.map((item) => (
-            <div
-              className="overflow-hidden rounded-lg border border-slate-200"
-              key={item.label}
-            >
-              <p className="border-b border-slate-200 bg-slate-50 px-4 py-2 text-xs font-semibold text-slate-600">
-                {item.label}
-              </p>
-              <pre className="min-h-24 overflow-x-auto bg-slate-950 p-4 text-xs leading-5 text-slate-200">
-                <code>{item.command}</code>
-              </pre>
-            </div>
-          ))}
-        </div>
-        <div className="mt-5 rounded-lg border border-emerald-200 bg-emerald-50 p-4">
-          <p className="text-xs font-semibold uppercase tracking-wider text-emerald-700">
-            Demo login
-          </p>
-          <p className="mt-2 font-mono text-sm text-emerald-950">
-            demo@outcomeiq.local / Demo@12345
-          </p>
+        <h2 className="text-lg font-semibold text-slate-900">What the demo uses</h2>
+        <div className="mt-4 grid gap-4 md:grid-cols-3">
+          <div className="rounded-lg border border-slate-200 p-4">
+            <p className="font-semibold text-slate-900">Simulated provider</p>
+            <p className="mt-2 text-sm text-slate-500">
+              Model names, token counts and pricing are synthetic. No real AI API
+              keys are required.
+            </p>
+          </div>
+          <div className="rounded-lg border border-slate-200 p-4">
+            <p className="font-semibold text-slate-900">Support ticket scenario</p>
+            <p className="mt-2 text-sm text-slate-500">
+              The demo ticket is: “My payment failed but money was deducted.”
+            </p>
+          </div>
+          <div className="rounded-lg border border-slate-200 p-4">
+            <p className="font-semibold text-slate-900">Outcome economics</p>
+            <p className="mt-2 text-sm text-slate-500">
+              One run succeeds and one run fails, making failure waste and cost per
+              successful outcome visible.
+            </p>
+          </div>
         </div>
       </section>
 
       <section className="rounded-xl border border-amber-200 bg-amber-50 p-6">
-        <h2 className="font-semibold text-amber-950">What is simulated</h2>
+        <h2 className="font-semibold text-amber-950">MVP boundaries</h2>
         <ul className="mt-3 grid gap-2 text-sm text-amber-900 md:grid-cols-2">
-          <li>• AI model calls and tool telemetry</li>
-          <li>• Local non-production pricing rates</li>
-          <li>• Customer-support outcomes and evidence</li>
-          <li>• No real provider billing or API keys</li>
+          <li>• No real OpenAI, Anthropic, or cloud billing integration</li>
+          <li>• No real provider API keys</li>
+          <li>• No autonomous model routing</li>
+          <li>• No production monitoring or enterprise chargeback</li>
         </ul>
       </section>
     </div>
