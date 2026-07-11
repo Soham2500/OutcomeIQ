@@ -43,7 +43,7 @@ export async function openRazorpayCheckout(
     !checkoutPayload.key_id ||
     !checkoutPayload.subscription_id
   ) {
-    onFailure("Razorpay checkout payload is not configured. Use local test activation.");
+    onFailure("Razorpay is not configured on backend. Use local test activation.");
     return;
   }
 
@@ -60,13 +60,18 @@ export async function openRazorpayCheckout(
     description:
       checkoutPayload.description ??
       "OutcomeIQ Razorpay test-mode subscription checkout.",
-    prefill: checkoutPayload.prefill ?? undefined,
+    prefill:
+      checkoutPayload.prefill ??
+      {
+        email: checkoutPayload.prefill_email,
+        name: checkoutPayload.prefill_name,
+      },
     theme: {
       color: "#2563eb",
     },
     handler: () => {
       onSuccess(
-        "Payment completed in Razorpay test mode. Waiting for webhook/subscription confirmation.",
+        "Payment submitted. Subscription will activate after secure webhook confirmation.",
       );
     },
     modal: {

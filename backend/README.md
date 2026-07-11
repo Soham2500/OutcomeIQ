@@ -58,6 +58,8 @@ Available now:
 - Placeholder production environment contract and non-deploying pre-deploy gate
 - Render/Vercel manual deployment runbook and public production smoke check
 - Final go-live, rollback, troubleshooting and launch-note documentation
+- Day 14 launch-safety endpoints for readiness and admin billing inspection
+- Config-based admin billing access with masked provider IDs and hidden raw payment payloads
 
 Not implemented yet:
 
@@ -66,6 +68,7 @@ Not implemented yet:
 - ML-based recommendation optimization or autonomous actions
 - Advanced cost-per-outcome cohorts and failure-waste analytics
 - Real provider pricing or billing synchronization
+- Live payment capture
 - Redis integration
 - Actual production deployment and complete UX polish
 
@@ -116,6 +119,7 @@ Set-ExecutionPolicy -Scope Process -ExecutionPolicy Bypass
 .\scripts\live_docker_quality_gate.ps1
 .\scripts\pre_deploy_check.ps1
 .\scripts\prod_smoke_check.ps1 -BackendBaseUrl "https://YOUR_BACKEND_DOMAIN" -FrontendBaseUrl "https://YOUR_FRONTEND_DOMAIN"
+.\scripts\day14_launch_safety_verify.ps1
 .\scripts\day5_cost_full_verify.ps1
 .\scripts\check_docker.ps1
 .\scripts\check_db_ready.ps1
@@ -156,6 +160,7 @@ Set-ExecutionPolicy -Scope Process -ExecutionPolicy Bypass
 - `live_docker_quality_gate.ps1` verifies the container stack and deterministic Docker seed.
 - `pre_deploy_check.ps1` validates secret safety, tests, frontend build and the host live-quality gate without deploying.
 - `prod_smoke_check.ps1` checks public backend health/docs and the frontend homepage after a manual deployment; it does not log in or expose secrets.
+- `day14_launch_safety_verify.ps1` checks launch-safety files and runs the frontend production build.
 - `day5_cost_full_verify.ps1` performs the opt-in migration, seed, startup and cost smoke workflow safely.
 - `check_docker.ps1` reports Docker and Compose availability without starting anything.
 - `check_db_ready.ps1` reports database configuration/connectivity without creating databases, tables or migrations.
@@ -179,6 +184,13 @@ Deployment preparation documents:
 - `docs/launch-notes-template.md` — sanitized v0.1 release record template
 
 The first live version must use only the simulated AI provider. Add real AI APIs later only after token limits, monthly budget caps, model allowlists, complete call logging and a provider kill switch are implemented.
+
+Day 14 launch-safety documents:
+
+- `docs/day-14-launch-safety-summary.md`
+- `docs/production-payment-go-live-checklist.md`
+- `docs/legal-policy-pages-guide.md`
+- `docs/admin-billing-view-guide.md`
 
 ## Setup on Windows PowerShell
 

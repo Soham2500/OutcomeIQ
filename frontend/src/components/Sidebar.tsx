@@ -10,6 +10,7 @@ const navigation = [
   { label: "Pricing", path: "/pricing", icon: "₹" },
   { label: "Billing", path: "/billing", icon: "◉" },
   { label: "Demo Guide", path: "/demo-guide", icon: "▷" },
+  { label: "Launch Readiness", path: "/launch-readiness", icon: "✓" },
 ];
 
 export function Sidebar() {

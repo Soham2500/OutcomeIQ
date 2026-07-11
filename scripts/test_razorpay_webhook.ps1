@@ -34,6 +34,7 @@ if (-not [string]::IsNullOrWhiteSpace($Signature)) {
 
 Write-Host "OutcomeIQ Razorpay webhook test" -ForegroundColor Cyan
 Write-Host "Target: $BackendUrl/api/v1/billing/webhook/razorpay"
+Write-Host "This uses simulated IDs only. It does not use real payment IDs or secrets." -ForegroundColor DarkCyan
 
 try {
     $Response = Invoke-RestMethod `
@@ -53,6 +54,7 @@ try {
 catch {
     Write-Host "Webhook test request failed." -ForegroundColor Red
     Write-Host "Reason: $($_.Exception.Message)" -ForegroundColor Yellow
-    Write-Host "If RAZORPAY_WEBHOOK_SECRET is configured, provide a valid test signature." -ForegroundColor Yellow
+    Write-Host "If RAZORPAY_WEBHOOK_SECRET is configured, an unsigned or invalid signature should fail with 400." -ForegroundColor Yellow
+    Write-Host "Generate a valid signature locally only when you intentionally test signed webhooks; never print the secret." -ForegroundColor Yellow
     exit 1
 }

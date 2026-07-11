@@ -18,10 +18,17 @@ ENV/
 *.env
 .env.local
 backend/.env
+frontend/.env
 .env.*
 !.env.example
 !**/.env.example
 !**/.env.production.example
+rzp-key.csv
+*.key
+*.pem
+*.secret
+*razorpay*.csv
+*rzp*.csv
 
 # Test and coverage artifacts
 .coverage

@@ -1,4 +1,5 @@
 import { Link } from "react-router-dom";
+import { LaunchSafetyBanner } from "../components/LaunchSafetyBanner";
 import { SectionCard } from "../components/SectionCard";
 
 const demoFlow = [
@@ -36,6 +37,8 @@ export function DemoGuidePage() {
           considered.
         </p>
       </section>
+
+      <LaunchSafetyBanner message="This MVP uses simulated AI provider data for safe demonstration." />
 
       <section className="grid gap-6 xl:grid-cols-2">
         <SectionCard title="1. What is OutcomeIQ?">

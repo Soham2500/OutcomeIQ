@@ -61,6 +61,8 @@ class BillingCheckoutResponse(BaseModel):
     currency: str = "INR"
     name: str | None = None
     description: str | None = None
+    prefill_email: str | None = None
+    prefill_name: str | None = None
     prefill: dict[str, str | None] | None = None
     message: str
 
@@ -78,6 +80,7 @@ class BillingMeRead(BaseModel):
     subscription: SubscriptionRead
     usage: UsageSummaryRead
     payment_mode: str = "test/sandbox"
+    billing_mode: str = "test"
 
 
 class BillingWebhookResponse(BaseModel):

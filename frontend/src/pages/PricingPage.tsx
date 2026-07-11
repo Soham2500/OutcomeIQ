@@ -12,6 +12,7 @@ import { getApiErrorMessage } from "../api/client";
 import { Badge } from "../components/Badge";
 import { EmptyState } from "../components/EmptyState";
 import { ErrorState } from "../components/ErrorState";
+import { LaunchSafetyBanner } from "../components/LaunchSafetyBanner";
 import { LoadingState } from "../components/LoadingState";
 import { PageHeader } from "../components/PageHeader";
 import { SectionCard } from "../components/SectionCard";
@@ -76,7 +77,7 @@ export function PricingPage() {
         );
       }
     } catch (requestError) {
-      setError(getApiErrorMessage(requestError, "Test checkout could not be created."));
+      setError(getApiErrorMessage(requestError, "Razorpay checkout could not be created."));
     } finally {
       setWorkingPlanSlug(null);
     }
@@ -103,12 +104,16 @@ export function PricingPage() {
     return <LoadingState message="Loading plans…" />;
   }
 
+  const billingModeLabel = billing?.billing_mode === "live" ? "Live Payment" : "Test Mode";
+
   return (
     <div className="space-y-6">
       <PageHeader
         description="Subscription-ready plan structure for launch preparation. Payments are currently test/sandbox only."
         title="Pricing"
       />
+
+      <LaunchSafetyBanner message="Payments may be in test mode. Real payments are enabled only when the backend live payment flag is on." />
 
       <SectionCard tone="brand">
         <p className="text-sm font-semibold text-brand-950">
@@ -158,7 +163,11 @@ export function PricingPage() {
                     {plan.slug === "starter" ? (
                       <Badge tone="brand">Recommended</Badge>
                     ) : null}
-                    {paid ? <Badge tone="amber">Test Mode</Badge> : null}
+                    {paid ? (
+                      <Badge tone={billingModeLabel === "Live Payment" ? "rose" : "amber"}>
+                        {billingModeLabel}
+                      </Badge>
+                    ) : null}
                     {current ? <Badge tone="emerald">Current</Badge> : null}
                   </div>
                 </div>
@@ -196,7 +205,7 @@ export function PricingPage() {
                     : workingPlanSlug === plan.slug
                       ? "Preparing…"
                       : paid
-                        ? "Start Razorpay Test Checkout"
+                        ? "Start Razorpay Checkout"
                         : "Start Free"}
                 </button>
               </article>
@@ -207,7 +216,7 @@ export function PricingPage() {
 
       {checkout && selectedPlanSlug ? (
         <SectionCard
-          title="Test checkout prepared"
+          title="Checkout prepared"
           description={checkout.message}
           actions={
             <button
@@ -222,15 +231,15 @@ export function PricingPage() {
         >
           <div className="space-y-2 text-sm text-slate-600">
             <p>Provider: {checkout.provider}</p>
-            <p>Mode: {checkout.mode}</p>
+            <p>Mode: {checkout.mode === "live" ? "Live Payment" : "Test Mode"}</p>
             <p>Plan: {checkout.plan_slug}</p>
             <p>Checkout type: {checkout.checkout_type}</p>
             {checkout.subscription_id ? (
-              <p>Test subscription: {checkout.subscription_id}</p>
+              <p>Subscription reference: {checkout.subscription_id}</p>
             ) : null}
             {checkout.test_checkout_url ? <p>Test URL: {checkout.test_checkout_url}</p> : null}
             <p className="text-xs text-slate-400">
-              Real payments are not enabled. This checkout is for test/sandbox validation.
+              Frontend payment success is not final. Subscription activates after backend webhook confirmation or controlled local test activation.
             </p>
           </div>
         </SectionCard>

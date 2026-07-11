@@ -41,6 +41,10 @@ class Settings(BaseSettings):
     RAZORPAY_STARTER_PLAN_ID: str | None = None
     RAZORPAY_PRO_PLAN_ID: str | None = None
     RAZORPAY_CHECKOUT_ENABLED: bool = False
+    PAYMENTS_LIVE_ENABLED: bool = False
+    APP_PUBLIC_URL: str | None = None
+    SUPPORT_EMAIL: str | None = None
+    ADMIN_EMAILS: str = ""
 
     model_config = SettingsConfigDict(
         env_file=".env",
@@ -60,6 +64,8 @@ class Settings(BaseSettings):
         "RAZORPAY_WEBHOOK_SECRET",
         "RAZORPAY_STARTER_PLAN_ID",
         "RAZORPAY_PRO_PLAN_ID",
+        "APP_PUBLIC_URL",
+        "SUPPORT_EMAIL",
         mode="before",
     )
     @classmethod
@@ -107,6 +113,16 @@ class Settings(BaseSettings):
         """Return True only when a non-empty database URL is configured."""
 
         return bool(self.DATABASE_URL and self.DATABASE_URL.strip())
+
+    @property
+    def admin_email_set(self) -> set[str]:
+        """Return normalized admin emails from configuration."""
+
+        return {
+            email.strip().lower()
+            for email in self.ADMIN_EMAILS.split(",")
+            if email.strip()
+        }
 
 
 @lru_cache

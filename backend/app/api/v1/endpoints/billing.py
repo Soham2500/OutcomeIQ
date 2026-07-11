@@ -55,6 +55,9 @@ def get_my_billing_endpoint(
         "subscription": subscription,
         "usage": usage,
         "payment_mode": "test/sandbox",
+        "billing_mode": subscription.provider.replace("razorpay_", "")
+        if subscription.provider.startswith("razorpay_")
+        else "test",
     }
 
 

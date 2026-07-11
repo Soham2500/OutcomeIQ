@@ -8,6 +8,7 @@ import {
 import { getApiErrorMessage } from "../api/client";
 import { Badge } from "../components/Badge";
 import { ErrorState } from "../components/ErrorState";
+import { LaunchSafetyBanner } from "../components/LaunchSafetyBanner";
 import { LoadingState } from "../components/LoadingState";
 import { MetricBar } from "../components/MetricBar";
 import { PageHeader } from "../components/PageHeader";
@@ -61,6 +62,7 @@ export function BillingPage() {
   }
 
   const onFreePlan = billing.plan.slug === "free";
+  const billingModeLabel = billing.billing_mode === "live" ? "Live Payment" : "Test Mode";
 
   return (
     <div className="space-y-6">
@@ -74,6 +76,8 @@ export function BillingPage() {
         }
       />
 
+      <LaunchSafetyBanner message="Payments may be in test mode. Real payments are enabled only when the backend live payment flag is on." />
+
       {error ? <ErrorState message={error} onRetry={() => void loadBilling()} /> : null}
       {success ? (
         <p className="rounded-lg bg-emerald-50 p-3 text-sm text-emerald-700">
@@ -84,7 +88,7 @@ export function BillingPage() {
       <section className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
         <StatCard label="Current plan" value={billing.plan.name} />
         <StatCard label="Subscription status" value={billing.subscription.status} />
-        <StatCard label="Payment mode" value={billing.payment_mode} />
+        <StatCard label="Billing mode" value={billingModeLabel} />
         <StatCard label="Provider" value={billing.subscription.provider} />
       </section>
 
@@ -94,18 +98,19 @@ export function BillingPage() {
             {billing.subscription.provider_subscription_id}
           </p>
           <p className="mt-2 text-xs text-slate-500">
-            This is a safe test-mode subscription reference. No secret keys are shown.
+            This is a safe provider subscription reference. No secret keys are shown.
           </p>
         </SectionCard>
       ) : null}
 
       <SectionCard tone="brand">
         <p className="text-sm font-semibold text-brand-950">
-          Payments are in test mode. Real payment mode is not enabled yet.
+          Backend controls subscription status.
         </p>
         <p className="mt-2 text-sm leading-6 text-brand-900">
-          Backend webhooks control subscription confirmation. The frontend never
-          stores Razorpay secrets and does not directly mark payments successful.
+          The frontend never stores Razorpay secrets and does not directly mark
+          payments successful. If checkout completed but the status has not
+          changed, refresh this page after webhook confirmation.
         </p>
       </SectionCard>
 
@@ -137,7 +142,7 @@ export function BillingPage() {
               </p>
             ) : (
               <p className="text-sm text-slate-600">
-                This is a test/sandbox subscription. No real payment has been charged.
+                This subscription is controlled by backend billing state and webhook confirmation.
               </p>
             )}
             <div className="mt-3 flex flex-wrap gap-2">

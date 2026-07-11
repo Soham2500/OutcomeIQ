@@ -1,8 +1,9 @@
-"""Safe Razorpay test-mode helpers.
+"""Safe Razorpay checkout and webhook helpers.
 
-This module never enables live payments. It creates checkout payloads only when
-test-mode environment variables are present and the optional Razorpay SDK is
-installed.
+This module never decides subscription entitlement. It only prepares Razorpay
+checkout payloads and verifies webhook signatures. Backend billing services
+update subscription state after verified webhook events or controlled local test
+activation.
 """
 
 from __future__ import annotations
@@ -35,11 +36,32 @@ def _sdk_available() -> bool:
     return importlib.util.find_spec("razorpay") is not None
 
 
-def is_configured(plan_slug: str | None = None) -> bool:
-    """Return true only for explicitly enabled Razorpay test checkout."""
+def _current_mode() -> str:
+    return get_settings().RAZORPAY_MODE.strip().lower()
+
+
+def is_live_payment_allowed() -> bool:
+    """Return true only when live mode and the explicit live flag are enabled."""
 
     settings = get_settings()
-    if settings.RAZORPAY_MODE.strip().lower() != "test":
+    return (
+        settings.RAZORPAY_MODE.strip().lower() == "live"
+        and settings.PAYMENTS_LIVE_ENABLED
+    )
+
+
+def _provider_for_mode() -> str:
+    return "razorpay_live" if _current_mode() == "live" else "razorpay_test"
+
+
+def is_configured(plan_slug: str | None = None) -> bool:
+    """Return true only when checkout is enabled and required env vars exist."""
+
+    settings = get_settings()
+    mode = settings.RAZORPAY_MODE.strip().lower()
+    if mode not in {"test", "live"}:
+        return False
+    if mode == "live" and not settings.PAYMENTS_LIVE_ENABLED:
         return False
     if not settings.RAZORPAY_CHECKOUT_ENABLED:
         return False
@@ -50,21 +72,28 @@ def is_configured(plan_slug: str | None = None) -> bool:
     return _sdk_available()
 
 
-def create_test_subscription_checkout(
+def create_subscription_checkout(
     user: User,
     plan_slug: str,
 ) -> dict[str, Any]:
-    """Create a Razorpay test subscription and return a safe checkout payload."""
+    """Create a Razorpay subscription and return a safe checkout payload."""
 
     if plan_slug not in {"starter", "pro"}:
         raise ValueError("Razorpay checkout is available only for paid plans.")
+    settings = get_settings()
+    mode = settings.RAZORPAY_MODE.strip().lower()
+    if mode == "live" and not settings.PAYMENTS_LIVE_ENABLED:
+        raise RuntimeError(
+            "Live payments are disabled. Use test mode until launch approval is complete."
+        )
     if not is_configured(plan_slug):
-        raise RuntimeError("Razorpay test mode is not configured.")
+        raise RuntimeError(
+            "Razorpay is not configured. Use local test activation or set backend environment variables."
+        )
 
     # Import lazily so local development and tests do not require configured keys.
     import razorpay  # type: ignore[import-untyped]  # noqa: PLC0415
 
-    settings = get_settings()
     plan_id = _plan_id_for_slug(plan_slug)
     client = razorpay.Client(
         auth=(settings.RAZORPAY_KEY_ID, settings.RAZORPAY_KEY_SECRET),
@@ -85,8 +114,8 @@ def create_test_subscription_checkout(
     amount = PLAN_AMOUNTS_IN_PAISE[plan_slug]
     title = f"OutcomeIQ {plan_slug.title()} Plan"
     return {
-        "provider": "razorpay_test",
-        "mode": "test",
+        "provider": _provider_for_mode(),
+        "mode": mode,
         "checkout_type": "razorpay_subscription",
         "key_id": settings.RAZORPAY_KEY_ID,
         "subscription_id": subscription_id,
@@ -95,13 +124,27 @@ def create_test_subscription_checkout(
         "amount": amount,
         "currency": "INR",
         "name": title,
-        "description": "OutcomeIQ test-mode subscription checkout. No live payment mode is enabled.",
+        "description": (
+            "OutcomeIQ Razorpay subscription checkout. Subscription activates "
+            "after backend webhook confirmation."
+        ),
+        "prefill_email": user.email,
+        "prefill_name": user.full_name,
         "prefill": {
             "email": user.email,
             "name": user.full_name,
         },
-        "message": "Razorpay test checkout created. Complete test payment and wait for webhook confirmation.",
+        "message": "Razorpay checkout created. Complete payment and wait for secure webhook confirmation.",
     }
+
+
+def create_test_subscription_checkout(
+    user: User,
+    plan_slug: str,
+) -> dict[str, Any]:
+    """Backward-compatible alias for older Day 13 imports."""
+
+    return create_subscription_checkout(user, plan_slug)
 
 
 def webhook_secret_configured() -> bool:
@@ -118,7 +161,7 @@ def verify_webhook_signature(raw_body: bytes, signature: str | None) -> bool:
     return hmac.compare_digest(digest, signature)
 
 
-def parse_subscription_event(payload: dict[str, Any]) -> dict[str, str | None]:
+def parse_webhook_event(payload: dict[str, Any]) -> dict[str, str | None]:
     """Extract safe identifiers from a Razorpay webhook payload."""
 
     event_type = str(payload.get("event") or "unknown")
@@ -154,3 +197,9 @@ def parse_subscription_event(payload: dict[str, Any]) -> dict[str, str | None]:
         ),
         "customer_email": str(customer_email) if customer_email else None,
     }
+
+
+def parse_subscription_event(payload: dict[str, Any]) -> dict[str, str | None]:
+    """Backward-compatible alias for older Day 13 imports."""
+
+    return parse_webhook_event(payload)

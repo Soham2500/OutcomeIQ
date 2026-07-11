@@ -3,11 +3,13 @@
 from fastapi import APIRouter
 
 from app.api.v1.endpoints import (
+    admin_billing,
     auth,
     billing,
     costs,
     dashboard,
     health,
+    launch_readiness,
     outcomes,
     organizations,
     projects,
@@ -28,6 +30,16 @@ api_router.include_router(
     billing.router,
     prefix="/billing",
     tags=["billing"],
+)
+api_router.include_router(
+    admin_billing.router,
+    prefix="/admin/billing",
+    tags=["admin-billing"],
+)
+api_router.include_router(
+    launch_readiness.router,
+    prefix="/launch",
+    tags=["launch-readiness"],
 )
 api_router.include_router(
     organizations.router,

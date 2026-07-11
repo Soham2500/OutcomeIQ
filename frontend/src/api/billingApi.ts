@@ -47,6 +47,7 @@ export interface MyBilling {
   subscription: BillingSubscription;
   usage: BillingUsage;
   payment_mode: string;
+  billing_mode: string;
 }
 
 export interface CheckoutResponse {
@@ -62,6 +63,8 @@ export interface CheckoutResponse {
   currency: string;
   name: string | null;
   description: string | null;
+  prefill_email: string | null;
+  prefill_name: string | null;
   prefill: {
     email?: string | null;
     name?: string | null;

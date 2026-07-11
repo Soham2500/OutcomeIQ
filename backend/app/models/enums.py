@@ -133,4 +133,5 @@ class SubscriptionStatus(str, Enum):
 class PaymentProvider(str, Enum):
     MANUAL = "manual"
     RAZORPAY_TEST = "razorpay_test"
+    RAZORPAY_LIVE = "razorpay_live"
     STRIPE_TEST = "stripe_test"

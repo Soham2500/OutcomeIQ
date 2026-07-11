@@ -388,6 +388,115 @@ Test a local webhook payload:
 
 See [Day 13 Razorpay test mode](docs/day-13-razorpay-test-mode.md). Keep Razorpay live mode disabled until KYC, policies, webhook testing and production verification are complete.
 
+## Payment Gateway Setup
+
+OutcomeIQ now supports backend-controlled Razorpay subscription checkout. The browser can open Razorpay Checkout, but subscription status is controlled by the backend after webhook verification or explicit local test activation.
+
+Use test mode first:
+
+```text
+PAYMENTS_LIVE_ENABLED=false
+RAZORPAY_MODE=test
+RAZORPAY_CHECKOUT_ENABLED=true
+RAZORPAY_KEY_ID=
+RAZORPAY_KEY_SECRET=
+RAZORPAY_WEBHOOK_SECRET=
+RAZORPAY_STARTER_PLAN_ID=
+RAZORPAY_PRO_PLAN_ID=
+```
+
+Rules:
+
+- Do not commit Razorpay key CSV files.
+- Do not commit `backend/.env` or `frontend/.env`.
+- Do not put `RAZORPAY_KEY_SECRET` or webhook secret in frontend code.
+- Only the public `RAZORPAY_KEY_ID` may be returned to the frontend when checkout is allowed.
+- Live checkout works only when `PAYMENTS_LIVE_ENABLED=true` and `RAZORPAY_MODE=live`.
+- If live mode is requested while live payments are disabled, backend checkout is rejected safely.
+
+Verify the payment-gateway layer:
+
+```powershell
+.\scripts\day15_payment_gateway_verify.ps1
+```
+
+References:
+
+- [Day 15 payment gateway](docs/day-15-payment-gateway-on.md)
+- [Razorpay live-mode go-live guide](docs/razorpay-live-mode-go-live.md)
+
+## Payment Runtime Testing
+
+Day 15 verifies the payment gateway code and frontend build. Day 16 verifies the running billing/payment surfaces without charging real money.
+
+Start the backend, then run:
+
+```powershell
+.\scripts\day16_payment_runtime_smoke.ps1
+```
+
+Verify Day 16 files and frontend build:
+
+```powershell
+.\scripts\day16_payment_runtime_verify.ps1
+```
+
+Runtime testing rules:
+
+- Use Razorpay test mode first.
+- Do not use live cards in test mode.
+- Do not commit `.env` files, `rzp-key.csv`, Razorpay CSV exports, key files or webhook secrets.
+- Checkout and Billing pages should be tested through an authenticated browser session.
+- Real payments should be enabled only after Render/Vercel deployment, webhook verification, public policy pages and the go-live checklist are complete.
+
+## Launch Safety and Policy Pages
+
+Day 14 adds launch-safety surfaces for public MVP review while keeping real payments and real AI calls disabled.
+
+Public policy pages:
+
+- `/privacy`
+- `/terms`
+- `/refund-policy`
+- `/contact`
+
+Operational launch-safety pages:
+
+- `/launch-readiness`
+- `/admin/billing` — hidden from the sidebar and restricted by backend `ADMIN_EMAILS`
+
+Backend launch-safety endpoints:
+
+- `GET /api/v1/launch/readiness`
+- `GET /api/v1/admin/billing/overview`
+- `GET /api/v1/admin/billing/subscriptions`
+- `GET /api/v1/admin/billing/payment-events`
+- `GET /api/v1/admin/billing/usage`
+
+Safety configuration defaults:
+
+```text
+PAYMENTS_LIVE_ENABLED=false
+APP_PUBLIC_URL=
+SUPPORT_EMAIL=
+ADMIN_EMAILS=admin@example.com
+```
+
+Real payments remain disabled unless `PAYMENTS_LIVE_ENABLED` is intentionally enabled after legal, payment-provider, webhook and operational approval. Pricing and Billing show a visible test-mode banner; Demo Guide discloses that the MVP uses simulated AI provider data.
+
+Verify the launch-safety layer:
+
+```powershell
+.\scripts\day14_launch_safety_verify.ps1
+```
+
+Documentation:
+
+- [Day 14 launch safety summary](docs/day-14-launch-safety-summary.md)
+- [Production payment go-live checklist](docs/production-payment-go-live-checklist.md)
+- [Legal policy pages guide](docs/legal-policy-pages-guide.md)
+- [Admin billing view guide](docs/admin-billing-view-guide.md)
+
 ## Live Deployment
 
 OutcomeIQ’s early live deployment target is:
