@@ -14,7 +14,7 @@ from app.core.logging import configure_logging
 
 
 settings = get_settings()
-configure_logging()
+configure_logging(settings.LOG_LEVEL)
 logger = logging.getLogger(__name__)
 
 

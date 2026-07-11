@@ -1,0 +1,25 @@
+services:
+  - type: web
+    name: outcomeiq-backend
+    env: docker
+    rootDir: backend
+    plan: free
+    healthCheckPath: /api/v1/health
+    autoDeploy: false
+    envVars:
+      - key: APP_ENV
+        value: production
+      - key: DEBUG
+        value: "false"
+      - key: SECRET_KEY
+        sync: false
+      - key: DATABASE_URL
+        sync: false
+      - key: BACKEND_CORS_ORIGINS
+        value: https://your-frontend.vercel.app,http://localhost:5173,http://127.0.0.1:8080
+      - key: ACCESS_TOKEN_EXPIRE_MINUTES
+        value: "1440"
+      - key: LOG_LEVEL
+        value: INFO
+      - key: BILLING_PROVIDER_MODE
+        value: test

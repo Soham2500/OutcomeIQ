@@ -32,6 +32,11 @@ class Settings(BaseSettings):
     SECRET_KEY: str | None = None
     JWT_ALGORITHM: str = "HS256"
     ACCESS_TOKEN_EXPIRE_MINUTES: int = 60
+    LOG_LEVEL: str = "INFO"
+    BILLING_PROVIDER_MODE: str = "test"
+    RAZORPAY_KEY_ID: str | None = None
+    RAZORPAY_KEY_SECRET: str | None = None
+    RAZORPAY_WEBHOOK_SECRET: str | None = None
 
     model_config = SettingsConfigDict(
         env_file=".env",
@@ -46,6 +51,9 @@ class Settings(BaseSettings):
         "JWT_SECRET_KEY",
         "SECRET_KEY",
         "APP_ENV",
+        "RAZORPAY_KEY_ID",
+        "RAZORPAY_KEY_SECRET",
+        "RAZORPAY_WEBHOOK_SECRET",
         mode="before",
     )
     @classmethod
@@ -64,6 +72,11 @@ class Settings(BaseSettings):
             self.ENVIRONMENT = self.APP_ENV
         if not self.JWT_SECRET_KEY and self.SECRET_KEY:
             self.JWT_SECRET_KEY = self.SECRET_KEY
+        if self.ENVIRONMENT.strip().lower() == "production":
+            if not self.DATABASE_URL:
+                raise ValueError("DATABASE_URL is required in production.")
+            if not self.JWT_SECRET_KEY:
+                raise ValueError("SECRET_KEY or JWT_SECRET_KEY is required in production.")
         return self
 
     @property

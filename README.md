@@ -364,6 +364,41 @@ Verify the billing foundation:
 
 See [subscription billing architecture](docs/subscription-billing-architecture.md), [Razorpay test-mode setup](docs/razorpay-test-mode-setup.md), and [early live launch plan](docs/early-live-launch-plan.md).
 
+## Live Deployment
+
+OutcomeIQ’s early live deployment target is:
+
+- Backend: Render Web Service
+- Database: Render PostgreSQL
+- Frontend: Vercel
+- Payments: subscription-ready test mode only
+
+Deployment references:
+
+- [Day 12 live deployment guide](docs/day-12-live-deployment-guide.md)
+- [Render/Vercel environment variables](docs/render-vercel-env-vars.md)
+- [Early launch checklist](docs/early-launch-checklist.md)
+
+Verify local deployment readiness before committing:
+
+```powershell
+.\scripts\day12_deployment_ready_verify.ps1
+```
+
+After manual deployment, run the public smoke check:
+
+```powershell
+.\scripts\live_smoke_check.ps1 -BackendUrl "https://your-backend.onrender.com" -FrontendUrl "https://your-frontend.vercel.app"
+```
+
+Do not include secrets in Git. `DATABASE_URL`, `SECRET_KEY`, Razorpay secrets and webhook secrets belong only in the Render backend environment. Vercel should receive only the public frontend setting:
+
+```text
+VITE_API_BASE_URL=https://your-render-backend-url.onrender.com/api/v1
+```
+
+Real payment mode and real AI provider calls are intentionally not enabled in the early live version.
+
 ## Run the frontend locally
 
 Start the backend in one PowerShell window. From the project root, install and run the frontend in another:
