@@ -2,11 +2,38 @@ import axios, { AxiosError } from "axios";
 
 export const TOKEN_KEY = "outcomeiq_access_token";
 
-const configuredBaseUrl =
-  import.meta.env.VITE_API_BASE_URL ?? "http://127.0.0.1:8000/api/v1";
+const LOCAL_API_BASE_URL = "http://127.0.0.1:8000/api/v1";
+const PRODUCTION_API_BASE_URL = "https://api.outcomedata.in/api/v1";
+const INSECURE_PRODUCTION_URL_PATTERN = /^http:\/\/(?!localhost(?::\d+)?(?:\/|$)|127\.0\.0\.1(?::\d+)?(?:\/|$))/i;
+
+function normalizeApiBaseUrl(rawBaseUrl?: string): string {
+  const candidate = (rawBaseUrl ?? "").trim().replace(/\/$/, "");
+
+  if (!candidate) {
+    return typeof window !== "undefined" && window.location.protocol === "https:"
+      ? PRODUCTION_API_BASE_URL
+      : LOCAL_API_BASE_URL;
+  }
+
+  if (
+    typeof window !== "undefined" &&
+    window.location.protocol === "https:" &&
+    INSECURE_PRODUCTION_URL_PATTERN.test(candidate)
+  ) {
+    return PRODUCTION_API_BASE_URL;
+  }
+
+  return candidate;
+}
+
+const configuredBaseUrl = normalizeApiBaseUrl(import.meta.env.VITE_API_BASE_URL);
+
+if (import.meta.env.DEV) {
+  console.info("[OutcomeIQ API] Base URL:", configuredBaseUrl);
+}
 
 export const apiClient = axios.create({
-  baseURL: configuredBaseUrl.replace(/\/$/, ""),
+  baseURL: configuredBaseUrl,
   headers: {
     Accept: "application/json",
     "Content-Type": "application/json",
@@ -25,6 +52,18 @@ apiClient.interceptors.request.use((config) => {
 apiClient.interceptors.response.use(
   (response) => response,
   (error: AxiosError) => {
+    const status = error.response?.status;
+    const detail = (error.response?.data as ApiErrorPayload | undefined)?.detail;
+    const message =
+      typeof detail === "string"
+        ? detail
+        : (error.response?.data as ApiErrorPayload | undefined)?.message;
+    console.warn("[OutcomeIQ API] Request failed", {
+      method: error.config?.method,
+      url: error.config?.url,
+      status,
+      message: message ?? error.message,
+    });
     if (error.response?.status === 401) {
       localStorage.removeItem(TOKEN_KEY);
     }
@@ -64,4 +103,8 @@ export function isApiStatus(error: unknown, status: number): boolean {
 
 export function isApiNetworkError(error: unknown): boolean {
   return axios.isAxiosError(error) && error.response === undefined;
+}
+
+export function getApiBaseUrl(): string {
+  return configuredBaseUrl;
 }

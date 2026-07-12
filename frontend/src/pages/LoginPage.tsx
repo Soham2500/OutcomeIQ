@@ -2,6 +2,7 @@ import { type FormEvent, useState } from "react";
 import { Link, Navigate, useLocation, useNavigate } from "react-router-dom";
 import { login } from "../api/authApi";
 import {
+  getApiBaseUrl,
   getApiErrorMessage,
   isApiNetworkError,
   isApiStatus,
@@ -42,7 +43,7 @@ export function LoginPage() {
         );
       } else if (isApiNetworkError(requestError)) {
         setError(
-          "Cannot reach backend. Make sure backend is running and CORS is configured.",
+          `Cannot reach backend at ${getApiBaseUrl()}. Check Amplify VITE_API_BASE_URL and backend CORS.`,
         );
       } else {
         setError(getApiErrorMessage(requestError, "Login failed."));

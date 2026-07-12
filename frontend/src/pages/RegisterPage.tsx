@@ -1,7 +1,12 @@
 import { type FormEvent, useState } from "react";
 import { Link, Navigate, useNavigate } from "react-router-dom";
 import { register } from "../api/authApi";
-import { getApiErrorMessage, TOKEN_KEY } from "../api/client";
+import {
+  getApiBaseUrl,
+  getApiErrorMessage,
+  isApiNetworkError,
+  TOKEN_KEY,
+} from "../api/client";
 import { AppLogo } from "../components/AppLogo";
 
 export function RegisterPage() {
@@ -27,7 +32,13 @@ export function RegisterPage() {
         state: { registrationComplete: true },
       });
     } catch (requestError) {
-      setError(getApiErrorMessage(requestError, "Registration failed."));
+      if (isApiNetworkError(requestError)) {
+        setError(
+          `Cannot reach backend at ${getApiBaseUrl()}. Check Amplify VITE_API_BASE_URL and backend CORS.`,
+        );
+      } else {
+        setError(getApiErrorMessage(requestError, "Registration failed."));
+      }
     } finally {
       setSubmitting(false);
     }
