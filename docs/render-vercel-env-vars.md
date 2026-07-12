@@ -14,6 +14,15 @@ DATABASE_URL=Render PostgreSQL internal database URL
 BACKEND_CORS_ORIGINS=https://your-frontend.vercel.app,http://localhost:5173,http://127.0.0.1:8080
 ACCESS_TOKEN_EXPIRE_MINUTES=1440
 LOG_LEVEL=INFO
+OPENAI_API_KEY=your_openai_api_key
+GEMINI_API_KEY=your_gemini_api_key
+DEFAULT_AI_PROVIDER=gemini
+DEFAULT_AI_MODEL=gemini-3.5-flash
+DEFAULT_OPENAI_MODEL=gpt-4o-mini
+DEFAULT_GEMINI_MODEL=gemini-3.5-flash
+COST_CURRENCY=INR
+USD_TO_INR_RATE=83.50
+AI_PROVIDER_TIMEOUT_SECONDS=60
 SMTP_HOST=smtp.gmail.com
 SMTP_PORT=587
 SMTP_USER=your_gmail_address
@@ -53,6 +62,6 @@ VITE_API_BASE_URL=https://your-render-backend-url.onrender.com/api/v1
 
 - Never add backend secrets to Vercel frontend environment variables.
 - Only the public API base URL goes to the frontend.
-- `DATABASE_URL`, `SECRET_KEY`, and SMTP credentials belong only in the Render backend environment.
+- `DATABASE_URL`, `SECRET_KEY`, provider API keys, and SMTP credentials belong only in the Render backend environment.
 - Use the Render and Vercel dashboards for secrets, not GitHub files.
 - Do not paste secrets into screenshots, documentation, README files or commits.

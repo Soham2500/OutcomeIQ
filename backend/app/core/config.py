@@ -45,6 +45,15 @@ class Settings(BaseSettings):
     APP_PUBLIC_URL: str | None = None
     SUPPORT_EMAIL: str | None = None
     ADMIN_EMAILS: str = ""
+    OPENAI_API_KEY: str | None = None
+    GEMINI_API_KEY: str | None = None
+    DEFAULT_AI_PROVIDER: str = "gemini"
+    DEFAULT_AI_MODEL: str = "gemini-3.5-flash"
+    DEFAULT_OPENAI_MODEL: str = "gpt-4o-mini"
+    DEFAULT_GEMINI_MODEL: str = "gemini-3.5-flash"
+    COST_CURRENCY: str = "INR"
+    USD_TO_INR_RATE: str = "83.50"
+    AI_PROVIDER_TIMEOUT_SECONDS: int = 60
     SMTP_HOST: str | None = None
     SMTP_PORT: int = 587
     SMTP_USER: str | None = None
@@ -74,6 +83,8 @@ class Settings(BaseSettings):
         "RAZORPAY_PRO_PLAN_ID",
         "APP_PUBLIC_URL",
         "SUPPORT_EMAIL",
+        "OPENAI_API_KEY",
+        "GEMINI_API_KEY",
         "SMTP_HOST",
         "SMTP_USER",
         "SMTP_PASSWORD",

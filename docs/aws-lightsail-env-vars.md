@@ -61,15 +61,23 @@ SUPPORT_EMAIL=support@yourdomain.com
 ADMIN_EMAILS=admin@yourdomain.com
 ```
 
-## Simulated AI mode
+## Real AI provider variables
 
 ```text
-AI_PROVIDER_MODE=simulated
 OPENAI_API_KEY=
-OPENAI_DEFAULT_MODEL=
+GEMINI_API_KEY=
+DEFAULT_AI_PROVIDER=gemini
+DEFAULT_AI_MODEL=gemini-3.5-flash
+DEFAULT_OPENAI_MODEL=gpt-4o-mini
+DEFAULT_GEMINI_MODEL=gemini-3.5-flash
+COST_CURRENCY=INR
+USD_TO_INR_RATE=83.50
+AI_PROVIDER_TIMEOUT_SECONDS=60
 ```
 
-The early live MVP should remain simulated until budget limits, provider logging and kill switches are implemented.
+Provider keys stay in the backend container only. Do not create `VITE_*`
+variables for OpenAI or Gemini keys. Use `gemini-2.5-flash` only when it is
+manually selected for a run.
 
 ## Secret safety rules
 

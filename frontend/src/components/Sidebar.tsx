@@ -5,6 +5,7 @@ const navigation = [
   { label: "Dashboard", path: "/dashboard", icon: "◫" },
   { label: "Projects", path: "/projects", icon: "▣" },
   { label: "Workflows", path: "/workflows", icon: "↻" },
+  { label: "Run AI Test", path: "/ai-runs", icon: "✦" },
   { label: "Analytics", path: "/analytics", icon: "▤" },
   { label: "Recommendations", path: "/recommendations", icon: "◇" },
   { label: "Pricing", path: "/pricing", icon: "₹" },

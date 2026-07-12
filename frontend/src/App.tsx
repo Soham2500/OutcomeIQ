@@ -2,6 +2,7 @@ import { Navigate, Route, Routes } from "react-router-dom";
 import { TOKEN_KEY } from "./api/client";
 import { Layout } from "./components/Layout";
 import { AdminBillingPage } from "./pages/AdminBillingPage";
+import { AiRunsPage } from "./pages/AiRunsPage";
 import { AnalyticsPage } from "./pages/AnalyticsPage";
 import { BillingPage } from "./pages/BillingPage";
 import { ContactPage } from "./pages/ContactPage";
@@ -48,6 +49,7 @@ export default function App() {
         <Route element={<DashboardPage />} path="/dashboard" />
         <Route element={<ProjectsPage />} path="/projects" />
         <Route element={<WorkflowsPage />} path="/workflows" />
+        <Route element={<AiRunsPage />} path="/ai-runs" />
         <Route element={<AnalyticsPage />} path="/analytics" />
         <Route element={<RecommendationsPage />} path="/recommendations" />
         <Route element={<PricingPage />} path="/pricing" />

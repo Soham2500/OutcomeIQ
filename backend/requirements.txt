@@ -13,3 +13,5 @@ bcrypt<5
 python-jose[cryptography]
 email-validator
 razorpay
+openai
+google-genai

@@ -15,6 +15,7 @@ import app.models.pending_registration  # noqa: E402, F401
 import app.models.organization  # noqa: E402, F401
 import app.models.project  # noqa: E402, F401
 import app.models.project_member  # noqa: E402, F401
+import app.models.ai_run  # noqa: E402, F401
 import app.models.audit_event  # noqa: E402, F401
 import app.models.workflow  # noqa: E402, F401
 import app.models.workflow_configuration  # noqa: E402, F401

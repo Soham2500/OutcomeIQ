@@ -6,7 +6,9 @@ import uuid
 from sqlalchemy import func, select
 from sqlalchemy.orm import Session
 
+from app.core.config import get_settings
 from app.models.enums import WorkflowOutcomeStatus, WorkflowRunStatus
+from app.models.ai_run import AiRun
 from app.models.workflow import Workflow
 from app.models.workflow_run import WorkflowRun
 from app.models.workflow_run_cost import WorkflowRunCost
@@ -17,7 +19,9 @@ from app.repositories.workflow_run_outcome_repository import (
     get_outcome_by_workflow_run_id,
 )
 from app.schemas.dashboard import (
+    AiCostBreakdownRead,
     CostDashboardSummaryRead,
+    LatestAiRunDashboardRead,
     OutcomeDashboardSummaryRead,
     ProjectDashboardOverviewRead,
     WorkflowRunDashboardRead,
@@ -171,15 +175,38 @@ def _project_run_dashboard_statement(
     )
 
 
+def _list_project_ai_runs(db: Session, project_id: uuid.UUID) -> list[AiRun]:
+    if not hasattr(db, "scalars"):
+        return []
+    return list(
+        db.scalars(
+            select(AiRun)
+            .where(AiRun.project_id == project_id)
+            .order_by(AiRun.created_at.desc(), AiRun.id.desc())
+        )
+    )
+
+
 def get_project_cost_summary(
     db: Session,
     project_id: uuid.UUID,
 ) -> CostDashboardSummaryRead:
     costs = _list_project_costs(db, project_id)
+    ai_runs = _list_project_ai_runs(db, project_id)
     total_cost = sum(
         (Decimal(str(cost.total_cost_usd)) for cost in costs),
         Decimal("0"),
     )
+    ai_cost_usd = sum(
+        (Decimal(str(run.cost_usd)) for run in ai_runs),
+        Decimal("0"),
+    )
+    ai_cost_inr = sum(
+        (Decimal(str(run.cost_inr)) for run in ai_runs),
+        Decimal("0"),
+    )
+    usd_to_inr_rate = Decimal(str(get_settings().USD_TO_INR_RATE))
+    total_cost_inr = (total_cost * usd_to_inr_rate) + ai_cost_inr
     model_cost = sum(
         (Decimal(str(cost.model_cost_usd)) for cost in costs),
         Decimal("0"),
@@ -196,20 +223,80 @@ def get_project_cost_summary(
     average_cost = Decimal("0")
     if costs:
         average_cost = total_cost / Decimal(len(costs))
+    total_tokens = sum(cost.total_tokens for cost in costs)
+    ai_total_tokens = sum(run.total_tokens for run in ai_runs)
 
     return CostDashboardSummaryRead(
         project_id=project_id,
         total_cost_usd=_money(total_cost),
+        total_cost_inr=_money(total_cost_inr),
         model_cost_usd=_money(model_cost),
         tool_cost_usd=_money(tool_cost),
-        total_tokens=sum(cost.total_tokens for cost in costs),
+        ai_cost_usd=_money(ai_cost_usd),
+        ai_cost_inr=_money(ai_cost_inr),
+        total_tokens=total_tokens + ai_total_tokens,
+        ai_total_tokens=ai_total_tokens,
         model_call_count=sum(cost.model_call_count for cost in costs),
         tool_call_count=sum(cost.tool_call_count for cost in costs),
+        ai_run_count=len(ai_runs),
         average_cost_per_run_usd=_money(average_cost),
         highest_cost_run_id=(
             highest_cost.workflow_run_id if highest_cost else None
         ),
+        cost_by_provider=_ai_breakdown(ai_runs, "provider"),
+        cost_by_model=_ai_breakdown(ai_runs, "model"),
+        latest_ai_runs=[
+            LatestAiRunDashboardRead(
+                id=run.id,
+                provider=run.provider,
+                model=run.model,
+                workflow_name=run.workflow_name,
+                total_tokens=run.total_tokens,
+                cost_inr=run.cost_inr,
+                latency_ms=run.latency_ms,
+                status=run.status,
+                created_at=run.created_at,
+            )
+            for run in ai_runs[:5]
+        ],
     )
+
+
+def _ai_breakdown(ai_runs: list[AiRun], field_name: str) -> list[AiCostBreakdownRead]:
+    buckets: dict[str, dict[str, Decimal | int]] = {}
+    for run in ai_runs:
+        key = str(getattr(run, field_name))
+        bucket = buckets.setdefault(
+            key,
+            {
+                "total_cost_inr": Decimal("0"),
+                "total_cost_usd": Decimal("0"),
+                "total_tokens": 0,
+                "run_count": 0,
+            },
+        )
+        bucket["total_cost_inr"] = Decimal(str(bucket["total_cost_inr"])) + Decimal(
+            str(run.cost_inr)
+        )
+        bucket["total_cost_usd"] = Decimal(str(bucket["total_cost_usd"])) + Decimal(
+            str(run.cost_usd)
+        )
+        bucket["total_tokens"] = int(bucket["total_tokens"]) + run.total_tokens
+        bucket["run_count"] = int(bucket["run_count"]) + 1
+    return [
+        AiCostBreakdownRead(
+            key=key,
+            total_cost_inr=_money(Decimal(str(values["total_cost_inr"]))),
+            total_cost_usd=_money(Decimal(str(values["total_cost_usd"]))),
+            total_tokens=int(values["total_tokens"]),
+            run_count=int(values["run_count"]),
+        )
+        for key, values in sorted(
+            buckets.items(),
+            key=lambda item: Decimal(str(item[1]["total_cost_inr"])),
+            reverse=True,
+        )
+    ]
 
 
 def get_project_outcome_summary(

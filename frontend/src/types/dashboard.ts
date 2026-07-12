@@ -31,13 +31,41 @@ export interface DashboardWorkflowRun {
 export interface CostSummary {
   project_id: string;
   total_cost_usd?: DecimalValue | null;
+  total_cost_inr?: DecimalValue | null;
   model_cost_usd: DecimalValue;
   tool_cost_usd: DecimalValue;
+  ai_cost_usd: DecimalValue;
+  ai_cost_inr: DecimalValue;
   total_tokens: number;
+  ai_total_tokens: number;
   model_call_count: number;
   tool_call_count: number;
+  ai_run_count: number;
   average_cost_per_run_usd: DecimalValue;
   highest_cost_run_id: string | null;
+  cost_by_provider: AiCostBreakdown[];
+  cost_by_model: AiCostBreakdown[];
+  latest_ai_runs: LatestAiRunDashboard[];
+}
+
+export interface AiCostBreakdown {
+  key: string;
+  total_cost_inr: DecimalValue;
+  total_cost_usd: DecimalValue;
+  total_tokens: number;
+  run_count: number;
+}
+
+export interface LatestAiRunDashboard {
+  id: string;
+  provider: string;
+  model: string;
+  workflow_name: string;
+  total_tokens: number;
+  cost_inr: DecimalValue;
+  latency_ms: number;
+  status: string;
+  created_at: string;
 }
 
 export interface OutcomeSummary {

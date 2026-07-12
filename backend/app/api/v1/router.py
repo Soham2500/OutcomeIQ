@@ -4,6 +4,7 @@ from fastapi import APIRouter
 
 from app.api.v1.endpoints import (
     admin_billing,
+    ai_runs,
     auth,
     billing,
     costs,
@@ -30,6 +31,11 @@ api_router.include_router(
     billing.router,
     prefix="/billing",
     tags=["billing"],
+)
+api_router.include_router(
+    ai_runs.router,
+    prefix="/ai",
+    tags=["ai-runs"],
 )
 api_router.include_router(
     admin_billing.router,

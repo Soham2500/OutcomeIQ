@@ -13,7 +13,7 @@ import { LoadingState } from "../components/LoadingState";
 import { PageHeader } from "../components/PageHeader";
 import { SectionCard } from "../components/SectionCard";
 import { StatCard } from "../components/StatCard";
-import type { DashboardData } from "../types/dashboard";
+import type { DashboardData, DecimalValue } from "../types/dashboard";
 import type { Project } from "../types/project";
 import type { Recommendation } from "../types/recommendation";
 import {
@@ -39,6 +39,15 @@ function statusTone(status?: string | null) {
     return "amber";
   }
   return "slate";
+}
+
+function formatInr(value: DecimalValue | null | undefined): string {
+  const amount = toFiniteNumber(value);
+  return new Intl.NumberFormat("en-IN", {
+    style: "currency",
+    currency: "INR",
+    maximumFractionDigits: 4,
+  }).format(amount ?? 0);
 }
 
 export function DashboardPage() {
@@ -360,6 +369,18 @@ export function DashboardPage() {
               value={formatUsd(summary.totalCost)}
             />
             <StatCard
+              hint="Workflow USD converted plus real AI provider run cost"
+              label="Total cost INR"
+              tone="brand"
+              value={formatInr(dashboard.costSummary.total_cost_inr)}
+            />
+            <StatCard
+              hint="Real Gemini/OpenAI runs only"
+              label="AI API cost INR"
+              tone="brand"
+              value={formatInr(dashboard.costSummary.ai_cost_inr)}
+            />
+            <StatCard
               label="Successful outcomes"
               tone="emerald"
               value={dashboard.outcomeSummary.successful_runs}
@@ -412,6 +433,36 @@ export function DashboardPage() {
                 Billing is in {billing.payment_mode} mode. Backend plan limits
                 control project creation and workflow-run usage.
               </p>
+            </SectionCard>
+          ) : null}
+
+          {dashboard.costSummary.latest_ai_runs.length > 0 ? (
+            <SectionCard
+              description="Recent backend-only Gemini/OpenAI calls with token usage and INR cost."
+              title="Latest real AI runs"
+            >
+              <div className="grid gap-3 md:grid-cols-2 xl:grid-cols-3">
+                {dashboard.costSummary.latest_ai_runs.map((run) => (
+                  <div
+                    className="rounded-xl border border-slate-200 bg-slate-50 p-4"
+                    key={run.id}
+                  >
+                    <div className="flex items-center justify-between gap-3">
+                      <p className="font-semibold text-slate-900">
+                        {run.workflow_name}
+                      </p>
+                      <Badge tone={statusTone(run.status)}>{run.status}</Badge>
+                    </div>
+                    <p className="mt-2 text-sm text-slate-600">
+                      {run.provider} · {run.model}
+                    </p>
+                    <p className="mt-2 text-sm text-slate-600">
+                      {run.total_tokens} tokens · {formatInr(run.cost_inr)} ·{" "}
+                      {run.latency_ms} ms
+                    </p>
+                  </div>
+                ))}
+              </div>
             </SectionCard>
           ) : null}
 
