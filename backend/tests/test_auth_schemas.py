@@ -5,7 +5,13 @@ from pydantic import ValidationError
 import uuid
 
 from app.models.enums import UserStatus
-from app.schemas.auth import CurrentUserRead, LoginRequest, RegisterRequest
+from app.schemas.auth import (
+    CurrentUserRead,
+    LoginRequest,
+    RegisterOtpRequest,
+    RegisterRequest,
+    VerifyRegistrationOtpRequest,
+)
 
 
 def test_auth_schemas_accept_valid_credentials() -> None:
@@ -21,6 +27,21 @@ def test_auth_schemas_accept_valid_credentials() -> None:
 
     assert str(register_request.email) == "new.user@example.com"
     assert str(login_request.email) == "new.user@example.com"
+
+
+def test_registration_otp_schemas_accept_valid_payloads() -> None:
+    request = RegisterOtpRequest(
+        email="otp.user@example.com",
+        full_name="OTP User",
+        password="password123",
+    )
+    verify_request = VerifyRegistrationOtpRequest(
+        email="otp.user@example.com",
+        otp="123456",
+    )
+
+    assert str(request.email) == "otp.user@example.com"
+    assert verify_request.otp == "123456"
 
 
 def test_register_request_accepts_local_smoke_payload() -> None:
@@ -48,6 +69,12 @@ def test_auth_schemas_reject_invalid_email_and_short_password() -> None:
 
     with pytest.raises(ValidationError):
         LoginRequest(email="user@example.com", password="short")
+
+    with pytest.raises(ValidationError):
+        VerifyRegistrationOtpRequest(email="user@example.com", otp="12345")
+
+    with pytest.raises(ValidationError):
+        VerifyRegistrationOtpRequest(email="user@example.com", otp="abcdef")
 
 
 def test_current_user_schema_never_exposes_password_hash() -> None:

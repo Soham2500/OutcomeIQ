@@ -69,6 +69,14 @@ Pre-deployment gate: continue only when the working tree is understood, private 
    SECRET_KEY=<LONG_RANDOM_PRODUCTION_SECRET>
    ACCESS_TOKEN_EXPIRE_MINUTES=1440
    BACKEND_CORS_ORIGINS=https://YOUR_FRONTEND_DOMAIN
+   SMTP_HOST=smtp.gmail.com
+   SMTP_PORT=587
+   SMTP_USER=<GMAIL_ADDRESS>
+   SMTP_PASSWORD=<GMAIL_APP_PASSWORD>
+   MAIL_FROM=<GMAIL_ADDRESS>
+   MAIL_FROM_NAME=OutcomeIQ
+   OTP_EXPIRE_MINUTES=10
+   OTP_RESEND_COOLDOWN_SECONDS=60
    ```
 
 5. Do not upload `backend/.env` and do not reuse local Docker Compose credentials.

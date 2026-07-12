@@ -35,9 +35,22 @@ class RegisterRequest(BaseModel):
     password: str = Field(min_length=6, max_length=72)
 
 
+class RegisterOtpRequest(RegisterRequest):
+    """Registration details used to request an email OTP."""
+
+
+class VerifyRegistrationOtpRequest(BaseModel):
+    email: AuthEmail
+    otp: str = Field(min_length=6, max_length=6, pattern=r"^\d{6}$")
+
+
 class LoginRequest(BaseModel):
     email: AuthEmail
     password: str = Field(min_length=6, max_length=72)
+
+
+class MessageResponse(BaseModel):
+    message: str
 
 
 class TokenResponse(BaseModel):

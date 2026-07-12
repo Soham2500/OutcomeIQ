@@ -11,6 +11,7 @@ class Base(DeclarativeBase):
 # and decision models remain deferred to later milestones.
 import app.models.system  # noqa: E402, F401
 import app.models.user  # noqa: E402, F401
+import app.models.pending_registration  # noqa: E402, F401
 import app.models.organization  # noqa: E402, F401
 import app.models.project  # noqa: E402, F401
 import app.models.project_member  # noqa: E402, F401

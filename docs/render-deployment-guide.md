@@ -61,9 +61,19 @@ DATABASE_URL=<Render PostgreSQL URL>
 SECRET_KEY=<long random production secret>
 ACCESS_TOKEN_EXPIRE_MINUTES=1440
 BACKEND_CORS_ORIGINS=<frontend HTTPS URL>
+SMTP_HOST=smtp.gmail.com
+SMTP_PORT=587
+SMTP_USER=<Gmail address>
+SMTP_PASSWORD=<Gmail app password>
+MAIL_FROM=<Gmail address>
+MAIL_FROM_NAME=OutcomeIQ
+OTP_EXPIRE_MINUTES=10
+OTP_RESEND_COOLDOWN_SECONDS=60
 ```
 
 Use `backend/.env.production.example` only as a contract. Do not upload local `backend/.env`. Generate a new, long production signing secret and keep it in Render only.
+
+For Gmail SMTP, create an app password in the deployment owner's Google account. Never paste a normal Gmail password into Git, Vercel, frontend variables or screenshots.
 
 If the frontend URL does not exist yet, use a temporary approved HTTPS origin or complete the frontend creation before final validation. Replace it with the exact deployed frontend origin; do not use `*`.
 

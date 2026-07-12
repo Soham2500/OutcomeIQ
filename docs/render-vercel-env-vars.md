@@ -14,7 +14,17 @@ DATABASE_URL=Render PostgreSQL internal database URL
 BACKEND_CORS_ORIGINS=https://your-frontend.vercel.app,http://localhost:5173,http://127.0.0.1:8080
 ACCESS_TOKEN_EXPIRE_MINUTES=1440
 LOG_LEVEL=INFO
+SMTP_HOST=smtp.gmail.com
+SMTP_PORT=587
+SMTP_USER=your_gmail_address
+SMTP_PASSWORD=your_gmail_app_password
+MAIL_FROM=your_gmail_address
+MAIL_FROM_NAME=OutcomeIQ
+OTP_EXPIRE_MINUTES=10
+OTP_RESEND_COOLDOWN_SECONDS=60
 ```
+
+For Gmail SMTP, use a Gmail app password from the deployment owner's Google account. Do not use or commit the normal Gmail account password.
 
 If using the subscription-ready billing foundation in test mode:
 
@@ -43,6 +53,6 @@ VITE_API_BASE_URL=https://your-render-backend-url.onrender.com/api/v1
 
 - Never add backend secrets to Vercel frontend environment variables.
 - Only the public API base URL goes to the frontend.
-- `DATABASE_URL` and `SECRET_KEY` belong only in the Render backend environment.
+- `DATABASE_URL`, `SECRET_KEY`, and SMTP credentials belong only in the Render backend environment.
 - Use the Render and Vercel dashboards for secrets, not GitHub files.
 - Do not paste secrets into screenshots, documentation, README files or commits.

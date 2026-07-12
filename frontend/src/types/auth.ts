@@ -7,6 +7,17 @@ export interface RegisterRequest extends LoginRequest {
   full_name: string;
 }
 
+export type RegisterOtpRequest = RegisterRequest;
+
+export interface VerifyRegistrationOtpRequest {
+  email: string;
+  otp: string;
+}
+
+export interface MessageResponse {
+  message: string;
+}
+
 export interface TokenResponse {
   access_token: string;
   token_type: string;

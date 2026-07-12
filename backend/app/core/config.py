@@ -45,6 +45,14 @@ class Settings(BaseSettings):
     APP_PUBLIC_URL: str | None = None
     SUPPORT_EMAIL: str | None = None
     ADMIN_EMAILS: str = ""
+    SMTP_HOST: str | None = None
+    SMTP_PORT: int = 587
+    SMTP_USER: str | None = None
+    SMTP_PASSWORD: str | None = None
+    MAIL_FROM: str | None = None
+    MAIL_FROM_NAME: str = "OutcomeIQ"
+    OTP_EXPIRE_MINUTES: int = 10
+    OTP_RESEND_COOLDOWN_SECONDS: int = 60
 
     model_config = SettingsConfigDict(
         env_file=".env",
@@ -66,6 +74,10 @@ class Settings(BaseSettings):
         "RAZORPAY_PRO_PLAN_ID",
         "APP_PUBLIC_URL",
         "SUPPORT_EMAIL",
+        "SMTP_HOST",
+        "SMTP_USER",
+        "SMTP_PASSWORD",
+        "MAIL_FROM",
         mode="before",
     )
     @classmethod

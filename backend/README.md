@@ -260,7 +260,9 @@ Open:
 | GET | `/` | Basic service discovery |
 | GET | `/api/v1/health` | Process liveness |
 | GET | `/api/v1/ready` | Dependency readiness; database is `not_configured`, `connected` or `error` |
-| POST | `/api/v1/auth/register` | Register a user without exposing the password hash |
+| POST | `/api/v1/auth/register` | Compatibility alias that sends registration email OTP; does not activate immediately |
+| POST | `/api/v1/auth/register/request-otp` | Send or resend registration email OTP for a pending account |
+| POST | `/api/v1/auth/register/verify-otp` | Verify OTP and create the active user |
 | POST | `/api/v1/auth/login` | Return a bearer access token |
 | GET | `/api/v1/auth/me` | Return the authenticated active user |
 | POST/GET | `/api/v1/organizations` | Create or list organizations |
