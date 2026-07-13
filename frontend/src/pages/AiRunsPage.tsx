@@ -12,20 +12,12 @@ import { SkeletonCard } from "../components/SkeletonCard";
 import { useToast } from "../components/Toast";
 import type { AiProvider, AiRun } from "../types/aiRun";
 import type { Project } from "../types/project";
+import { formatINR } from "../utils/format";
 
 const providerDefaults: Record<AiProvider, string> = {
   gemini: "gemini-3.5-flash",
   openai: "gpt-4o-mini",
 };
-
-function formatInr(value: string | number): string {
-  const amount = Number(value);
-  return new Intl.NumberFormat("en-IN", {
-    style: "currency",
-    currency: "INR",
-    maximumFractionDigits: 6,
-  }).format(Number.isFinite(amount) ? amount : 0);
-}
 
 export function AiRunsPage() {
   const { notify } = useToast();
@@ -125,7 +117,7 @@ export function AiRunsPage() {
       notify({
         tone: run.status === "succeeded" ? "success" : "warning",
         title: run.status === "succeeded" ? "AI run completed" : "AI run recorded",
-        description: `${run.provider} · ${run.total_tokens.toLocaleString("en-IN")} tokens · ${formatInr(run.cost_inr)}`,
+        description: `${run.provider} · ${run.total_tokens.toLocaleString("en-IN")} tokens · ${formatINR(run.cost_inr)}`,
       });
       await refreshRuns(projectId);
     } catch (requestError) {
@@ -305,7 +297,7 @@ export function AiRunsPage() {
             <Metric label="Input tokens" value={latestRun.input_tokens} />
             <Metric label="Output tokens" value={latestRun.output_tokens} />
             <Metric label="Total tokens" value={latestRun.total_tokens} />
-            <Metric label="Cost" value={formatInr(latestRun.cost_inr)} />
+            <Metric label="Cost" value={formatINR(latestRun.cost_inr)} />
             <Metric
               label="Pricing"
               value={latestRun.pricing_unknown ? "Unknown" : "Mapped"}
@@ -362,10 +354,10 @@ export function AiRunsPage() {
                       </Badge>
                     </td>
                     <td className="px-3 py-3">{run.model}</td>
-                    <td className="px-3 py-3 font-mono">
+                    <td className="px-3 py-3 tabular-nums">
                       {run.total_tokens.toLocaleString("en-IN")} tokens
                     </td>
-                    <td className="px-3 py-3">{formatInr(run.cost_inr)}</td>
+                    <td className="px-3 py-3">{formatINR(run.cost_inr)}</td>
                     <td className="px-3 py-3">{run.latency_ms} ms</td>
                     <td className="px-3 py-3">
                       <Badge tone={statusTone(run.status)}>{run.status}</Badge>
@@ -390,7 +382,7 @@ function Metric({ label, value }: { label: string; value: string | number }) {
       <p className="text-xs font-semibold uppercase tracking-wide text-slate-500">
         {label}
       </p>
-      <p className="mt-1 font-mono font-semibold text-slate-950">{value}</p>
+      <p className="mt-1 font-semibold text-slate-950 tabular-nums">{value}</p>
     </div>
   );
 }

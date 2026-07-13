@@ -8,7 +8,7 @@ import {
   YAxis,
 } from "recharts";
 import type { DashboardWorkflowRun, DecimalValue } from "../../types/dashboard";
-import { formatUsd, toFiniteNumber } from "../../utils/format";
+import { formatLegacyCostAsINR, toFiniteNumber } from "../../utils/format";
 
 interface CostByRunChartProps {
   runs?: DashboardWorkflowRun[];
@@ -28,7 +28,7 @@ export function CostByRunChart({ runs = [] }: CostByRunChartProps) {
     <article className="rounded-xl border border-slate-200 bg-white p-5 shadow-card">
       <h2 className="font-semibold text-slate-900">Cost by recent run</h2>
       <p className="mt-1 text-sm text-slate-500">
-        Calculated USD cost for the latest workflow attempts.
+        Calculated rupee cost for the latest workflow attempts.
       </p>
       {data.length === 0 ? (
         <div className="flex h-64 items-center justify-center text-sm text-slate-400">
@@ -42,7 +42,7 @@ export function CostByRunChart({ runs = [] }: CostByRunChartProps) {
               <XAxis axisLine={false} dataKey="run" fontSize={11} tickLine={false} />
               <YAxis axisLine={false} fontSize={11} tickLine={false} width={44} />
               <Tooltip
-                formatter={(value) => [formatUsd(value as DecimalValue), "Cost"]}
+                formatter={(value) => [formatLegacyCostAsINR(value as DecimalValue), "Cost"]}
                 labelFormatter={(label) => String(label)}
               />
               <Bar dataKey="cost" fill="#6172f3" radius={[5, 5, 0, 0]} />

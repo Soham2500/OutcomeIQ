@@ -4,6 +4,7 @@ interface MetricBarProps {
   max?: number;
   tone?: "brand" | "emerald" | "amber" | "rose" | "slate";
   suffix?: string;
+  displayValue?: string;
 }
 
 const toneClasses = {
@@ -20,6 +21,7 @@ export function MetricBar({
   max = 100,
   tone = "brand",
   suffix = "",
+  displayValue,
 }: MetricBarProps) {
   const safeMax = max <= 0 ? 1 : max;
   const width = Math.max(0, Math.min(100, (value / safeMax) * 100));
@@ -29,8 +31,8 @@ export function MetricBar({
       <div className="mb-1.5 flex items-center justify-between gap-3 text-sm">
         <span className="font-medium text-slate-700">{label}</span>
         <span className="text-slate-500">
-          {Number.isFinite(value) ? value.toFixed(value % 1 === 0 ? 0 : 1) : "0"}
-          {suffix}
+          {displayValue ??
+            `${Number.isFinite(value) ? value.toFixed(value % 1 === 0 ? 0 : 1) : "0"}${suffix}`}
         </span>
       </div>
       <div className="h-2 overflow-hidden rounded-full bg-slate-100">

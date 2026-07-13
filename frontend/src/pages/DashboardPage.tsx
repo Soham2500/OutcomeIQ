@@ -13,7 +13,7 @@ import { LoadingState } from "../components/LoadingState";
 import { PageHeader } from "../components/PageHeader";
 import { SectionCard } from "../components/SectionCard";
 import { StatCard } from "../components/StatCard";
-import type { DashboardData, DecimalValue } from "../types/dashboard";
+import type { DashboardData } from "../types/dashboard";
 import type { Project } from "../types/project";
 import type { Recommendation } from "../types/recommendation";
 import {
@@ -22,14 +22,13 @@ import {
 } from "../utils/exportUtils";
 import {
   formatDateTime,
+  formatINR,
+  formatINRWithUsdFallback,
   formatPercent,
+  formatLegacyCostAsINR,
   shortId,
   toFiniteNumber,
 } from "../utils/format";
-
-// Backend exposes some legacy workflow economics in USD only; use this display
-// fallback only for those cards. Real AI runs prefer backend-calculated cost_inr.
-const USD_TO_INR_DISPLAY_RATE = 83.5;
 
 function statusTone(status?: string | null) {
   if (status === "succeeded") {
@@ -42,20 +41,6 @@ function statusTone(status?: string | null) {
     return "amber";
   }
   return "slate";
-}
-
-function formatInr(value: DecimalValue | null | undefined): string {
-  const amount = toFiniteNumber(value);
-  return new Intl.NumberFormat("en-IN", {
-    style: "currency",
-    currency: "INR",
-    maximumFractionDigits: 4,
-  }).format(amount ?? 0);
-}
-
-function formatUsdAsInr(value: DecimalValue | null | undefined): string {
-  const amount = toFiniteNumber(value);
-  return formatInr(amount === null ? null : amount * USD_TO_INR_DISPLAY_RATE);
 }
 
 export function DashboardPage() {
@@ -376,13 +361,16 @@ export function DashboardPage() {
               hint="Workflow cost plus real AI provider run cost"
               label="Total cost"
               tone="brand"
-              value={formatInr(dashboard.costSummary.total_cost_inr)}
+              value={formatINRWithUsdFallback(
+                dashboard.costSummary.total_cost_inr,
+                dashboard.costSummary.total_cost_usd ?? dashboard.overview.total_cost_usd,
+              )}
             />
             <StatCard
               hint="Real Gemini/OpenAI runs only"
               label="AI API cost INR"
               tone="brand"
-              value={formatInr(dashboard.costSummary.ai_cost_inr)}
+              value={formatINR(dashboard.costSummary.ai_cost_inr)}
             />
             <StatCard
               label="Successful outcomes"
@@ -403,11 +391,11 @@ export function DashboardPage() {
               hint="Outcome-aware unit economics"
               label="Cost per successful outcome"
               tone="brand"
-              value={formatUsdAsInr(summary.costPerSuccess)}
+              value={formatLegacyCostAsINR(summary.costPerSuccess)}
             />
             <StatCard
               label="Average cost per run"
-              value={formatUsdAsInr(summary.averageCostPerRun)}
+              value={formatLegacyCostAsINR(summary.averageCostPerRun)}
             />
             <StatCard
               hint="Not available until outcome value is captured"
@@ -451,8 +439,8 @@ export function DashboardPage() {
                           <p className="font-semibold capitalize text-slate-950">
                             {item.key === "openai" ? "OpenAI" : item.key}
                           </p>
-                          <p className="font-mono font-semibold text-slate-950">
-                            {formatInr(item.total_cost_inr)}
+                          <p className="font-semibold text-slate-950 tabular-nums">
+                            {formatINR(item.total_cost_inr)}
                           </p>
                         </div>
                         <p className="mt-2 text-xs text-slate-500">
@@ -482,11 +470,11 @@ export function DashboardPage() {
                         key={item.key}
                       >
                         <div className="flex items-center justify-between gap-3">
-                          <p className="font-mono text-sm font-semibold text-slate-950">
+                          <p className="font-semibold text-slate-950">
                             {item.key}
                           </p>
-                          <p className="font-mono font-semibold text-slate-950">
-                            {formatInr(item.total_cost_inr)}
+                          <p className="font-semibold text-slate-950 tabular-nums">
+                            {formatINR(item.total_cost_inr)}
                           </p>
                         </div>
                         <p className="mt-2 text-xs text-slate-500">
@@ -534,7 +522,7 @@ export function DashboardPage() {
                       {run.provider} · {run.model}
                     </p>
                     <p className="mt-2 text-sm text-slate-600">
-                      {run.total_tokens} tokens · {formatInr(run.cost_inr)} ·{" "}
+                      {run.total_tokens} tokens · {formatINR(run.cost_inr)} ·{" "}
                       {run.latency_ms} ms
                     </p>
                   </div>
@@ -617,7 +605,7 @@ export function DashboardPage() {
                           </Badge>
                         </td>
                         <td className="whitespace-nowrap px-5 py-3 text-slate-700">
-                          {formatUsdAsInr(run.total_cost_usd)}
+                          {formatLegacyCostAsINR(run.total_cost_usd)}
                         </td>
                         <td className="whitespace-nowrap px-5 py-3">
                           <Badge tone={statusTone(run.outcome_status)}>

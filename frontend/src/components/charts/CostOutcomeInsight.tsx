@@ -1,5 +1,5 @@
 import type { DecimalValue } from "../../types/dashboard";
-import { formatUsd } from "../../utils/format";
+import { formatLegacyCostAsINR } from "../../utils/format";
 
 interface CostOutcomeInsightProps {
   totalCost?: DecimalValue | null;
@@ -26,7 +26,7 @@ export function CostOutcomeInsight({
       <dl className="mt-5 grid gap-4 sm:grid-cols-3">
         <div>
           <dt className="text-xs text-slate-500">Total calculated cost</dt>
-          <dd className="mt-1 font-semibold text-slate-900">{formatUsd(totalCost)}</dd>
+          <dd className="mt-1 font-semibold text-slate-900">{formatLegacyCostAsINR(totalCost)}</dd>
         </div>
         <div>
           <dt className="text-xs text-slate-500">Successful outcomes</dt>
@@ -37,7 +37,7 @@ export function CostOutcomeInsight({
           <dd className="mt-1 font-semibold text-slate-900">
             {costPerSuccessfulOutcome === null || costPerSuccessfulOutcome === undefined
               ? "Not available yet"
-              : formatUsd(costPerSuccessfulOutcome)}
+              : formatLegacyCostAsINR(costPerSuccessfulOutcome)}
           </dd>
         </div>
       </dl>

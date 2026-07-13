@@ -64,7 +64,7 @@ async function ensureDemoPricingRates() {
         try {
           await createPricingRate({
             ...rate,
-            currency: "USD",
+            currency: "INR",
             is_active: true,
             metadata_json: {
               source: "frontend_demo_scenario",

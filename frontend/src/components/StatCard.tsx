@@ -17,7 +17,7 @@ export function StatCard({ label, value, hint, tone = "default" }: StatCardProps
   return (
     <article className={`rounded-3xl border p-5 shadow-card backdrop-blur transition duration-200 hover:-translate-y-1 hover:shadow-soft ${toneClasses[tone]}`}>
       <p className="text-sm font-medium text-slate-500">{label}</p>
-      <p className="mt-2 font-mono text-2xl font-semibold tracking-tight text-slate-950">
+      <p className="mt-2 text-2xl font-semibold tracking-tight text-slate-950 tabular-nums">
         {value}
       </p>
       {hint ? <p className="mt-2 text-xs text-slate-500">{hint}</p> : null}

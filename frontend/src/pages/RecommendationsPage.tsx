@@ -19,7 +19,7 @@ import type {
   RecommendationSeverity,
   RecommendationStatus,
 } from "../types/recommendation";
-import { formatUsd } from "../utils/format";
+import { formatLegacyCostAsINR } from "../utils/format";
 
 const severityTone: Record<RecommendationSeverity, "sky" | "amber" | "rose"> = {
   low: "sky",
@@ -345,7 +345,7 @@ export function RecommendationsPage() {
                   </div>
                   {recommendation.potential_savings_usd !== null ? (
                     <p className="mt-3 text-sm font-medium text-emerald-700">
-                      Potential savings: {formatUsd(recommendation.potential_savings_usd)}
+                      Potential savings: {formatLegacyCostAsINR(recommendation.potential_savings_usd)}
                     </p>
                   ) : null}
                 </div>

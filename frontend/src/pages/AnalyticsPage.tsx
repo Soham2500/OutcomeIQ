@@ -18,7 +18,13 @@ import {
   exportProjectSummaryAsCsv,
   exportProjectSummaryAsJson,
 } from "../utils/exportUtils";
-import { formatPercent, formatUsd, toFiniteNumber } from "../utils/format";
+import {
+  formatINR,
+  formatINRWithUsdFallback,
+  formatPercent,
+  formatLegacyCostAsINR,
+  toFiniteNumber,
+} from "../utils/format";
 
 export function AnalyticsPage() {
   const [projects, setProjects] = useState<Project[]>([]);
@@ -101,6 +107,9 @@ export function AnalyticsPage() {
     const totalCost = toFiniteNumber(
       dashboard.costSummary.total_cost_usd ?? dashboard.overview.total_cost_usd,
     );
+    const backendTotalCostInr = toFiniteNumber(dashboard.costSummary.total_cost_inr);
+    const totalCostInr =
+      backendTotalCostInr ?? (totalCost === null ? null : totalCost * 83.5);
     const successRate = toFiniteNumber(dashboard.outcomeSummary.success_rate);
     const costPerSuccess = toFiniteNumber(
       dashboard.outcomeSummary.cost_per_successful_outcome_usd,
@@ -117,6 +126,7 @@ export function AnalyticsPage() {
     return {
       totalRuns,
       totalCost,
+      totalCostInr,
       successRate,
       costPerSuccess,
       runsMissingCost,
@@ -230,7 +240,7 @@ export function AnalyticsPage() {
               hint="Outcome-aware unit economics"
               label="Cost per successful outcome"
               tone="brand"
-              value={formatUsd(analyticsSummary.costPerSuccess)}
+              value={formatLegacyCostAsINR(analyticsSummary.costPerSuccess)}
             />
             <StatCard label="Total runs" value={analyticsSummary.totalRuns} />
             <StatCard
@@ -240,7 +250,10 @@ export function AnalyticsPage() {
             />
             <StatCard
               label="Total cost"
-              value={formatUsd(analyticsSummary.totalCost)}
+              value={formatINRWithUsdFallback(
+                dashboard.costSummary.total_cost_inr,
+                analyticsSummary.totalCost,
+              )}
             />
           </section>
 
@@ -256,18 +269,22 @@ export function AnalyticsPage() {
               ) : (
                 <div className="space-y-4">
                   <MetricBar
+                    displayValue={formatINR(
+                      analyticsSummary.totalCostInr === null
+                        ? null
+                        : analyticsSummary.totalCostInr / Math.max(analyticsSummary.totalRuns, 1),
+                    )}
                     label="Average cost per run"
-                    max={Math.max(analyticsSummary.totalCost ?? 0, 0.0001)}
-                    suffix=" USD"
+                    max={Math.max(analyticsSummary.totalCostInr ?? 0, 0.0001)}
                     value={
-                      analyticsSummary.totalCost === null
+                      analyticsSummary.totalCostInr === null
                         ? 0
-                        : analyticsSummary.totalCost / Math.max(analyticsSummary.totalRuns, 1)
+                        : analyticsSummary.totalCostInr / Math.max(analyticsSummary.totalRuns, 1)
                     }
                   />
                   <p className="text-sm text-slate-500">
                     Current data contains {analyticsSummary.totalRuns} run(s) and{" "}
-                    {formatUsd(analyticsSummary.totalCost)} in tracked cost.
+                    {formatINR(analyticsSummary.totalCostInr)} in tracked cost.
                   </p>
                 </div>
               )}

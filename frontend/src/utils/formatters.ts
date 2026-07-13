@@ -1,7 +1,8 @@
 export {
   formatDateTime,
+  formatINR,
   formatPercent as formatPercentage,
-  formatUsd,
+  formatLegacyCostAsINR,
   shortId,
   toFiniteNumber,
 } from "./format";
