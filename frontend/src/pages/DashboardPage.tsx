@@ -25,7 +25,7 @@ import {
   formatINR,
   formatINRWithUsdFallback,
   formatPercent,
-  formatLegacyCostAsINR,
+  getINRCostWithFallback,
   shortId,
   toFiniteNumber,
 } from "../utils/format";
@@ -156,14 +156,21 @@ export function DashboardPage() {
       return null;
     }
     const totalRuns = dashboard.overview.total_workflow_runs ?? 0;
-    const totalCost = toFiniteNumber(
+    const totalCostInr = getINRCostWithFallback(
+      dashboard.costSummary.total_cost_inr ?? dashboard.overview.total_cost_inr,
       dashboard.costSummary.total_cost_usd ?? dashboard.overview.total_cost_usd,
     );
-    const averageCostPerRun =
-      totalCost === null || totalRuns === 0 ? null : totalCost / totalRuns;
+    const averageCostPerRunInr =
+      totalRuns === 0
+        ? 0
+        : toFiniteNumber(dashboard.costSummary.average_cost_per_run_inr) ??
+          totalCostInr / totalRuns;
     const successRate = toFiniteNumber(dashboard.outcomeSummary.success_rate);
-    const costPerSuccess = toFiniteNumber(
-      dashboard.outcomeSummary.cost_per_successful_outcome_usd,
+    const costPerSuccessInr = getINRCostWithFallback(
+      dashboard.outcomeSummary.cost_per_successful_outcome_inr ??
+        dashboard.overview.cost_per_successful_outcome_inr,
+      dashboard.outcomeSummary.cost_per_successful_outcome_usd ??
+        dashboard.overview.cost_per_successful_outcome_usd,
     );
     const missingOutcomes = dashboard.workflowRuns.filter(
       (run) => !run.outcome_status,
@@ -171,10 +178,10 @@ export function DashboardPage() {
 
     return {
       totalRuns,
-      totalCost,
-      averageCostPerRun,
+      totalCostInr,
+      averageCostPerRunInr,
       successRate,
-      costPerSuccess,
+      costPerSuccessInr,
       missingOutcomes,
     };
   }, [dashboard]);
@@ -185,9 +192,9 @@ export function DashboardPage() {
     }
     const items: Array<{ title: string; detail: string; tone: "brand" | "amber" | "rose" }> = [];
     if (
-      summary.costPerSuccess !== null &&
-      summary.averageCostPerRun !== null &&
-      summary.costPerSuccess > summary.averageCostPerRun
+      summary.costPerSuccessInr > 0 &&
+      summary.averageCostPerRunInr > 0 &&
+      summary.costPerSuccessInr > summary.averageCostPerRunInr
     ) {
       items.push({
         title: "Cheapest request is not always cheapest outcome",
@@ -221,9 +228,9 @@ export function DashboardPage() {
       {
         project_name: selectedProject?.name ?? "Unknown project",
         total_runs: summary.totalRuns,
-        total_cost_usd: summary.totalCost,
+        total_cost_inr: summary.totalCostInr,
         success_rate: summary.successRate,
-        cost_per_successful_outcome_usd: summary.costPerSuccess,
+        cost_per_successful_outcome_inr: summary.costPerSuccessInr,
         recommendation_count: recommendations.length,
         generated_at: new Date().toISOString(),
       },
@@ -240,9 +247,9 @@ export function DashboardPage() {
         {
           project_name: selectedProject?.name ?? "Unknown project",
           total_runs: summary.totalRuns,
-          total_cost_usd: summary.totalCost ?? "",
+          total_cost_inr: summary.totalCostInr,
           success_rate: summary.successRate ?? "",
-          cost_per_successful_outcome_usd: summary.costPerSuccess ?? "",
+          cost_per_successful_outcome_inr: summary.costPerSuccessInr,
           recommendation_count: recommendations.length,
           generated_at: new Date().toISOString(),
         },
@@ -391,11 +398,11 @@ export function DashboardPage() {
               hint="Outcome-aware unit economics"
               label="Cost per successful outcome"
               tone="brand"
-              value={formatLegacyCostAsINR(summary.costPerSuccess)}
+              value={formatINR(summary.costPerSuccessInr)}
             />
             <StatCard
               label="Average cost per run"
-              value={formatLegacyCostAsINR(summary.averageCostPerRun)}
+              value={formatINR(summary.averageCostPerRunInr)}
             />
             <StatCard
               hint="Not available until outcome value is captured"
@@ -605,7 +612,10 @@ export function DashboardPage() {
                           </Badge>
                         </td>
                         <td className="whitespace-nowrap px-5 py-3 text-slate-700">
-                          {formatLegacyCostAsINR(run.total_cost_usd)}
+                          {formatINRWithUsdFallback(
+                            run.total_cost_inr,
+                            run.total_cost_usd,
+                          )}
                         </td>
                         <td className="whitespace-nowrap px-5 py-3">
                           <Badge tone={statusTone(run.outcome_status)}>

@@ -22,7 +22,7 @@ import {
   formatINR,
   formatINRWithUsdFallback,
   formatPercent,
-  formatLegacyCostAsINR,
+  getINRCostWithFallback,
   toFiniteNumber,
 } from "../utils/format";
 
@@ -104,18 +104,32 @@ export function AnalyticsPage() {
       return null;
     }
     const totalRuns = dashboard.overview.total_workflow_runs ?? 0;
-    const totalCost = toFiniteNumber(
+    const totalCostUsd = toFiniteNumber(
       dashboard.costSummary.total_cost_usd ?? dashboard.overview.total_cost_usd,
     );
-    const backendTotalCostInr = toFiniteNumber(dashboard.costSummary.total_cost_inr);
-    const totalCostInr =
-      backendTotalCostInr ?? (totalCost === null ? null : totalCost * 83.5);
+    const totalCostInr = getINRCostWithFallback(
+      dashboard.costSummary.total_cost_inr ?? dashboard.overview.total_cost_inr,
+      dashboard.costSummary.total_cost_usd ?? dashboard.overview.total_cost_usd,
+    );
     const successRate = toFiniteNumber(dashboard.outcomeSummary.success_rate);
-    const costPerSuccess = toFiniteNumber(
+    const costPerSuccessUsd = toFiniteNumber(
       dashboard.outcomeSummary.cost_per_successful_outcome_usd,
     );
+    const costPerSuccessInr = getINRCostWithFallback(
+      dashboard.outcomeSummary.cost_per_successful_outcome_inr ??
+        dashboard.overview.cost_per_successful_outcome_inr,
+      dashboard.outcomeSummary.cost_per_successful_outcome_usd ??
+        dashboard.overview.cost_per_successful_outcome_usd,
+    );
+    const averageCostPerRunInr =
+      totalRuns === 0
+        ? 0
+        : toFiniteNumber(dashboard.costSummary.average_cost_per_run_inr) ??
+          totalCostInr / totalRuns;
     const runsMissingCost = dashboard.workflowRuns.filter(
-      (run) => run.total_cost_usd === null || run.total_cost_usd === undefined,
+      (run) =>
+        (run.total_cost_inr === null || run.total_cost_inr === undefined) &&
+        (run.total_cost_usd === null || run.total_cost_usd === undefined),
     ).length;
     const runsMissingOutcome = dashboard.workflowRuns.filter(
       (run) => !run.outcome_status,
@@ -125,10 +139,12 @@ export function AnalyticsPage() {
 
     return {
       totalRuns,
-      totalCost,
+      totalCostUsd,
       totalCostInr,
       successRate,
-      costPerSuccess,
+      costPerSuccessUsd,
+      costPerSuccessInr,
+      averageCostPerRunInr,
       runsMissingCost,
       runsMissingOutcome,
       failedRuns,
@@ -143,9 +159,9 @@ export function AnalyticsPage() {
       {
         project_name: selectedProject?.name ?? "Unknown project",
         total_runs: analyticsSummary.totalRuns,
-        total_cost_usd: analyticsSummary.totalCost,
+        total_cost_inr: analyticsSummary.totalCostInr,
         success_rate: analyticsSummary.successRate,
-        cost_per_successful_outcome_usd: analyticsSummary.costPerSuccess,
+        cost_per_successful_outcome_inr: analyticsSummary.costPerSuccessInr,
         recommendation_count: recommendations.length,
         generated_at: new Date().toISOString(),
       },
@@ -162,9 +178,9 @@ export function AnalyticsPage() {
         {
           project_name: selectedProject?.name ?? "Unknown project",
           total_runs: analyticsSummary.totalRuns,
-          total_cost_usd: analyticsSummary.totalCost ?? "",
+          total_cost_inr: analyticsSummary.totalCostInr,
           success_rate: analyticsSummary.successRate ?? "",
-          cost_per_successful_outcome_usd: analyticsSummary.costPerSuccess ?? "",
+          cost_per_successful_outcome_inr: analyticsSummary.costPerSuccessInr,
           recommendation_count: recommendations.length,
           generated_at: new Date().toISOString(),
         },
@@ -240,7 +256,7 @@ export function AnalyticsPage() {
               hint="Outcome-aware unit economics"
               label="Cost per successful outcome"
               tone="brand"
-              value={formatLegacyCostAsINR(analyticsSummary.costPerSuccess)}
+              value={formatINR(analyticsSummary.costPerSuccessInr)}
             />
             <StatCard label="Total runs" value={analyticsSummary.totalRuns} />
             <StatCard
@@ -252,7 +268,7 @@ export function AnalyticsPage() {
               label="Total cost"
               value={formatINRWithUsdFallback(
                 dashboard.costSummary.total_cost_inr,
-                analyticsSummary.totalCost,
+                analyticsSummary.totalCostUsd,
               )}
             />
           </section>
@@ -270,17 +286,11 @@ export function AnalyticsPage() {
                 <div className="space-y-4">
                   <MetricBar
                     displayValue={formatINR(
-                      analyticsSummary.totalCostInr === null
-                        ? null
-                        : analyticsSummary.totalCostInr / Math.max(analyticsSummary.totalRuns, 1),
+                      analyticsSummary.averageCostPerRunInr,
                     )}
                     label="Average cost per run"
-                    max={Math.max(analyticsSummary.totalCostInr ?? 0, 0.0001)}
-                    value={
-                      analyticsSummary.totalCostInr === null
-                        ? 0
-                        : analyticsSummary.totalCostInr / Math.max(analyticsSummary.totalRuns, 1)
-                    }
+                    max={Math.max(analyticsSummary.totalCostInr, 0.0001)}
+                    value={analyticsSummary.averageCostPerRunInr}
                   />
                   <p className="text-sm text-slate-500">
                     Current data contains {analyticsSummary.totalRuns} run(s) and{" "}

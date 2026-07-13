@@ -11,37 +11,39 @@ export function toFiniteNumber(
 }
 
 export function formatINR(value: DecimalValue | null | undefined): string {
-  const parsed = toFiniteNumber(value);
-  if (parsed === null) {
-    return "—";
+  const amount = Number(value || 0);
+  if (Math.abs(amount) > 0 && Math.abs(amount) < 0.01) {
+    return `₹${amount.toFixed(4)}`;
   }
-  if (parsed !== 0 && Math.abs(parsed) < 0.00005) {
-    return parsed > 0 ? "<₹0.0001" : ">-₹0.0001";
-  }
-  const tiny = Math.abs(parsed) < 0.01;
   return new Intl.NumberFormat("en-IN", {
     style: "currency",
     currency: "INR",
-    minimumFractionDigits: tiny ? 4 : 2,
-    maximumFractionDigits: tiny ? 4 : 2,
-  }).format(parsed);
+    minimumFractionDigits: 2,
+    maximumFractionDigits: 2,
+  }).format(amount);
+}
+
+export function getINRCostWithFallback(
+  costInr: DecimalValue | null | undefined,
+  costUsd: DecimalValue | null | undefined,
+): number {
+  const parsedInr = toFiniteNumber(costInr);
+  if (parsedInr !== null) {
+    return parsedInr;
+  }
+  // Fallback conversion. Prefer backend cost_inr.
+  return Number(costUsd || 0) * 83.5;
 }
 
 export function formatLegacyCostAsINR(value: DecimalValue | null | undefined): string {
-  const parsed = toFiniteNumber(value);
-  // Fallback INR conversion. Prefer backend cost_inr when available.
-  return parsed === null ? "—" : formatINR(parsed * 83.5);
+  return formatINR(getINRCostWithFallback(null, value));
 }
 
 export function formatINRWithUsdFallback(
   costInr: DecimalValue | null | undefined,
   costUsd: DecimalValue | null | undefined,
 ): string {
-  const parsedInr = toFiniteNumber(costInr);
-  if (parsedInr !== null) {
-    return formatINR(parsedInr);
-  }
-  return formatLegacyCostAsINR(costUsd);
+  return formatINR(getINRCostWithFallback(costInr, costUsd));
 }
 
 export function formatPercent(

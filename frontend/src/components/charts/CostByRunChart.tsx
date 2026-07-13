@@ -8,7 +8,10 @@ import {
   YAxis,
 } from "recharts";
 import type { DashboardWorkflowRun, DecimalValue } from "../../types/dashboard";
-import { formatLegacyCostAsINR, toFiniteNumber } from "../../utils/format";
+import {
+  formatINR,
+  getINRCostWithFallback,
+} from "../../utils/format";
 
 interface CostByRunChartProps {
   runs?: DashboardWorkflowRun[];
@@ -18,9 +21,8 @@ export function CostByRunChart({ runs = [] }: CostByRunChartProps) {
   const data = runs
     .map((run, index) => ({
       run: run.workflow_run_id?.slice(0, 6) || `Run ${index + 1}`,
-      cost: toFiniteNumber(run.total_cost_usd),
+      cost: getINRCostWithFallback(run.total_cost_inr, run.total_cost_usd),
     }))
-    .filter((item): item is { run: string; cost: number } => item.cost !== null)
     .slice(0, 10)
     .reverse();
 
@@ -42,7 +44,7 @@ export function CostByRunChart({ runs = [] }: CostByRunChartProps) {
               <XAxis axisLine={false} dataKey="run" fontSize={11} tickLine={false} />
               <YAxis axisLine={false} fontSize={11} tickLine={false} width={44} />
               <Tooltip
-                formatter={(value) => [formatLegacyCostAsINR(value as DecimalValue), "Cost"]}
+                formatter={(value) => [formatINR(value as DecimalValue), "Cost"]}
                 labelFormatter={(label) => String(label)}
               />
               <Bar dataKey="cost" fill="#6172f3" radius={[5, 5, 0, 0]} />

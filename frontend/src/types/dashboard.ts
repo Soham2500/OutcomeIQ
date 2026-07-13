@@ -8,10 +8,12 @@ export interface DashboardOverview {
   failed_runs: number;
   pending_runs: number;
   total_cost_usd?: DecimalValue | null;
+  total_cost_inr?: DecimalValue | null;
   successful_outcomes: number;
   failed_outcomes: number;
   success_rate?: DecimalValue | null;
   cost_per_successful_outcome_usd?: DecimalValue | null;
+  cost_per_successful_outcome_inr?: DecimalValue | null;
   notes: string | null;
 }
 
@@ -24,6 +26,7 @@ export interface DashboardWorkflowRun {
   started_at: string | null;
   completed_at: string | null;
   total_cost_usd?: DecimalValue | null;
+  total_cost_inr?: DecimalValue | null;
   outcome_status?: string | null;
   success: boolean | null;
 }
@@ -42,6 +45,7 @@ export interface CostSummary {
   tool_call_count: number;
   ai_run_count: number;
   average_cost_per_run_usd: DecimalValue;
+  average_cost_per_run_inr?: DecimalValue | null;
   highest_cost_run_id: string | null;
   cost_by_provider: AiCostBreakdown[];
   cost_by_model: AiCostBreakdown[];
@@ -76,6 +80,7 @@ export interface OutcomeSummary {
   pending_runs: number;
   success_rate?: DecimalValue | null;
   cost_per_successful_outcome_usd?: DecimalValue | null;
+  cost_per_successful_outcome_inr?: DecimalValue | null;
 }
 
 export interface DashboardData {
