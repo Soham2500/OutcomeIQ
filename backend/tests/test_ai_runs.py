@@ -15,22 +15,22 @@ def test_ai_run_routes_are_importable() -> None:
     assert route_paths == {"/runs"}
 
 
-def test_ai_schema_defaults_accept_gemini_35_flash_payload() -> None:
+def test_ai_schema_accepts_gemini_25_flash_payload() -> None:
     request = AiRunCreate(
         project_id="00000000-0000-0000-0000-000000000001",
         workflow_name="AI Test",
         prompt="Summarize this synthetic workflow.",
         provider="gemini",
-        model="gemini-3.5-flash",
+        model="gemini-2.5-flash",
     )
 
-    assert request.model == "gemini-3.5-flash"
+    assert request.model == "gemini-2.5-flash"
 
 
-def test_ai_costing_includes_gemini_35_flash() -> None:
+def test_ai_costing_includes_gemini_25_flash() -> None:
     cost = calculate_ai_cost(
         provider="gemini",
-        model="gemini-3.5-flash",
+        model="gemini-2.5-flash",
         input_tokens=1_000_000,
         output_tokens=1_000_000,
         usd_to_inr_rate=Decimal("83.50"),

@@ -59,7 +59,7 @@ def _select_model(provider: str, model: str | None) -> str:
         return (
             settings.DEFAULT_GEMINI_MODEL
             or settings.DEFAULT_AI_MODEL
-            or "gemini-3.5-flash"
+            or "gemini-2.5-flash"
         )
     return settings.DEFAULT_OPENAI_MODEL or settings.DEFAULT_AI_MODEL or "gpt-4o-mini"
 
@@ -160,6 +160,7 @@ def create_ai_run(
         cost_inr=ai_cost.cost_inr,
         currency=get_settings().COST_CURRENCY,
         pricing_unknown=ai_cost.pricing_unknown,
+        raw_usage_json=result.raw_usage,
     )
     db.add(run)
     db.commit()

@@ -8,7 +8,7 @@ import type { AiProvider, AiRun } from "../types/aiRun";
 import type { Project } from "../types/project";
 
 const providerDefaults: Record<AiProvider, string> = {
-  gemini: "gemini-3.5-flash",
+  gemini: "gemini-2.5-flash",
   openai: "gpt-4o-mini",
 };
 

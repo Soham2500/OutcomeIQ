@@ -3,7 +3,9 @@
 from decimal import Decimal
 import uuid
 
-from sqlalchemy import Boolean, ForeignKey, Index, Integer, Numeric, String, Text
+from typing import Any
+
+from sqlalchemy import Boolean, ForeignKey, Index, Integer, JSON, Numeric, String, Text
 from sqlalchemy.orm import Mapped, mapped_column
 
 from app.db.base import Base
@@ -94,4 +96,10 @@ class AiRun(UUIDPrimaryKeyMixin, TimestampMixin, Base):
         nullable=False,
         default=False,
         server_default="false",
+    )
+    raw_usage_json: Mapped[dict[str, Any]] = mapped_column(
+        JSON,
+        nullable=False,
+        default=dict,
+        server_default="{}",
     )
