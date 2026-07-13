@@ -1,10 +1,27 @@
+@import url("https://fonts.googleapis.com/css2?family=Fira+Code:wght@400;500;600;700&family=Fira+Sans:wght@400;500;600;700;800&display=swap");
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
 @layer base {
+  :root {
+    color-scheme: light;
+    --surface-glass: rgba(255, 255, 255, 0.78);
+    --surface-dark: #070b18;
+    --ring-brand: rgba(97, 114, 243, 0.38);
+  }
+
+  html {
+    scroll-behavior: smooth;
+  }
+
   body {
-    @apply m-0 min-w-[320px] bg-slate-50 font-sans text-ink antialiased;
+    @apply m-0 min-w-[320px] bg-slate-950 font-sans text-ink antialiased;
+    background:
+      radial-gradient(circle at 10% 0%, rgba(68, 76, 231, 0.22), transparent 32rem),
+      radial-gradient(circle at 90% 12%, rgba(14, 165, 233, 0.18), transparent 32rem),
+      linear-gradient(180deg, #f8fafc 0%, #eef2ff 48%, #f8fafc 100%);
   }
 
   button,
@@ -13,22 +30,89 @@
   textarea {
     font: inherit;
   }
+
+  * {
+    scrollbar-width: thin;
+    scrollbar-color: rgba(99, 102, 241, 0.45) transparent;
+  }
+
+  *:focus-visible {
+    @apply outline-none ring-2 ring-brand-500 ring-offset-2 ring-offset-white;
+  }
 }
 
 @layer components {
   .field-label {
-    @apply mb-1.5 block text-sm font-medium text-slate-700;
+    @apply mb-1.5 block text-sm font-semibold text-slate-700;
   }
 
   .field-input {
-    @apply w-full rounded-lg border border-slate-300 bg-white px-3 py-2.5 text-sm outline-none transition placeholder:text-slate-400 focus:border-brand-500 focus:ring-2 focus:ring-brand-100;
+    @apply min-h-11 w-full rounded-2xl border border-slate-200 bg-white/85 px-4 py-3 text-sm text-slate-900 outline-none shadow-sm transition placeholder:text-slate-400 hover:border-brand-200 focus:border-brand-500 focus:bg-white focus:ring-4 focus:ring-brand-100;
   }
 
   .primary-button {
-    @apply inline-flex items-center justify-center rounded-lg bg-brand-600 px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-brand-700 disabled:cursor-not-allowed disabled:opacity-60;
+    @apply inline-flex min-h-11 cursor-pointer items-center justify-center gap-2 rounded-2xl bg-gradient-to-r from-brand-600 via-violet-600 to-electric-500 px-4 py-2.5 text-sm font-semibold text-white shadow-glow transition duration-200 hover:-translate-y-0.5 hover:shadow-lg active:translate-y-0 disabled:cursor-not-allowed disabled:opacity-60 disabled:hover:translate-y-0;
   }
 
   .secondary-button {
-    @apply inline-flex items-center justify-center rounded-lg border border-slate-300 bg-white px-4 py-2.5 text-sm font-semibold text-slate-700 transition hover:bg-slate-50 disabled:cursor-not-allowed disabled:opacity-60;
+    @apply inline-flex min-h-11 cursor-pointer items-center justify-center gap-2 rounded-2xl border border-slate-200 bg-white/80 px-4 py-2.5 text-sm font-semibold text-slate-700 shadow-sm backdrop-blur transition duration-200 hover:-translate-y-0.5 hover:border-brand-200 hover:bg-white hover:text-brand-700 active:translate-y-0 disabled:cursor-not-allowed disabled:opacity-60 disabled:hover:translate-y-0;
+  }
+
+  .danger-button {
+    @apply inline-flex min-h-11 cursor-pointer items-center justify-center gap-2 rounded-2xl border border-rose-200 bg-rose-50 px-4 py-2.5 text-sm font-semibold text-rose-700 transition duration-200 hover:bg-rose-100 disabled:cursor-not-allowed disabled:opacity-60;
+  }
+
+  .premium-card {
+    @apply rounded-3xl border border-white/70 bg-white/80 shadow-card backdrop-blur-xl;
+  }
+
+  .dark-panel {
+    @apply rounded-3xl border border-white/10 bg-slate-950/90 text-white shadow-2xl shadow-slate-950/25;
+  }
+
+  .glass-panel {
+    @apply border border-white/60 bg-white/70 shadow-card backdrop-blur-xl;
+  }
+
+  .status-pill {
+    @apply inline-flex items-center rounded-full px-2.5 py-1 text-xs font-semibold capitalize;
+  }
+}
+
+@layer utilities {
+  .animate-ambient {
+    animation: ambientShift 12s ease-in-out infinite alternate;
+  }
+
+  .skeleton-shimmer {
+    background: linear-gradient(90deg, rgba(226, 232, 240, 0.65), rgba(255, 255, 255, 0.95), rgba(226, 232, 240, 0.65));
+    background-size: 220% 100%;
+    animation: shimmer 1.4s ease-in-out infinite;
+  }
+}
+
+@keyframes ambientShift {
+  from {
+    transform: translate3d(-2%, -1%, 0) scale(1);
+  }
+  to {
+    transform: translate3d(2%, 2%, 0) scale(1.04);
+  }
+}
+
+@keyframes shimmer {
+  to {
+    background-position: -220% 0;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    scroll-behavior: auto !important;
+    transition-duration: 0.01ms !important;
   }
 }

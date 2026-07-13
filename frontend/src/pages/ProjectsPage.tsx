@@ -1,4 +1,5 @@
 import { type FormEvent, useEffect, useState } from "react";
+import { Plus } from "lucide-react";
 import { Link } from "react-router-dom";
 import { getApiErrorMessage } from "../api/client";
 import { runDemoScenario } from "../api/demoApi";
@@ -10,6 +11,9 @@ import {
 import { EmptyState } from "../components/EmptyState";
 import { ErrorState } from "../components/ErrorState";
 import { LoadingState } from "../components/LoadingState";
+import { Modal } from "../components/Modal";
+import { PageHeader } from "../components/PageHeader";
+import { useToast } from "../components/Toast";
 import type { DemoScenarioSummary } from "../types/demo";
 import type { Project } from "../types/project";
 import { formatDateTime, shortId } from "../utils/format";
@@ -25,6 +29,7 @@ function createSlug(value: string): string {
 }
 
 export function ProjectsPage() {
+  const { notify } = useToast();
   const [projects, setProjects] = useState<Project[]>([]);
   const [organizationName, setOrganizationName] = useState("");
   const [projectName, setProjectName] = useState("");
@@ -37,6 +42,7 @@ export function ProjectsPage() {
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState<string | null>(null);
   const [demoSummary, setDemoSummary] = useState<DemoScenarioSummary | null>(null);
+  const [createModalOpen, setCreateModalOpen] = useState(false);
 
   async function refreshProjects() {
     setLoading(true);
@@ -76,6 +82,12 @@ export function ProjectsPage() {
       setProjectName("");
       setDescription("");
       setSuccess(`${project.name} was created successfully.`);
+      setCreateModalOpen(false);
+      notify({
+        tone: "success",
+        title: "Project created",
+        description: `${project.name} is ready for outcome-aware AI FinOps tracking.`,
+      });
     } catch (requestError) {
       const message = getApiErrorMessage(
         requestError,
@@ -100,6 +112,7 @@ export function ProjectsPage() {
       const summary = await runDemoScenario(projectId);
       setDemoSummary(summary);
       setSuccess("Demo scenario completed. Open the dashboard to see outcome-aware economics.");
+      notify({ tone: "success", title: "Demo scenario completed" });
     } catch (requestError) {
       const message = getApiErrorMessage(
         requestError,
@@ -117,42 +130,43 @@ export function ProjectsPage() {
 
   return (
     <div className="space-y-6">
-      <div className="rounded-2xl bg-slate-950 p-6 text-white shadow-xl md:p-8">
-        <p className="text-xs font-semibold uppercase tracking-[0.18em] text-brand-100">
-          Project workspace
-        </p>
-        <h1 className="mt-2 text-2xl font-semibold">Projects</h1>
-        <p className="mt-2 max-w-3xl text-sm leading-6 text-slate-300">
-          Create the organization/project boundary, then generate simulated
-          workflow data for the live demo. Each project owns its workflows, costs,
-          outcomes and recommendations.
-        </p>
-      </div>
+      <PageHeader
+        actions={
+          <button className="primary-button" onClick={() => setCreateModalOpen(true)} type="button">
+            <Plus aria-hidden="true" className="h-4 w-4" />
+            Create project
+          </button>
+        }
+        description="Create the organization/project boundary, then generate simulated workflow data for the live demo."
+        eyebrow="Project workspace"
+        title="Projects"
+      />
 
-      <section className="rounded-xl border border-slate-200 bg-white p-5 shadow-card md:p-6">
-        <h2 className="font-semibold text-slate-900">Create a project</h2>
-        <p className="mt-1 text-sm text-slate-500">
-          Keep organization, project name and description separate so the portfolio
-          demo stays clean and explainable.
+      {error ? <ErrorState message={error} /> : null}
+      {success ? (
+        <p className="rounded-2xl border border-emerald-200 bg-emerald-50 p-3 text-sm text-emerald-700">
+          {success}
         </p>
-        {error ? (
-          <div className="mt-4">
-            <ErrorState message={error} />
-          </div>
-        ) : null}
+      ) : null}
+      {demoSummary ? (
+        <div className="rounded-2xl border border-brand-100 bg-brand-50 p-4 text-sm text-brand-900">
+          <p className="font-semibold">{demoSummary.message}</p>
+          <p className="mt-2 font-mono text-xs">
+            Workflow {shortId(demoSummary.workflow_id)} · Runs{" "}
+            {shortId(demoSummary.run_a_id)}, {shortId(demoSummary.run_b_id)}
+          </p>
+        </div>
+      ) : null}
+      <Modal
+        description="Keep organization, project name and description separate so the portfolio demo stays clean and explainable."
+        onClose={() => setCreateModalOpen(false)}
+        open={createModalOpen}
+        title="Create organization and project"
+      >
         {success ? (
-          <p className="mt-4 rounded-lg bg-emerald-50 p-3 text-sm text-emerald-700">
+          <p className="rounded-2xl border border-emerald-200 bg-emerald-50 p-3 text-sm text-emerald-700">
             {success}
           </p>
-        ) : null}
-        {demoSummary ? (
-          <div className="mt-4 rounded-lg border border-brand-100 bg-brand-50 p-4 text-sm text-brand-900">
-            <p className="font-semibold">{demoSummary.message}</p>
-            <p className="mt-2 font-mono text-xs">
-              Workflow {shortId(demoSummary.workflow_id)} · Runs{" "}
-              {shortId(demoSummary.run_a_id)}, {shortId(demoSummary.run_b_id)}
-            </p>
-          </div>
         ) : null}
         <form className="mt-5 grid gap-4 md:grid-cols-2" onSubmit={handleCreate}>
           <label>
@@ -190,7 +204,7 @@ export function ProjectsPage() {
             </button>
           </div>
         </form>
-      </section>
+      </Modal>
 
       <section>
         <h2 className="mb-4 font-semibold text-slate-900">Your projects</h2>
@@ -205,7 +219,7 @@ export function ProjectsPage() {
           <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
             {projects.map((project) => (
               <article
-                className="rounded-xl border border-slate-200 bg-white p-5 shadow-card transition hover:-translate-y-0.5 hover:border-brand-100 hover:shadow-md"
+                className="premium-card p-5 transition hover:-translate-y-1 hover:border-brand-200 hover:shadow-soft"
                 key={project.id}
               >
                 <div className="flex items-start justify-between gap-3">

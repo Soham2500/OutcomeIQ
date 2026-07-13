@@ -6,7 +6,7 @@ interface AppLogoProps {
 export function AppLogo({ inverse = false, compact = false }: AppLogoProps) {
   return (
     <div className="flex items-center gap-3">
-      <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-gradient-to-br from-brand-500 to-brand-700 font-bold text-white shadow-lg shadow-brand-950/20">
+      <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl bg-gradient-to-br from-brand-500 via-violet-600 to-cyan-400 font-bold text-white shadow-glow">
         OQ
       </div>
       <div className={compact ? "hidden lg:block" : "block"}>

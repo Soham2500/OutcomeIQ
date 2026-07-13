@@ -9,9 +9,9 @@ interface SectionCardProps {
 }
 
 const toneClasses = {
-  default: "border-slate-200 bg-white text-slate-900",
-  brand: "border-brand-100 bg-brand-50 text-slate-950",
-  dark: "border-slate-800 bg-slate-950 text-white",
+  default: "glass-panel text-slate-900",
+  brand: "border-brand-200 bg-gradient-to-br from-brand-50/95 to-cyan-50/90 text-slate-950 shadow-glow",
+  dark: "border-white/10 bg-slate-950/95 text-white shadow-2xl shadow-slate-950/20",
 };
 
 export function SectionCard({
@@ -22,11 +22,11 @@ export function SectionCard({
   tone = "default",
 }: SectionCardProps) {
   return (
-    <section className={`rounded-xl border p-5 shadow-card md:p-6 ${toneClasses[tone]}`}>
+    <section className={`rounded-3xl border p-5 md:p-6 ${toneClasses[tone]}`}>
       {(title || description || actions) ? (
         <div className="mb-5 flex flex-col justify-between gap-3 sm:flex-row sm:items-start">
           <div>
-            {title ? <h2 className="font-semibold">{title}</h2> : null}
+            {title ? <h2 className="text-lg font-semibold tracking-tight">{title}</h2> : null}
             {description ? (
               <p
                 className={`mt-1 text-sm leading-6 ${

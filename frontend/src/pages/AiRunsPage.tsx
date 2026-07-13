@@ -1,9 +1,14 @@
 import { type FormEvent, useEffect, useMemo, useState } from "react";
+import { Copy, Cpu, Sparkles, Zap } from "lucide-react";
 import { createAiRun, listAiRuns } from "../api/aiRunsApi";
 import { getApiErrorMessage } from "../api/client";
 import { listProjects } from "../api/projectsApi";
+import { Badge } from "../components/Badge";
+import { EmptyState } from "../components/EmptyState";
 import { PageHeader } from "../components/PageHeader";
 import { SectionCard } from "../components/SectionCard";
+import { SkeletonCard } from "../components/SkeletonCard";
+import { useToast } from "../components/Toast";
 import type { AiProvider, AiRun } from "../types/aiRun";
 import type { Project } from "../types/project";
 
@@ -22,6 +27,7 @@ function formatInr(value: string | number): string {
 }
 
 export function AiRunsPage() {
+  const { notify } = useToast();
   const [projects, setProjects] = useState<Project[]>([]);
   const [projectId, setProjectId] = useState("");
   const [workflowName, setWorkflowName] = useState("AI Test Run");
@@ -102,12 +108,27 @@ export function AiRunsPage() {
         model: model.trim() || undefined,
       });
       setLatestRun(run);
+      notify({
+        tone: run.status === "succeeded" ? "success" : "warning",
+        title: run.status === "succeeded" ? "AI run completed" : "AI run recorded",
+        description: `${run.provider} · ${run.total_tokens.toLocaleString("en-IN")} tokens · ${formatInr(run.cost_inr)}`,
+      });
       await refreshRuns(projectId);
     } catch (requestError) {
-      setError(getApiErrorMessage(requestError, "AI run failed."));
+      const message = getApiErrorMessage(requestError, "AI run failed.");
+      setError(message);
+      notify({ tone: "error", title: "AI run failed", description: message });
     } finally {
       setSubmitting(false);
     }
+  }
+
+  async function copyLatestResponse() {
+    if (!latestRun?.response_text) {
+      return;
+    }
+    await navigator.clipboard.writeText(latestRun.response_text);
+    notify({ tone: "success", title: "Response copied" });
   }
 
   return (
@@ -118,8 +139,16 @@ export function AiRunsPage() {
         title="Run AI Test"
       />
 
+      {loading ? (
+        <section className="grid gap-4 md:grid-cols-3">
+          <SkeletonCard />
+          <SkeletonCard />
+          <SkeletonCard />
+        </section>
+      ) : null}
+
       {error ? (
-        <div className="rounded-xl border border-rose-200 bg-rose-50 p-4 text-sm text-rose-700">
+        <div className="rounded-2xl border border-rose-200 bg-rose-50 p-4 text-sm text-rose-700">
           {error}
         </div>
       ) : null}
@@ -157,16 +186,25 @@ export function AiRunsPage() {
           </label>
           <label>
             <span className="field-label">Provider</span>
-            <select
-              className="field-input"
-              onChange={(event) =>
-                handleProviderChange(event.target.value as AiProvider)
-              }
-              value={provider}
-            >
-              <option value="gemini">Gemini</option>
-              <option value="openai">OpenAI / ChatGPT</option>
-            </select>
+            <div className="grid grid-cols-2 gap-3">
+              {(["gemini", "openai"] as AiProvider[]).map((item) => (
+                <button
+                  className={`rounded-2xl border px-4 py-3 text-left text-sm font-semibold transition ${
+                    provider === item
+                      ? "border-brand-300 bg-brand-50 text-brand-800 ring-2 ring-brand-100"
+                      : "border-slate-200 bg-white/80 text-slate-600 hover:border-brand-200"
+                  }`}
+                  key={item}
+                  onClick={() => handleProviderChange(item)}
+                  type="button"
+                >
+                  <span className="flex items-center gap-2">
+                    {item === "gemini" ? <Sparkles className="h-4 w-4" /> : <Cpu className="h-4 w-4" />}
+                    {item === "gemini" ? "Gemini" : "OpenAI"}
+                  </span>
+                </button>
+              ))}
+            </div>
           </label>
           <label>
             <span className="field-label">Model</span>
@@ -197,6 +235,7 @@ export function AiRunsPage() {
               disabled={submitting || !projectId}
               type="submit"
             >
+              <Zap aria-hidden="true" className="h-4 w-4" />
               {submitting ? "Running AI test…" : "Run AI Test"}
             </button>
           </div>
@@ -204,9 +243,19 @@ export function AiRunsPage() {
       </SectionCard>
 
       {latestRun ? (
-        <SectionCard title="Latest response">
+        <SectionCard
+          title="Latest response"
+          actions={
+            latestRun.response_text ? (
+              <button className="secondary-button" onClick={() => void copyLatestResponse()} type="button">
+                <Copy aria-hidden="true" className="h-4 w-4" />
+                Copy response
+              </button>
+            ) : null
+          }
+        >
           <div className="grid gap-3 text-sm md:grid-cols-3">
-            <Metric label="Provider" value={latestRun.provider} />
+            <Metric label="Provider" value={providerLabel(latestRun.provider)} />
             <Metric label="Model" value={latestRun.model} />
             <Metric label="Latency" value={`${latestRun.latency_ms} ms`} />
             <Metric label="Input tokens" value={latestRun.input_tokens} />
@@ -233,9 +282,10 @@ export function AiRunsPage() {
 
       <SectionCard title="Latest AI runs">
         {filteredRuns.length === 0 ? (
-          <p className="text-sm text-slate-500">
-            No AI runs yet. Create a test run to see usage and INR cost.
-          </p>
+          <EmptyState
+            description="Create a backend-only Gemini or OpenAI run to see tokens, latency, INR cost and safe response previews."
+            title="No AI runs yet"
+          />
         ) : (
           <div className="overflow-x-auto">
             <table className="min-w-full divide-y divide-slate-200 text-sm">
@@ -261,15 +311,19 @@ export function AiRunsPage() {
                         {run.prompt_preview}
                       </p>
                     </td>
-                    <td className="px-3 py-3 capitalize">{run.provider}</td>
+                    <td className="px-3 py-3">
+                      <Badge tone={run.provider === "openai" ? "violet" : "sky"}>
+                        {providerLabel(run.provider)}
+                      </Badge>
+                    </td>
                     <td className="px-3 py-3">{run.model}</td>
-                    <td className="px-3 py-3">{run.total_tokens}</td>
+                    <td className="px-3 py-3 font-mono">
+                      {run.total_tokens.toLocaleString("en-IN")}
+                    </td>
                     <td className="px-3 py-3">{formatInr(run.cost_inr)}</td>
                     <td className="px-3 py-3">{run.latency_ms} ms</td>
                     <td className="px-3 py-3">
-                      <span className="rounded-full bg-slate-100 px-2 py-1 text-xs font-semibold text-slate-700">
-                        {run.status}
-                      </span>
+                      <Badge tone={statusTone(run.status)}>{run.status}</Badge>
                     </td>
                   </tr>
                 ))}
@@ -284,11 +338,28 @@ export function AiRunsPage() {
 
 function Metric({ label, value }: { label: string; value: string | number }) {
   return (
-    <div className="rounded-xl border border-slate-200 bg-slate-50 p-3">
+    <div className="rounded-2xl border border-slate-200 bg-slate-50/80 p-3">
       <p className="text-xs font-semibold uppercase tracking-wide text-slate-500">
         {label}
       </p>
-      <p className="mt-1 font-semibold text-slate-900">{value}</p>
+      <p className="mt-1 font-mono font-semibold text-slate-950">{value}</p>
     </div>
   );
+}
+
+function providerLabel(provider: string): string {
+  return provider === "openai" ? "OpenAI" : "Gemini";
+}
+
+function statusTone(status: string): "slate" | "emerald" | "amber" | "rose" {
+  if (status === "succeeded" || status === "success") {
+    return "emerald";
+  }
+  if (status === "failed") {
+    return "rose";
+  }
+  if (status === "pending" || status === "running") {
+    return "amber";
+  }
+  return "slate";
 }

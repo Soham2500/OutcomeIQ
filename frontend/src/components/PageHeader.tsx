@@ -14,12 +14,12 @@ export function PageHeader({
   actions,
 }: PageHeaderProps) {
   return (
-    <div className="flex flex-col justify-between gap-4 lg:flex-row lg:items-end">
+    <div className="flex flex-col justify-between gap-4 rounded-3xl border border-white/60 bg-white/70 p-5 shadow-card backdrop-blur-xl lg:flex-row lg:items-end">
       <div>
         <p className="text-xs font-semibold uppercase tracking-[0.18em] text-brand-600">
           {eyebrow}
         </p>
-        <h1 className="mt-1 text-2xl font-semibold tracking-tight text-slate-900">
+        <h1 className="mt-1 text-3xl font-semibold tracking-tight text-slate-950 md:text-4xl">
           {title}
         </h1>
         <p className="mt-2 max-w-3xl text-sm leading-6 text-slate-500">

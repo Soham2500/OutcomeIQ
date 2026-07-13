@@ -7,6 +7,7 @@ import {
 } from "../api/billingApi";
 import { getApiErrorMessage } from "../api/client";
 import { Badge } from "../components/Badge";
+import { ConfirmationDialog } from "../components/ConfirmationDialog";
 import { ErrorState } from "../components/ErrorState";
 import { LaunchSafetyBanner } from "../components/LaunchSafetyBanner";
 import { LoadingState } from "../components/LoadingState";
@@ -21,6 +22,7 @@ export function BillingPage() {
   const [cancelling, setCancelling] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState<string | null>(null);
+  const [confirmCancelOpen, setConfirmCancelOpen] = useState(false);
 
   async function loadBilling() {
     setLoading(true);
@@ -45,6 +47,7 @@ export function BillingPage() {
     try {
       await cancelSubscription();
       setSuccess("Subscription cancelled in local/test mode.");
+      setConfirmCancelOpen(false);
       await loadBilling();
     } catch (requestError) {
       setError(getApiErrorMessage(requestError, "Subscription could not be cancelled."));
@@ -156,7 +159,7 @@ export function BillingPage() {
             <button
               className="secondary-button"
               disabled={cancelling}
-              onClick={() => void handleCancel()}
+              onClick={() => setConfirmCancelOpen(true)}
               type="button"
             >
               {cancelling ? "Cancelling…" : "Cancel test subscription"}
@@ -164,6 +167,16 @@ export function BillingPage() {
           ) : null}
         </div>
       </SectionCard>
+
+      <ConfirmationDialog
+        busy={cancelling}
+        confirmLabel="Cancel subscription"
+        description="Cancel this test subscription state? This does not expose payment secrets and is handled by the backend."
+        onCancel={() => setConfirmCancelOpen(false)}
+        onConfirm={() => void handleCancel()}
+        open={confirmCancelOpen}
+        title="Confirm cancellation"
+      />
     </div>
   );
 }
