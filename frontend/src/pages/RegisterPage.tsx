@@ -39,7 +39,13 @@ export function RegisterPage() {
       ? `Cannot reach backend at ${getApiBaseUrl()}. Check Amplify VITE_API_BASE_URL and backend CORS.`
       : getApiErrorMessage(requestError, fallbackMessage);
     setError(message);
-    notify({ tone: "error", title: fallbackMessage, description: message });
+    notify({
+      tone: "error",
+      title: message.toLowerCase().includes("already registered")
+        ? "Email already registered"
+        : fallbackMessage,
+      description: message,
+    });
   }
 
   async function handleRequestOtp(event: FormEvent<HTMLFormElement>) {
@@ -122,6 +128,11 @@ export function RegisterPage() {
           {error ? (
             <p className="mt-5 rounded-2xl border border-rose-200 bg-rose-50 p-3 text-sm text-rose-700" role="alert">
               {error}
+              {error.toLowerCase().includes("already registered") ? (
+                <Link className="ml-1 font-semibold underline" to="/login">
+                  Login instead.
+                </Link>
+              ) : null}
             </p>
           ) : null}
           {successMessage ? (

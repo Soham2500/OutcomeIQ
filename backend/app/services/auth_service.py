@@ -160,19 +160,23 @@ def verify_registration_otp(
     """Verify pending registration OTP and create an active user."""
 
     normalized_email = normalize_email(email)
+    existing_user = get_user_by_email(db, normalized_email)
+    if existing_user is not None and existing_user.status == UserStatus.ACTIVE.value:
+        pending = get_pending_registration(db, normalized_email)
+        if pending is not None:
+            db.delete(pending)
+            db.commit()
+        raise DuplicateActiveUserError("An active account with this email exists.")
+    if existing_user is not None:
+        pending = get_pending_registration(db, normalized_email)
+        if pending is not None:
+            db.delete(pending)
+            db.commit()
+        raise DuplicateActiveUserError("An account with this email exists.")
+
     pending = get_pending_registration(db, normalized_email)
     if pending is None:
         raise OTPVerificationError("No pending registration found.")
-
-    existing_user = get_user_by_email(db, normalized_email)
-    if existing_user is not None and existing_user.status == UserStatus.ACTIVE.value:
-        db.delete(pending)
-        db.commit()
-        raise DuplicateActiveUserError("An active account with this email exists.")
-    if existing_user is not None:
-        db.delete(pending)
-        db.commit()
-        raise DuplicateActiveUserError("An account with this email exists.")
 
     now = _now()
     if now > _as_aware(pending.otp_expires_at):

@@ -234,6 +234,19 @@ def test_request_and_verify_registration_otp_flow(monkeypatch) -> None:
                 },
             )
             assert duplicate_request.status_code == 409
+            assert duplicate_request.json()["detail"] == (
+                "Email is already registered. Please login instead."
+            )
+            assert sent_messages.count(("otp.test@example.com", "123456")) == 1
+
+            duplicate_verify = client.post(
+                "/api/v1/auth/register/verify-otp",
+                json={"email": "otp.test@example.com", "otp": "123456"},
+            )
+            assert duplicate_verify.status_code == 409
+            assert duplicate_verify.json()["detail"] == (
+                "Email is already registered. Please login."
+            )
     finally:
         app.dependency_overrides.clear()
         engine.dispose()

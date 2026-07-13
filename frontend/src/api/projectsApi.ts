@@ -6,9 +6,32 @@ import type {
   Project,
 } from "../types/project";
 
+type ProjectListResponse =
+  | Project[]
+  | { items?: Project[]; projects?: Project[]; data?: Project[] | { items?: Project[] } };
+
+function normalizeProjectList(payload: ProjectListResponse): Project[] {
+  if (Array.isArray(payload)) {
+    return payload;
+  }
+  if (Array.isArray(payload.items)) {
+    return payload.items;
+  }
+  if (Array.isArray(payload.projects)) {
+    return payload.projects;
+  }
+  if (Array.isArray(payload.data)) {
+    return payload.data;
+  }
+  if (payload.data && !Array.isArray(payload.data) && Array.isArray(payload.data.items)) {
+    return payload.data.items;
+  }
+  return [];
+}
+
 export async function listProjects(): Promise<Project[]> {
-  const response = await apiClient.get<Project[]>("/projects");
-  return response.data;
+  const response = await apiClient.get<ProjectListResponse>("/projects");
+  return normalizeProjectList(response.data);
 }
 
 export async function createOrganization(

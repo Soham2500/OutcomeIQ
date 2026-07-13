@@ -59,7 +59,7 @@ def _select_model(provider: str, model: str | None) -> str:
         return (
             settings.DEFAULT_GEMINI_MODEL
             or settings.DEFAULT_AI_MODEL
-            or "gemini-2.5-flash"
+            or "gemini-3.5-flash"
         )
     return settings.DEFAULT_OPENAI_MODEL or settings.DEFAULT_AI_MODEL or "gpt-4o-mini"
 

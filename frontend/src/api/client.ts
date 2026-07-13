@@ -66,6 +66,13 @@ apiClient.interceptors.response.use(
     });
     if (error.response?.status === 401) {
       localStorage.removeItem(TOKEN_KEY);
+      if (
+        typeof window !== "undefined" &&
+        !window.location.pathname.startsWith("/login") &&
+        !window.location.pathname.startsWith("/register")
+      ) {
+        window.location.assign("/login");
+      }
     }
     return Promise.reject(error);
   },

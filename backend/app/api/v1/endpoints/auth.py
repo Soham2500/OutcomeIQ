@@ -48,7 +48,7 @@ def _request_registration_otp_or_raise(
     except DuplicateActiveUserError as exc:
         raise HTTPException(
             status_code=status.HTTP_409_CONFLICT,
-            detail="Email is already registered.",
+            detail="Email is already registered. Please login instead.",
         ) from exc
     except OTPRateLimitError as exc:
         raise HTTPException(
@@ -103,7 +103,7 @@ def verify_register_otp(
     except DuplicateActiveUserError as exc:
         raise HTTPException(
             status_code=status.HTTP_409_CONFLICT,
-            detail="Email is already registered.",
+            detail="Email is already registered. Please login.",
         ) from exc
     except OTPAttemptLimitError as exc:
         raise HTTPException(

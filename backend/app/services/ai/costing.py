@@ -25,6 +25,10 @@ class PricingEntry:
 
 
 PRICING_BY_PROVIDER_MODEL: dict[tuple[str, str], PricingEntry] = {
+    ("gemini", "gemini-3.5-flash"): PricingEntry(
+        input_per_1m_usd=Decimal("0.30"),
+        output_per_1m_usd=Decimal("2.50"),
+    ),
     ("gemini", "gemini-2.5-flash"): PricingEntry(
         input_per_1m_usd=Decimal("0.30"),
         output_per_1m_usd=Decimal("2.50"),

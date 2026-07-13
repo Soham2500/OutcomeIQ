@@ -1,5 +1,6 @@
 import { type FormEvent, useEffect, useMemo, useState } from "react";
 import { Copy, Cpu, Sparkles, Zap } from "lucide-react";
+import { Link } from "react-router-dom";
 import { createAiRun, listAiRuns } from "../api/aiRunsApi";
 import { getApiErrorMessage } from "../api/client";
 import { listProjects } from "../api/projectsApi";
@@ -13,7 +14,7 @@ import type { AiProvider, AiRun } from "../types/aiRun";
 import type { Project } from "../types/project";
 
 const providerDefaults: Record<AiProvider, string> = {
-  gemini: "gemini-2.5-flash",
+  gemini: "gemini-3.5-flash",
   openai: "gpt-4o-mini",
 };
 
@@ -39,39 +40,45 @@ export function AiRunsPage() {
   const [loading, setLoading] = useState(true);
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [projectError, setProjectError] = useState<string | null>(null);
+  const [runListWarning, setRunListWarning] = useState<string | null>(null);
+
+  async function loadInitialData() {
+    setLoading(true);
+    setError(null);
+    setProjectError(null);
+    setRunListWarning(null);
+
+    const [projectResult, runResult] = await Promise.allSettled([
+      listProjects(),
+      listAiRuns(),
+    ]);
+
+    if (projectResult.status === "fulfilled") {
+      setProjects(projectResult.value);
+      setProjectId((current) => current || projectResult.value[0]?.id || "");
+    } else {
+      const message = getApiErrorMessage(projectResult.reason, "Projects could not be loaded.");
+      console.warn("[OutcomeIQ AI runs] Project list failed", message);
+      setProjects([]);
+      setProjectId("");
+      setProjectError(message);
+    }
+
+    if (runResult.status === "fulfilled") {
+      setRuns(runResult.value);
+    } else {
+      const message = getApiErrorMessage(runResult.reason, "AI run history is temporarily unavailable.");
+      console.warn("[OutcomeIQ AI runs] Optional run list failed", message);
+      setRuns([]);
+      setRunListWarning("AI run history is temporarily unavailable. You can still create a new run.");
+    }
+
+    setLoading(false);
+  }
 
   useEffect(() => {
-    let isMounted = true;
-    async function loadInitialData() {
-      setLoading(true);
-      setError(null);
-      try {
-        const [projectList, runList] = await Promise.all([
-          listProjects(),
-          listAiRuns(),
-        ]);
-        if (!isMounted) {
-          return;
-        }
-        setProjects(projectList);
-        setRuns(runList);
-        if (projectList[0]) {
-          setProjectId(projectList[0].id);
-        }
-      } catch (requestError) {
-        if (isMounted) {
-          setError(getApiErrorMessage(requestError, "Could not load AI runs."));
-        }
-      } finally {
-        if (isMounted) {
-          setLoading(false);
-        }
-      }
-    }
     void loadInitialData();
-    return () => {
-      isMounted = false;
-    };
   }, []);
 
   const filteredRuns = useMemo(
@@ -85,13 +92,20 @@ export function AiRunsPage() {
   }
 
   async function refreshRuns(selectedProjectId = projectId) {
-    const runList = await listAiRuns(selectedProjectId || undefined);
-    setRuns((currentRuns) => {
-      const otherRuns = currentRuns.filter(
-        (run) => selectedProjectId && run.project_id !== selectedProjectId,
-      );
-      return selectedProjectId ? [...runList, ...otherRuns] : runList;
-    });
+    try {
+      const runList = await listAiRuns(selectedProjectId || undefined);
+      setRunListWarning(null);
+      setRuns((currentRuns) => {
+        const otherRuns = currentRuns.filter(
+          (run) => selectedProjectId && run.project_id !== selectedProjectId,
+        );
+        return selectedProjectId ? [...runList, ...otherRuns] : runList;
+      });
+    } catch (requestError) {
+      const message = getApiErrorMessage(requestError, "AI run history is temporarily unavailable.");
+      console.warn("[OutcomeIQ AI runs] Refresh run list failed", message);
+      setRunListWarning("AI run completed, but history refresh is temporarily unavailable.");
+    }
   }
 
   async function handleSubmit(event: FormEvent<HTMLFormElement>) {
@@ -153,6 +167,23 @@ export function AiRunsPage() {
         </div>
       ) : null}
 
+      {projectError ? (
+        <div className="rounded-2xl border border-amber-200 bg-amber-50 p-4 text-sm text-amber-800">
+          <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+            <p>{projectError}</p>
+            <button className="secondary-button" onClick={() => void loadInitialData()} type="button">
+              Retry projects
+            </button>
+          </div>
+        </div>
+      ) : null}
+
+      {runListWarning ? (
+        <div className="rounded-2xl border border-sky-200 bg-sky-50 p-4 text-sm text-sky-800">
+          {runListWarning}
+        </div>
+      ) : null}
+
       <SectionCard
         description="Prompt text is sent from the backend to the selected provider. OutcomeIQ stores previews, tokens, cost and status."
         title="Create AI run"
@@ -167,6 +198,10 @@ export function AiRunsPage() {
               required
               value={projectId}
             >
+              {loading ? <option value="">Loading projects…</option> : null}
+              {!loading && projects.length === 0 ? (
+                <option value="">Create project first</option>
+              ) : null}
               {projects.map((project) => (
                 <option key={project.id} value={project.id}>
                   {project.name}
@@ -230,9 +265,18 @@ export function AiRunsPage() {
             </span>
           </label>
           <div className="lg:col-span-2">
+            {projects.length === 0 && !loading ? (
+              <div className="mb-4 rounded-2xl border border-dashed border-brand-200 bg-brand-50/80 p-4 text-sm text-brand-900">
+                <p className="font-semibold">No project is available yet.</p>
+                <p className="mt-1">Create a project first, then return here to run Gemini/OpenAI tests.</p>
+                <Link className="secondary-button mt-3" to="/projects">
+                  Create Project
+                </Link>
+              </div>
+            ) : null}
             <button
               className="primary-button"
-              disabled={submitting || !projectId}
+              disabled={submitting || !projectId || !prompt.trim() || !provider || !model.trim()}
               type="submit"
             >
               <Zap aria-hidden="true" className="h-4 w-4" />
@@ -298,6 +342,7 @@ export function AiRunsPage() {
                   <th className="px-3 py-2">Cost</th>
                   <th className="px-3 py-2">Latency</th>
                   <th className="px-3 py-2">Status</th>
+                  <th className="px-3 py-2">Created</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-slate-100">
@@ -318,12 +363,15 @@ export function AiRunsPage() {
                     </td>
                     <td className="px-3 py-3">{run.model}</td>
                     <td className="px-3 py-3 font-mono">
-                      {run.total_tokens.toLocaleString("en-IN")}
+                      {run.total_tokens.toLocaleString("en-IN")} tokens
                     </td>
                     <td className="px-3 py-3">{formatInr(run.cost_inr)}</td>
                     <td className="px-3 py-3">{run.latency_ms} ms</td>
                     <td className="px-3 py-3">
                       <Badge tone={statusTone(run.status)}>{run.status}</Badge>
+                    </td>
+                    <td className="whitespace-nowrap px-3 py-3 text-xs text-slate-500">
+                      {new Date(run.created_at).toLocaleString("en-IN")}
                     </td>
                   </tr>
                 ))}

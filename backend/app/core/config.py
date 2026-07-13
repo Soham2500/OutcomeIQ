@@ -49,9 +49,9 @@ class Settings(BaseSettings):
     OPENAI_API_KEY: str | None = None
     GEMINI_API_KEY: str | None = None
     DEFAULT_AI_PROVIDER: str = "gemini"
-    DEFAULT_AI_MODEL: str = "gemini-2.5-flash"
+    DEFAULT_AI_MODEL: str = "gemini-3.5-flash"
     DEFAULT_OPENAI_MODEL: str = "gpt-4o-mini"
-    DEFAULT_GEMINI_MODEL: str = "gemini-2.5-flash"
+    DEFAULT_GEMINI_MODEL: str = "gemini-3.5-flash"
     COST_CURRENCY: str = "INR"
     USD_TO_INR_RATE: str = "83.50"
     AI_PROVIDER_TIMEOUT_SECONDS: int = 60

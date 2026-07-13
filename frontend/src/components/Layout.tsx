@@ -3,6 +3,7 @@ import { Outlet, useLocation } from "react-router-dom";
 import { AnimatePresence, motion } from "framer-motion";
 import { Footer } from "./Footer";
 import { GradientBackground } from "./GradientBackground";
+import { PremiumMouseGlow } from "./PremiumMouseGlow";
 import { Sidebar } from "./Sidebar";
 import { Topbar } from "./Topbar";
 
@@ -13,6 +14,7 @@ export function Layout() {
   return (
     <div className="relative min-h-screen overflow-x-hidden">
       <GradientBackground />
+      <PremiumMouseGlow />
       <Sidebar open={sidebarOpen} onClose={() => setSidebarOpen(false)} />
       <div className="md:pl-80">
         <Topbar onMenuClick={() => setSidebarOpen(true)} />

@@ -23,10 +23,13 @@ import {
 import {
   formatDateTime,
   formatPercent,
-  formatUsd,
   shortId,
   toFiniteNumber,
 } from "../utils/format";
+
+// Backend exposes some legacy workflow economics in USD only; use this display
+// fallback only for those cards. Real AI runs prefer backend-calculated cost_inr.
+const USD_TO_INR_DISPLAY_RATE = 83.5;
 
 function statusTone(status?: string | null) {
   if (status === "succeeded") {
@@ -48,6 +51,11 @@ function formatInr(value: DecimalValue | null | undefined): string {
     currency: "INR",
     maximumFractionDigits: 4,
   }).format(amount ?? 0);
+}
+
+function formatUsdAsInr(value: DecimalValue | null | undefined): string {
+  const amount = toFiniteNumber(value);
+  return formatInr(amount === null ? null : amount * USD_TO_INR_DISPLAY_RATE);
 }
 
 export function DashboardPage() {
@@ -365,12 +373,8 @@ export function DashboardPage() {
           <section className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
             <StatCard label="Total workflow runs" value={summary.totalRuns} />
             <StatCard
-              label="Total cost USD"
-              value={formatUsd(summary.totalCost)}
-            />
-            <StatCard
-              hint="Workflow USD converted plus real AI provider run cost"
-              label="Total cost INR"
+              hint="Workflow cost plus real AI provider run cost"
+              label="Total cost"
               tone="brand"
               value={formatInr(dashboard.costSummary.total_cost_inr)}
             />
@@ -399,11 +403,11 @@ export function DashboardPage() {
               hint="Outcome-aware unit economics"
               label="Cost per successful outcome"
               tone="brand"
-              value={formatUsd(summary.costPerSuccess)}
+              value={formatUsdAsInr(summary.costPerSuccess)}
             />
             <StatCard
               label="Average cost per run"
-              value={formatUsd(summary.averageCostPerRun)}
+              value={formatUsdAsInr(summary.averageCostPerRun)}
             />
             <StatCard
               hint="Not available until outcome value is captured"
@@ -423,6 +427,79 @@ export function DashboardPage() {
               outcome evidence.
             </p>
           </SectionCard>
+
+          {(dashboard.costSummary.cost_by_provider.length > 0 ||
+            dashboard.costSummary.cost_by_model.length > 0) ? (
+            <section className="grid gap-4 xl:grid-cols-2">
+              <SectionCard
+                description="Backend-calculated INR cost grouped by AI provider."
+                title="Cost by provider"
+              >
+                {dashboard.costSummary.cost_by_provider.length === 0 ? (
+                  <EmptyState
+                    description="Run a Gemini or OpenAI test to populate provider economics."
+                    title="No provider costs yet"
+                  />
+                ) : (
+                  <div className="space-y-3">
+                    {dashboard.costSummary.cost_by_provider.map((item) => (
+                      <div
+                        className="rounded-2xl border border-slate-200 bg-white/75 p-4"
+                        key={item.key}
+                      >
+                        <div className="flex items-center justify-between gap-3">
+                          <p className="font-semibold capitalize text-slate-950">
+                            {item.key === "openai" ? "OpenAI" : item.key}
+                          </p>
+                          <p className="font-mono font-semibold text-slate-950">
+                            {formatInr(item.total_cost_inr)}
+                          </p>
+                        </div>
+                        <p className="mt-2 text-xs text-slate-500">
+                          {item.total_tokens.toLocaleString("en-IN")} tokens ·{" "}
+                          {item.run_count.toLocaleString("en-IN")} runs
+                        </p>
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </SectionCard>
+
+              <SectionCard
+                description="Model-level INR cost and token usage for recent real AI runs."
+                title="Cost by model"
+              >
+                {dashboard.costSummary.cost_by_model.length === 0 ? (
+                  <EmptyState
+                    description="Model economics appear after at least one AI run is tracked."
+                    title="No model costs yet"
+                  />
+                ) : (
+                  <div className="space-y-3">
+                    {dashboard.costSummary.cost_by_model.map((item) => (
+                      <div
+                        className="rounded-2xl border border-slate-200 bg-white/75 p-4"
+                        key={item.key}
+                      >
+                        <div className="flex items-center justify-between gap-3">
+                          <p className="font-mono text-sm font-semibold text-slate-950">
+                            {item.key}
+                          </p>
+                          <p className="font-mono font-semibold text-slate-950">
+                            {formatInr(item.total_cost_inr)}
+                          </p>
+                        </div>
+                        <p className="mt-2 text-xs text-slate-500">
+                          {item.total_tokens.toLocaleString("en-IN")} tokens ·{" "}
+                          {item.run_count.toLocaleString("en-IN")} runs
+                        </p>
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </SectionCard>
+            </section>
+          ) : null}
 
           {billing ? (
             <SectionCard
@@ -540,7 +617,7 @@ export function DashboardPage() {
                           </Badge>
                         </td>
                         <td className="whitespace-nowrap px-5 py-3 text-slate-700">
-                          {formatUsd(run.total_cost_usd)}
+                          {formatUsdAsInr(run.total_cost_usd)}
                         </td>
                         <td className="whitespace-nowrap px-5 py-3">
                           <Badge tone={statusTone(run.outcome_status)}>
